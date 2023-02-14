@@ -77,8 +77,8 @@ async function main(argv) {
     
     await out.write(`export interface ${class_name} {\n`);
     
-    // todo: handle constructor args
-    await out.write(`    constructor(): void;\n`);
+    // todo: handle constructor??
+    // await out.write(`    constructor(): void;\n`);
 
     for (const f of functions) {
         if (!(f[1] === f[2] || `${class_name}::${f[1]}` === f[2])) {
@@ -117,6 +117,7 @@ async function main(argv) {
                 }
             }
         }
+
         if (is_constraint) {
             const c_name_raw = is_constraint[1];
             const c_type_name = c_name_raw.replace(/([0-9_])([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase()).replace(/_/g, '') + 'Constraint';
@@ -144,6 +145,7 @@ async function main(argv) {
         }
         await out.write(`    ${f_name}: (${ts_params.join(', ')}) => ${type_map[return_type]},\n`);
     }
+    await out.write(`    delete: () => void;\n`);
     await out.write('}\n');
     
     await out_constraints.write(constraint_types.join('\n') + '\n');
