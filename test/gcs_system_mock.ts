@@ -1,4 +1,4 @@
-import type { GcsSystem, IntVector, DoubleVector } from "./planegcs/bin/planegcs";
+import type { GcsSystem, IntVector, DoubleVector } from "../planegcs/bin/planegcs";
 
 class NumberVector implements IntVector, DoubleVector {
     private arr: number[];
