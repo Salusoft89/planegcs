@@ -1,0 +1,11 @@
+{
+	"name": "planegcs-wrapper",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"build:em": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder ./build_emscripten.sh",
+		"build:docker": "docker build -t gcs_builder .",
+		"build": "npm run build:docker && npm run build:em"
+	},
+	"type": "module"
+}
