@@ -31,6 +31,11 @@ export class GcsWrapper {
             // todo: better check
             this.push_constraint(o);
         }
+
+        if (this.sketch_index.has(o.id)) {
+            throw new Error(`object with id ${o.id} already exists`);
+        }
+        this.sketch_index.set_object(o);
     }
 
     solve() {
@@ -78,7 +83,6 @@ export class GcsWrapper {
         }
 
         this.push_params(p.id, [p.x, p.y], p.fixed);
-        this.sketch_index.set_object(p);
     }
 
     private push_line(l: SketchLine) {
@@ -116,25 +120,25 @@ export class GcsWrapper {
     }
 
     private push_constraint(c: Constraint) {
-        function arc_params(a: SketchArc) {
-            const c_i = this.get_obj_param(a.c_id);
-            const start_i = this.get_obj_param(a.start_id);
-            const end_i = this.get_obj_param(a.end_id);
-            const a_i = this.get_obj_param(a.id);
+        const arc_params = (a: SketchArc) => {
+            const c_i = this.get_obj_addr(a.c_id);
+            const start_i = this.get_obj_addr(a.start_id);
+            const end_i = this.get_obj_addr(a.end_id);
+            const a_i = this.get_obj_addr(a.id);
             return [c_i, c_i + 1, start_i, start_i + 1, end_i, end_i + 1, a_i, a_i + 1, a_i + 2];
         }
-        function circle_params(c: SketchCircle) {
-            const cp_i = this.get_obj_param(c.c_id);
-            const radius_i = this.get_obj_param(c.id);
+        const circle_params = (c: SketchCircle) => {
+            const cp_i = this.get_obj_addr(c.c_id);
+            const radius_i = this.get_obj_addr(c.id);
             return [cp_i, cp_i + 1, radius_i];
         }
-        function line_params(l: SketchLine) {
-            const p1_i = this.get_obj_param(l.p1_id);
-            const p2_i = this.get_obj_param(l.p2_id);
+        const line_params = (l: SketchLine) => {
+            const p1_i = this.get_obj_addr(l.p1_id);
+            const p2_i = this.get_obj_addr(l.p2_id);
             return [p1_i, p1_i + 1, p2_i, p2_i + 1];
         }
-        function point_params(p: SketchPoint) {
-            const p_i = this.get_obj_param(p.id);
+        const point_params = (p: SketchPoint) => {
+            const p_i = this.get_obj_addr(p.id);
             return [p_i, p_i + 1];
         }
         const params: number[] = [];
