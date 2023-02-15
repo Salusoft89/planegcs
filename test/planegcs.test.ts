@@ -1,12 +1,12 @@
 import ModuleFactory from '../planegcs/bin/planegcs.js';
-import { GcsSystem } from '../planegcs/bin/bindings';
+import { GcsSystem } from '../planegcs/bin/gcs_system';
 
 var gcs: GcsSystem;
 
 describe("planegcs", () => {
     beforeAll(async () => {
         var module = await ModuleFactory();
-        gcs = new module.System();
+        gcs = new module.GcsSystem();
     });
 
     

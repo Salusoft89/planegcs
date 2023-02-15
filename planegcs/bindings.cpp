@@ -277,7 +277,7 @@ EMSCRIPTEN_BINDINGS(module) {
     emscripten::register_vector<double>("DoubleVector");
     emscripten::register_vector<int>("IntVector");
 
-    emscripten::class_<GcsSystem>("System")
+    emscripten::class_<GcsSystem>("GcsSystem")
         .constructor<>()
         .function("params_size", &GcsSystem::params_size)
         .function("get_param", &GcsSystem::get_param)
