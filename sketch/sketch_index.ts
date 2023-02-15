@@ -1,4 +1,4 @@
-import { SketchObject, SketchPoint, oid, is_sketch_geometry, SketchLine, SketchCircle, SketchArc } from "./sketch_object";
+import { SketchObject, SketchPoint, oid, is_sketch_geometry, SketchLine, SketchCircle, SketchArc, SketchGeometry } from "./sketch_object";
 import { Constraint } from "../planegcs/bin/constraints";
 
 export class SketchIndex {
@@ -57,6 +57,14 @@ export class SketchIndex {
 
     get_constraints(): Constraint[] {
         return Array.from(this.index.values()).filter(o => !is_sketch_geometry(o)) as Constraint[];
+    }
+
+    get_objects(): SketchObject[] {
+        return Array.from(this.index.values());
+    }
+
+    get_geometry_objects(): SketchGeometry[] {
+        return Array.from(this.index.values()).filter(o => is_sketch_geometry(o)) as SketchGeometry[];
     }
 
     toString() {

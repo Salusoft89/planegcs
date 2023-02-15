@@ -136,7 +136,8 @@ export class GcsWrapper {
         this.push_params(a.id, [start_angle, end_angle, radius], false);
     }
 
-    private push_constraint(c: Constraint) {
+    // is_extra => tag = -1
+    push_constraint(c: Constraint, is_extra = false) {
         const arc_params = (a: SketchArc) => {
             const c_i = this.get_obj_addr(a.c_id);
             const start_i = this.get_obj_addr(a.start_id);
@@ -190,9 +191,17 @@ export class GcsWrapper {
                 params.push(i);
             }
         }
-        params.push(c.id);
+        // use the object id as the tag parameter (or use -1 for extra constraints)
+        params.push(is_extra ? -1 : c.id);
         const c_name: string = c.type;
         this.gcs[`add_constraint_${c_name}`](...params);
+    }
+
+    // id can be -1 for extra constraints
+    delete_constraint_by_id(id: number) {
+        // todo: test if given object is a constraint
+        this.sketch_index.index.delete(id);
+        this.gcs.clear_by_id(id);
     }
 
     private get_obj_addr(id: oid): number {
@@ -224,7 +233,7 @@ export class GcsWrapper {
                 this.solved_sketch_index.set_object(o);
             }
         } else {
-            console.log(`object ${o.type} #${o.id} not found in params when retrieving solution`);
+            // console.log(`object ${o.type} #${o.id} not found in params when retrieving solution`);
             this.solved_sketch_index.set_object(o);
         }
     }
