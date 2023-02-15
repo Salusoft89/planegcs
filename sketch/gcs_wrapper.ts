@@ -45,22 +45,14 @@ export class GcsWrapper {
 
     solve() {
         const status = this.gcs.solve_system();
-        console.log(`gcs status: ${status}`);
-        console.log(`gcs dof: ${this.gcs.dof()}`);
-        console.log(`gcs has_conflicting: ${this.gcs.has_conflicting()}`);
-
+        // console.log(`gcs dof: ${this.gcs.dof()}`);
         if (this.gcs.has_conflicting()) {
-            const conflicting = this.gcs.get_conflicting();
-            const ids: number[] = [];
-            for (let i = 0; i < conflicting.size(); ++i) {
-                ids.push(conflicting.get(i));
-            }
-            conflicting.delete();
-            console.log(`gcs conflicts: ${ids.join(', ')}`);
+            console.log(`gcs has conflicts: ${this.get_gcs_conflicts().join(', ')}`);
         }
-        console.log(`gcs has_redundant: ${this.gcs.has_redundant()}`);
-
-        // todo: add error status handling
+        if (this.gcs.has_redundant()) {
+            console.log(`gcs has redundant`);
+        }
+        // todo: add error enums and status handling
         if (status != 0) {
             throw new Error(`gcs status: ${status}`);
         }
@@ -70,6 +62,26 @@ export class GcsWrapper {
         for (const [_, obj] of this.sketch_index.index) {
             this.pull_object(obj);
         }
+    }
+
+    get_gcs_params(): number[] {
+        const params = this.gcs.get_params();
+        const result: number[] = [];
+        for (let i = 0; i < params.size(); ++i) {
+            result.push(params.get(i));
+        }
+        params.delete();
+        return result;
+    }
+
+    get_gcs_conflicts(): number[] {
+        const conflicts = this.gcs.get_conflicting();
+        const result: number[] = [];
+        for (let i = 0; i < conflicts.size(); ++i) {
+            result.push(conflicts.get(i));
+        }
+        conflicts.delete();
+        return result;
     }
 
     private push_params(id: oid, values: number[], fixed: boolean = false): number {

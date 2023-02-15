@@ -58,4 +58,8 @@ export class SketchIndex {
     get_constraints(): Constraint[] {
         return Array.from(this.index.values()).filter(o => !is_sketch_geometry(o)) as Constraint[];
     }
+
+    toString() {
+        return Array.from(this.index.values()).map(o => JSON.stringify(o)).join('\n');
+    }
 }
