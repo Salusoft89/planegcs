@@ -273,6 +273,18 @@ class GcsSystem : System
 
             addConstraintP2PDistance(p1, p2, params[distance_i], id);
         }
+
+        void add_constraint_point_on_line(
+            /* point */
+            int px_i, int py_i,
+            /* line */
+            int p1x_i, int p1y_i, int p2x_i, int p2y_i, int id
+        ) {
+            Point p = make_point(px_i, py_i);
+            Line l = make_line(p1x_i, p1y_i, p2x_i, p2y_i);
+
+            addConstraintPointOnLine(p, l, id);
+        }
 };
 
 
@@ -310,6 +322,7 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("add_constraint_equal_length", &GcsSystem::add_constraint_equal_length)
         .function("add_constraint_p2p_coincident", &GcsSystem::add_constraint_p2p_coincident)
         .function("add_constraint_p2p_distance", &GcsSystem::add_constraint_p2p_distance)
+        .function("add_constraint_point_on_line", &GcsSystem::add_constraint_point_on_line)
         ;
 
     // emscripten::enum_<DebugMode>("DebugMode")
