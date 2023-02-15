@@ -11,10 +11,12 @@ class GcsSystem : System
     public:
         vector<double *> params;
         vector<bool> is_fixed;
+        DebugMode debug_mode;
 
         GcsSystem() : System() {
             params = vector<double *>();
             is_fixed = vector<bool>();
+            debug_mode = DebugMode::NoDebug;
         }
 
         int params_size()
@@ -54,7 +56,6 @@ class GcsSystem : System
                     solved_params.push_back(params[i]);
                 }
             }
-            // sys.debugMode = IterationLevel;
             return solve(solved_params);
         }
 
@@ -109,6 +110,11 @@ class GcsSystem : System
         void clear_by_id(int id)
         {
             clearByTag(id);
+        }
+
+        void set_debug_mode(DebugMode debug_mode)
+        {
+            this->debug_mode = debug_mode;
         }
 
     private:
@@ -288,6 +294,7 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("solve_system", &GcsSystem::solve_system)
         .function("get_conflicting", &GcsSystem::get_conflicting)
         .function("clear", &GcsSystem::clear)
+        // // .function("set_debug_mode", &GcsSystem::set_debug_mode)
         // functions derived from GCS::System
         .function("apply_solution", &GcsSystem::apply_solution)
         .function("dof", &GcsSystem::dof)
@@ -304,4 +311,9 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("add_constraint_p2p_coincident", &GcsSystem::add_constraint_p2p_coincident)
         .function("add_constraint_p2p_distance", &GcsSystem::add_constraint_p2p_distance)
         ;
+
+    // emscripten::enum_<DebugMode>("DebugMode")
+    //     .value("NoDebug", NoDebug)
+    //     .value("Minimal", Minimal)
+    //     .value("IterationLevel", IterationLevel)
 }
