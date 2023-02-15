@@ -1,6 +1,6 @@
 import type { GcsSystem, IntVector, DoubleVector } from "../planegcs/bin/planegcs";
 
-class NumberVector implements IntVector, DoubleVector {
+export class NumberVector implements IntVector, DoubleVector {
     private arr: number[];
 
     constructor(arr: number[]) {
@@ -20,7 +20,7 @@ class NumberVector implements IntVector, DoubleVector {
     }
 }
 
-class GcsMock implements GcsSystem {
+export class GcsSystemMock implements GcsSystem {
     private params: number[] = [];
     private fixed: boolean[] = [];
  
@@ -96,5 +96,3 @@ class GcsMock implements GcsSystem {
     add_constraint_p2p_coincident(x1_i: number, y1_i: number, x2_i: number, y2_i: number, id: number): void {}
     add_constraint_p2p_distance(x1_i: number, y1_i: number, x2_i: number, y2_i: number, distance_i: number, id: number): void {}
 }
-
-export default { GcsMock, NumberVector }
