@@ -18,6 +18,9 @@ include_directories(${Boost_INCLUDE_DIR})
 include_directories("/usr/include/eigen3")
 
 ADD_EXECUTABLE(planegcs main.cpp)
+# -s ALLOW_MEMORY_GROWTH=1
+# -s DISABLE_EXCEPTION_CATCHING=0
+# -Wno-switch
 set_target_properties(planegcs PROPERTIES LINK_FLAGS "-lembind --closure 1 -s EXPORT_ES6=1 -s MODULARIZE=1 -Os -s MALLOC=emmalloc -s NO_FILESYSTEM=1")
 
 target_link_libraries(planegcs LibsModule)

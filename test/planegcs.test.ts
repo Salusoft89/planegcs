@@ -9,7 +9,13 @@ describe("planegcs", () => {
         gcs = new module.System();
     });
 
-    test("Gcs has default params 0", async () => {
+    
+    test("Gcs has 0 params", async () => {
         expect(gcs.params_size()).toBe(0);
     });
 });
+
+
+// beforeEach(() => {
+//     ModuleFactory.mockClear();
+// })
