@@ -248,7 +248,7 @@ class GcsSystem : System
             /* point */
             int p2x_i, int p2y_i, int id)
         {
-            Point p1 = make_point(p1x_i, p2y_i);
+            Point p1 = make_point(p1x_i, p1y_i);
             Point p2 = make_point(p2x_i, p2y_i);
 
             addConstraintP2PCoincident(p1, p2, id);
@@ -262,7 +262,7 @@ class GcsSystem : System
             /* fixed-param */
             int distance_i, int id)
         {
-            Point p1 = make_point(p1x_i, p2y_i);
+            Point p1 = make_point(p1x_i, p1y_i);
             Point p2 = make_point(p2x_i, p2y_i);
 
             addConstraintP2PDistance(p1, p2, params[distance_i], id);
