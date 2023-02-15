@@ -1,4 +1,4 @@
-import type { SketchObject, SketchParam } from '$lib/planegcs';
+import type { SketchObject, SketchParam } from '../sketch/sketch_object';
 
 export const sketch: SketchObject[] = [
 	{
