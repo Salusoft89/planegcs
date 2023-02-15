@@ -16,6 +16,11 @@ export class GcsWrapper {
         this.param_index = param_index;
     }
 
+    destructor() {
+        console.log('gcs_wrapper destructor called, deleting the gcs object');
+        this.gcs.delete();
+    }
+
     // ------ Sketch -> GCS ------- (when building up a sketch)
 
     push_object(o: SketchObject) {
