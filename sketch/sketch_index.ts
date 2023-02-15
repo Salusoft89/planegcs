@@ -1,28 +1,22 @@
 import { SketchObject, SketchPoint, oid, is_sketch_geometry, SketchLine, SketchCircle, SketchArc } from "./sketch_object";
 import { Constraint } from "../planegcs/bin/constraints";
 
-// todo: mapping from object attributes to object ids
-
 export class SketchIndex {
-    // object_id => index of the object's first parameter
-    // this might be quite gcs-specific
-
-    // params_index: Map<oid, number> = new Map();
-    sketch_index: Map<oid, SketchObject> = new Map();
+    index: Map<oid, SketchObject> = new Map();
 
     constructor() {
     }
 
-    // get_object_position(id: oid): number {
-    //     const pos = this.params_index.get(id);
-    //     if (pos === undefined) {
-    //         throw new Error(`sketch object ${id} not found`);
-    //     }
-    //     return pos;
-    // }
+    has(id: oid): boolean {
+        return this.index.has(id);
+    }
+
+    set_object(obj: SketchObject): void {
+        this.index.set(obj.id, obj);
+    }
 
     get_object(id: oid): SketchObject {
-        const obj = this.sketch_index.get(id);
+        const obj = this.index.get(id);
         if (obj === undefined) {
             throw new Error(`sketch object ${id} not found`);
         }
@@ -62,6 +56,6 @@ export class SketchIndex {
     }
 
     get_constraints(): Constraint[] {
-        return Array.from(this.sketch_index.values()).filter(o => !is_sketch_geometry(o)) as Constraint[];
+        return Array.from(this.index.values()).filter(o => !is_sketch_geometry(o)) as Constraint[];
     }
 }
