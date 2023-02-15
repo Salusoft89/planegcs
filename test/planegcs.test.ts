@@ -8,14 +8,8 @@ describe("planegcs", () => {
         var module = await ModuleFactory();
         gcs = new module.GcsSystem();
     });
-
     
     test("Gcs has 0 params", async () => {
         expect(gcs.params_size()).toBe(0);
     });
 });
-
-
-// beforeEach(() => {
-//     ModuleFactory.mockClear();
-// })
