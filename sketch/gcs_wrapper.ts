@@ -67,7 +67,7 @@ export class GcsWrapper {
 
         this.gcs.apply_solution();
         this.solved_sketch_index = new SketchIndex();
-        for (const obj of Object.values(this.sketch_index.index)) {
+        for (const [_, obj] of this.sketch_index.index) {
             this.pull_object(obj);
         }
     }
