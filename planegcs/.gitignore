@@ -10,4 +10,5 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 bin
+bindings.cpp
 *.a
