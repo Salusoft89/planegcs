@@ -253,7 +253,7 @@ class GcsSystem : System
             a.focus1 = make_point(focus1x_i, focus1y_i);
 
             return a;   
-        }{% include "constraints.cpp.njk" %}
+        }{% include "templates/constraints.cpp.njk" %}
 
         {# todo: make_bspline #}
 };
@@ -308,6 +308,6 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("make_parabola", &GcsSystem::make_parabola)
         .function("make_arc_of_parabola", &GcsSystem::make_arc_of_parabola)
         // constraint functions
-        {% include "constraints_emscripten.cpp.njk" %}
+        {% include "templates/constraints_emscripten.cpp.njk" %}
         ;
 }
