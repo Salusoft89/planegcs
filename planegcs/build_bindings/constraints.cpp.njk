@@ -1,0 +1,23 @@
+{% macro definition_params(params) -%}
+{% for param in params -%}
+    {% if param.type == "double*" -%}
+        int {{param.identifier}}_param_i
+    {%- else -%}
+        {{param.type}} {{param.identifier}}
+    {%- endif %}{% if not loop.last %}, {% endif %}
+{%- endfor %}
+{%- endmacro %}
+
+{% macro call_params(params) -%}
+{% for param in params -%}
+    {% if param.type == "double*" -%}
+        params[{{param.identifier}}_param_i]
+    {%- else -%}
+        {{param.identifier | replace("&", "")}}
+    {%- endif %}{% if not loop.last %}, {% endif %}
+{%- endfor %}
+{%- endmacro %}{% for constraint in fn_constraints %}
+        void {{constraint.fname_lower}}({{ definition_params(constraint.non_opt_params)}}, int tag_id) {
+            {{constraint.fname}}({{ call_params(constraint.non_opt_params) }}, tag_id, false);
+        }
+{% endfor %}

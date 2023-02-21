@@ -1,0 +1,2 @@
+{% for constraint in fn_constraints %}
+        .function("{{constraint.fname_lower}}", &GcsSystem::{{constraint.fname_lower}}){% endfor %}

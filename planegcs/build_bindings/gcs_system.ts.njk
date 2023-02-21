@@ -1,0 +1,61 @@
+export interface DoubleVector {
+    get: (i: number) => number;
+    size: () => number;
+    delete: () => void;
+}
+export interface IntVector {
+    get: (i: number) => number;
+    size: () => number;
+    delete: () => void;
+}
+export interface Curve {}
+export interface Point {}
+export interface Line {}
+export interface Arc {}
+export interface Circle {}
+export interface Ellipse {}
+export interface Hyperbola {}
+export interface Parabola {}
+export interface BSpline {}
+export interface ArcOfParabola {}
+export interface ArcOfHyperbola {}
+export interface ArcOfEllipse {}
+
+export interface GcsSystem {
+    params_size: () => number,
+    get_param: (i: number) => number,
+    get_params: () => DoubleVector,
+    set_param: (i: number, value: number, fixed: boolean) => void,
+    push_param: (value: number, fixed: boolean) => number,
+    get_is_fixed: (i: number) => boolean,
+    solve_system: () => number,
+    get_conflicting: () => IntVector,
+    clear: () => void,
+    set_debug_mode: () => void,
+    apply_solution: () => void,
+    dof: () => number,
+    has_conflicting: () => boolean,
+    has_redundant: () => boolean,
+    clear_by_id: (id: number) => void,
+    make_point: (px_i: number, py_i: number) => Point,
+    make_line: (p1x_i: number, p1y_i: number, p2x_i: number, p2y_i: number) => Line,
+    make_circle: (cx_i: number, cy_i: number, rad_i: number) => Circle,
+    make_ellipse: (cx_i: number, cy_i: number, focus1x: number, focus1y: number, radmin_i: number) => Ellipse,
+    make_hyperbola: (cx_i: number, cy_i: number, focus1x: number, focus1y: number, radmin_i: number) => Hyperbola,
+    make_parabola: (vertexx_i: number, vertexy_i: number, focus1x_i: number, focus1y_i: number) => Parabola,
+
+    {# todo: generate all constraints #}
+    add_constraint_vertical_l(l: Line, tag_id: number) => void,
+    add_constraint_angle_via_point(crv1: Curve, crv2: Curve, p: Point, angle_param_i: number, tag_id: number) => void,
+
+    {# add_constraint_difference: (x_i: number, y_i: number, difference_i: number, id: number) => void,
+    add_constraint_equal: (x_i: number, value_i: number, id: number) => void,
+    add_constraint_arc_rules: (cx_i: number, cy_i: number, startx_i: number, starty_i: number, endx_i: number, endy_i: number, startangle_i: number, endangle_i: number, rad_i: number, id: number) => void,
+    add_constraint_angle_via_point_line_arc: (p1x_i: number, p1y_i: number, p2x_i: number, p2y_i: number, cx_i: number, cy_i: number, startx_i: number, starty_i: number, endx_i: number, endy_i: number, startangle_i: number, endangle_i: number, rad_i: number, px_i: number, py_i: number, angle_i: number, id: number) => void,
+    add_constraint_angle_via_point_arc_arc: (c1x_i: number, c1y_i: number, start1x_i: number, start1y_i: number, end1x_i: number, end1y_i: number, startangle1_i: number, endangle1_i: number, rad1_i: number, c2x_i: number, c2y_i: number, start2x_i: number, start2y_i: number, end2x_i: number, end2y_i: number, startangle2_i: number, endangle2_i: number, rad2_i: number, px_i: number, py_i: number, angle_i: number, id: number) => void,
+    add_constraint_equal_length: (l1p1x_i: number, l1p1y_i: number, l1p2x_i: number, l1p2y_i: number, l2p1x_i: number, l2p1y_i: number, l2p2x_i: number, l2p2y_i: number, id: number) => void,
+    add_constraint_p2p_coincident: (p1x_i: number, p1y_i: number, p2x_i: number, p2y_i: number, id: number) => void,
+    add_constraint_p2p_distance: (p1x_i: number, p1y_i: number, p2x_i: number, p2y_i: number, distance_i: number, id: number) => void,
+    add_constraint_point_on_line: (px_i: number, py_i: number, p1x_i: number, p1y_i: number, p2x_i: number, p2y_i: number, id: number) => void, #}
+    delete: () => void;
+}
