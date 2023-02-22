@@ -1,12 +1,9 @@
-import Parser from 'tree-sitter';
-import Cpp from 'tree-sitter-cpp';
-import fs from 'fs';
-import { camelToSnakeCase, filePath } from './utils.mjs';
+import { camelToSnakeCase } from './utils.mjs';
+import TreeSitterQueries from './treesitter_queries.mjs';
+const tsq = new TreeSitterQueries();
 
 export function getConstraintFunctions() {
-    const tree = loadCppTree(filePath('../GCS.h'));
-
-    let functions = queryConstraintFunctions(tree).map(item => ({
+    let functions = tsq.queryConstraintFunctions().map(item => ({
         ...item,
         fname_lower: camelToSnakeCase(item.fname),
         non_opt_params: paramsToList(item.params)
@@ -45,30 +42,11 @@ export function getConstraintFunctions() {
     })
 }
 
-function loadCppTree(path) {
-    const parser = new Parser(Cpp);
-    parser.setLanguage(Cpp);
-
-    const sourceCode = fs.readFileSync(path, 'utf8');
-    return parser.parse(sourceCode);
-}
-
-// () -> [ { fname: string, params: string } ]
-function queryConstraintFunctions(tree) {
-    // see https://tree-sitter.github.io/tree-sitter/playground
-    const query = new Parser.Query(Cpp, `
-        (field_declaration  
-            declarator: (function_declarator
-                declarator: (field_identifier) @fn
-                parameters: (parameter_list) @params)
-            (#match? @fn "addConstraint.+")        
-        )
-    `);
-    const matches = query.matches(tree.rootNode);
-    return matches.map(match => ({
-        fname: match.captures[0].node.text,
-        params: match.captures[1].node.text.replace('(', '').replace(')', '').replace(/\s+/g, ' ')
-    }))
+export function getEnums() {
+    return [{
+        name: "InternalAlignmentType",
+        values: tsq.queryEnum("InternalAlignmentType")
+    }]
 }
 
 const classLetterMapping = {

@@ -263,27 +263,13 @@ class GcsSystem : System
 EMSCRIPTEN_BINDINGS(module) {
     emscripten::register_vector<double>("DoubleVector");
     emscripten::register_vector<int>("IntVector");
-    
-    emscripten::enum_<InternalAlignmentType>("InternalAlignmentType")
-        .value("EllipsePositiveMajorX", EllipsePositiveMajorX)
-        .value("EllipsePositiveMajorY", EllipsePositiveMajorY)
-        .value("EllipseNegativeMajorX", EllipseNegativeMajorX)
-        .value("EllipseNegativeMajorY", EllipseNegativeMajorY)
-        .value("EllipsePositiveMinorX", EllipsePositiveMinorX)
-        .value("EllipsePositiveMinorY", EllipsePositiveMinorY)
-        .value("EllipseNegativeMinorX", EllipseNegativeMinorX)
-        .value("EllipseNegativeMinorY", EllipseNegativeMinorY)
-        .value("EllipseFocus2X", EllipseFocus2X)
-        .value("EllipseFocus2Y", EllipseFocus2Y)
-        .value("HyperbolaPositiveMajorX", HyperbolaPositiveMajorX)
-        .value("HyperbolaPositiveMajorY", HyperbolaPositiveMajorY)
-        .value("HyperbolaNegativeMajorX", HyperbolaNegativeMajorX)
-        .value("HyperbolaNegativeMajorY", HyperbolaNegativeMajorY)
-        .value("HyperbolaPositiveMinorX", HyperbolaPositiveMinorX)
-        .value("HyperbolaPositiveMinorY", HyperbolaPositiveMinorY)
-        .value("HyperbolaNegativeMinorX", HyperbolaNegativeMinorX)
-        .value("HyperbolaNegativeMinorY", HyperbolaNegativeMinorY);
-        
+
+{%- for enum in enums %}
+    emscripten::enum_<{{ enum.name }}>("{{ enum.name }}")
+    {% for value in enum.values -%}
+        .value("{{ value.name }}", {{ value.name }})
+    {% endfor %};
+{% endfor -%}
     {# Geo.h classes #}
     emscripten::class_<Point>("Point");
     emscripten::class_<Curve>("Curve");
@@ -297,8 +283,6 @@ EMSCRIPTEN_BINDINGS(module) {
     emscripten::class_<Parabola, emscripten::base<Curve>>("Parabola");
     emscripten::class_<ArcOfParabola, emscripten::base<Parabola>>("ArcOfParabola");
     emscripten::class_<BSpline, emscripten::base<Curve>>("BSpline");
-
-    {# todo: enums (InternalAlignmentType) #}
 
     emscripten::class_<GcsSystem>("GcsSystem")
         .constructor<>()

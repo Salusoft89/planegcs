@@ -8,10 +8,13 @@ interface ObjectParam {
     o_id: oid;
     o_i: number;
 }
-
-enum InternalAlignmentType {
-    {# todo ... #}
+{% for enum in enums %}
+enum {{ enum.name }} {
+    {% for val in enum.values -%}
+    {{ val.name }} = {{ val.value }},
+    {% endfor %}
 }
+{% endfor -%}
 
 {% for item in fn_constraints %}
 export interface {{ item.constraint_name }} extends Id {
