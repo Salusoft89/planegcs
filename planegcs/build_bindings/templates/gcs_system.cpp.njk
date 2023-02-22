@@ -253,7 +253,7 @@ class GcsSystem : System
             a.focus1 = make_point(focus1x_i, focus1y_i);
 
             return a;   
-        }{% include "templates/constraints.cpp.njk" %}
+        }{% include "templates/add_constraint_functions.cpp.njk" %}
 
         {# todo: make_bspline #}
 };
@@ -263,6 +263,27 @@ class GcsSystem : System
 EMSCRIPTEN_BINDINGS(module) {
     emscripten::register_vector<double>("DoubleVector");
     emscripten::register_vector<int>("IntVector");
+    
+    emscripten::enum_<InternalAlignmentType>("InternalAlignmentType")
+        .value("EllipsePositiveMajorX", EllipsePositiveMajorX)
+        .value("EllipsePositiveMajorY", EllipsePositiveMajorY)
+        .value("EllipseNegativeMajorX", EllipseNegativeMajorX)
+        .value("EllipseNegativeMajorY", EllipseNegativeMajorY)
+        .value("EllipsePositiveMinorX", EllipsePositiveMinorX)
+        .value("EllipsePositiveMinorY", EllipsePositiveMinorY)
+        .value("EllipseNegativeMinorX", EllipseNegativeMinorX)
+        .value("EllipseNegativeMinorY", EllipseNegativeMinorY)
+        .value("EllipseFocus2X", EllipseFocus2X)
+        .value("EllipseFocus2Y", EllipseFocus2Y)
+        .value("HyperbolaPositiveMajorX", HyperbolaPositiveMajorX)
+        .value("HyperbolaPositiveMajorY", HyperbolaPositiveMajorY)
+        .value("HyperbolaNegativeMajorX", HyperbolaNegativeMajorX)
+        .value("HyperbolaNegativeMajorY", HyperbolaNegativeMajorY)
+        .value("HyperbolaPositiveMinorX", HyperbolaPositiveMinorX)
+        .value("HyperbolaPositiveMinorY", HyperbolaPositiveMinorY)
+        .value("HyperbolaNegativeMinorX", HyperbolaNegativeMinorX)
+        .value("HyperbolaNegativeMinorY", HyperbolaNegativeMinorY);
+        
     {# Geo.h classes #}
     emscripten::class_<Point>("Point");
     emscripten::class_<Curve>("Curve");
@@ -308,6 +329,7 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("make_parabola", &GcsSystem::make_parabola)
         .function("make_arc_of_parabola", &GcsSystem::make_arc_of_parabola)
         // constraint functions
-        {% include "templates/constraints_emscripten.cpp.njk" %}
+        {% for constraint in fn_constraints %}
+        .function("{{constraint.fname_lower}}", &GcsSystem::{{constraint.fname_lower}}){% endfor %}
         ;
 }

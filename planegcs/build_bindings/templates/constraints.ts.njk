@@ -1,0 +1,35 @@
+export type oid = number;
+
+interface Id {
+    id: oid;
+}
+
+interface ObjectParam {
+    o_id: oid;
+    o_i: number;
+}
+
+enum InternalAlignmentType {
+    {# todo ... #}
+}
+
+{% for item in fn_constraints %}
+export interface {{ item.constraint_name }} extends Id {
+    type: '{{ item.constraint_type }}';
+{%- for param in item.non_opt_params -%}
+    {% if param.type == 'double*' %}
+    {{ param.identifier }}: ObjectParam|number;
+    {%- elif param.type in ['double', 'int'] %}
+    {{ param.identifier }}: number;
+    {%- elif param.type == 'bool' %}
+    {{ param.identifier }}: boolean;
+    {%- elif param.type == 'InternalAlignmentType' %}
+    {{ param.identifier }}: InternalAlignmentType;
+    {%- else %} {# object (Line, Parabola, Point, ...) #}
+    {{ param.identifier | replace('&', '') }}: oid; // {{ param.type }}
+    {%- endif %}
+{%- endfor %}
+}
+{% endfor %}
+
+export type Constraint = {% for item in fn_constraints %}{{ item.constraint_name }}{%- if not loop.last %} | {% endif %}{% endfor %};

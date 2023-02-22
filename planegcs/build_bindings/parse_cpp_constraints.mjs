@@ -22,20 +22,25 @@ export function getConstraintFunctions() {
     }
 
     // differentiate between constraints (which are overloaded)
-    // 1: one extra parameter (incrAngle), only in p2p_angle (one special case)
-    // 2: different objects (pl vs ppl, pl vs ppp, ll vs pppp), e.g. point_on_line
     return functions.map(fn => {
         let specificator_str = "";
+        // 1: one extra parameter (incrAngle), only in p2p_angle (one special case)
         if (fn.fname_lower === "add_constraint_p2p_angle") {
             if (fn.params.includes("incrAngle")) {
                 specificator_str = "_incr_angle";
             }
+        // 2: different objects (pl vs ppl, pl vs ppp, ll vs pppp), e.g. point_on_line
         } else if (duplicates.has(fn.fname_lower)) {
             specificator_str = "_" + fnSpecificator(fn.params);
         }
+        const fname_lower = fn.fname_lower + specificator_str;
+
         return {
             ...fn,
-            fname_lower: fn.fname_lower + specificator_str
+            fname_lower,
+            // data for typescript definitions
+            constraint_name: fn.fname.replace('addConstraint', '') + specificator_str.toUpperCase(),
+            constraint_type: fname_lower.replace('add_constraint_', '')
         }
     })
 }
@@ -93,14 +98,22 @@ function fnSpecificator(params) {
 
 function paramsToList(params) {
     let arr = params.split(', ');
-    return arr.filter(param => !param.includes('tag') && !param.includes('driving')).map(
-        param => param
+    return arr.filter(param => !param.includes('tag') && !param.includes('driving'))
+    .map(param => {
+        const param_splitted = param
             .replace('double *', 'double* ')
             .replace('internal=false', 'internal') // only in addConstraintTangentCircumf
             .trim()
-            .split(' ')
-    ).map(param_splitted => ({
-        type: param_splitted[0],
-        identifier: param_splitted[1]
-    }))
+            .split(' ');
+
+        const type = param_splitted[0];
+        const identifier = camelToSnakeCase(param_splitted[1]);
+        return {
+            type,
+            identifier,
+            i_suffix: identifier.startsWith('param') ? '_i' : '_param_i',
+        };
+    });
 }
+
+// console.log(getConstraintFunctions().map(fn => fn.non_opt_params));

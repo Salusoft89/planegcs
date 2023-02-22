@@ -1,7 +1,7 @@
 {% macro definition_params(params) -%}
 {% for param in params -%}
     {% if param.type == "double*" -%}
-        int {{param.identifier}}_param_i
+        int {{param.identifier}}{{ param.i_suffix }}
     {%- else -%}
         {{param.type}} {{param.identifier}}
     {%- endif %}{% if not loop.last %}, {% endif %}
@@ -11,7 +11,7 @@
 {% macro call_params(params) -%}
 {% for param in params -%}
     {% if param.type == "double*" -%}
-        params[{{param.identifier}}_param_i]
+        params[{{param.identifier}}{{ param.i_suffix }}]
     {%- else -%}
         {{param.identifier | replace("&", "")}}
     {%- endif %}{% if not loop.last %}, {% endif %}

@@ -1,0 +1,30 @@
+import type { GcsSystem, IntVector, DoubleVector } from "./planegcs";
+
+export class NumberVector implements IntVector, DoubleVector {
+    constructor(arr: number[]) {}
+    get(i: number): number { return undefined; }
+    size(): number { return undefined; }
+    delete(): void { return undefined; }
+}
+
+export class GcsSystemMock implements GcsSystem {
+    constructor() {}
+    params_size(): number { return undefined; }
+    get_param(i: number): number { return undefined; }
+    get_params(): DoubleVector { return undefined; }
+    set_param(i: number, value: number, fixed: boolean): void { return undefined; }
+    push_param(value: number, fixed: boolean): number { return undefined; }
+    get_is_fixed(i: number): boolean { return undefined; }
+    solve_system(): number { return undefined; }
+    get_conflicting(): IntVector { return undefined; }
+    clear(): void { return undefined; }
+    apply_solution(): void { return undefined; }
+    dof(): number { return undefined; }
+    has_conflicting(): boolean { return undefined; }
+    has_redundant(): boolean { return undefined; }
+    clear_by_id(id: number): void { return undefined; }
+    delete(): void { return undefined; }
+
+    {# todo: make_<geom> functions #}
+    {# todo: constraint functions #}
+}
