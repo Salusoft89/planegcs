@@ -303,8 +303,10 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("has_redundant", &GcsSystem::has_redundant)
         .function("clear_by_id", &GcsSystem::clear_by_id)
         // make_<geometry> functions
-        {%- for cls in geom_classes %}
+        {%- for cls in geom_classes -%}
+        {% if not cls.skip_make %}
         .function("{{ cls.make_fname }}}", &GcsSystem::{{cls.make_fname}})
+        {%- endif %}
         {%- endfor %}
         // constraint functions
         {%- for constraint in fn_constraints %}

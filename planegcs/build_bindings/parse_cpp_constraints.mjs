@@ -98,6 +98,7 @@ export function getGeometryClasses() {
         },
         {
             name: "Curve",
+            skip_make: true,
         },
         {
             name: "Line",
@@ -137,7 +138,8 @@ export function getGeometryClasses() {
         },
         {
             name: "BSpline",
-            base: "Curve"
+            base: "Curve",
+            skip_make: true
         }
     ]
 
