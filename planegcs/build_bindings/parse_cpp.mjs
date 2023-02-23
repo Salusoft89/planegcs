@@ -84,7 +84,8 @@ function mapCppToJsType(cppType) {
     }
     const geom_classes = Object.keys(classLetterMapping);
     const enums = exportedEnums.map(e => e.enum_name);
-    if ([...geom_classes, ...enums].includes(cppType)) {
+    const vectors = ['vector<double>', 'vector<int>'];
+    if ([...geom_classes, ...enums, ...vectors].includes(cppType)) {
         return cppType;
     }
 

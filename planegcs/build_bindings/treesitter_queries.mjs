@@ -74,6 +74,7 @@ export default class TreeSitterQueries {
                 type: [
                     (type_identifier) @type
                     (primitive_type) @type
+                    (template_type) @type
                 ]
                 declarator: (function_declarator
                     declarator: (field_identifier) @fn_name
