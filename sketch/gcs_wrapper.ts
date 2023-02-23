@@ -1,7 +1,9 @@
 import { Constraint } from "../planegcs/bin/constraints";
-import { GcsSystem } from "../planegcs/bin/planegcs";
+import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
+// import { type GcsSystem } from "../planegcs/bin/planegcs";
 import { SketchIndex } from "./sketch_index";
 import { oid, SketchArc, SketchCircle, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
+import type { GcsGeometry, GcsSystem } from "../planegcs/bin/gcs_system";
 import { Line, Point } from '@mathigon/euclid';
 
 export class GcsWrapper {
@@ -136,65 +138,77 @@ export class GcsWrapper {
         this.push_params(a.id, [start_angle, end_angle, radius], false);
     }
 
+    sketch_object_to_gcs(o: SketchObject) : GcsGeometry {
+        if (o.type === 'point') {
+            const p_i = this.get_obj_addr(o.id);
+            return this.gcs.make_point(p_i, p_i + 1);
+        } else if (o.type === 'line') {
+            const p1_i = this.get_obj_addr(o.p1_id);
+            const p2_i = this.get_obj_addr(o.p2_id);
+            return this.gcs.make_line(p1_i, p1_i + 1, p2_i, p2_i + 1);
+        } else if (o.type === 'circle') {
+            const cp_i = this.get_obj_addr(o.c_id);
+            const radius_i = this.get_obj_addr(o.id);
+            return this.gcs.make_circle(cp_i, cp_i + 1, radius_i);
+        } else if (o.type === 'arc') {
+            const c_i = this.get_obj_addr(o.c_id);
+            const start_i = this.get_obj_addr(o.start_id);
+            const end_i = this.get_obj_addr(o.end_id);
+            const a_i = this.get_obj_addr(o.id);
+            return this.gcs.make_arc(c_i, c_i + 1, start_i, start_i + 1, end_i, end_i + 1, a_i, a_i + 1, a_i + 2);
+        } else {
+            throw new Error(`not-implemented object type: ${o.type}`);
+        }
+    }
+
     // is_extra => tag = -1
     push_constraint(c: Constraint, is_extra = false) {
-        const arc_params = (a: SketchArc) => {
-            const c_i = this.get_obj_addr(a.c_id);
-            const start_i = this.get_obj_addr(a.start_id);
-            const end_i = this.get_obj_addr(a.end_id);
-            const a_i = this.get_obj_addr(a.id);
-            return [c_i, c_i + 1, start_i, start_i + 1, end_i, end_i + 1, a_i, a_i + 1, a_i + 2];
-        }
-        const circle_params = (c: SketchCircle) => {
-            const cp_i = this.get_obj_addr(c.c_id);
-            const radius_i = this.get_obj_addr(c.id);
-            return [cp_i, cp_i + 1, radius_i];
-        }
-        const line_params = (l: SketchLine) => {
-            const p1_i = this.get_obj_addr(l.p1_id);
-            const p2_i = this.get_obj_addr(l.p2_id);
-            return [p1_i, p1_i + 1, p2_i, p2_i + 1];
-        }
-        const point_params = (p: SketchPoint) => {
-            const p_i = this.get_obj_addr(p.id);
-            return [p_i, p_i + 1];
-        }
-        const params: number[] = [];
+        const add_constraint_args: any[] = [];
+        const deletable: GcsGeometry[] = []
 
-        for (const parameter of Object.keys(c)) {
-            const id_param = parameter.match(/^([aclop])([0-9]*)_id$/);
-            if (id_param !== null) {
-                const o_type = id_param[1];
-                const o_id: number = c[parameter];
+        for (const [parameter, val] of Object.entries(c)) {
+            if (['type', 'id'].includes(parameter)) {
+                continue;
+            }
 
-                if (o_type === 'a') {
-                    const arc = this.sketch_index.get_sketch_arc(o_id);
-                    params.push(...arc_params(arc));
-                } else if (o_type === 'c') {
-                    const circle = this.sketch_index.get_sketch_circle(o_id);
-                    params.push(...circle_params(circle));
-                } else if (o_type === 'l') {
-                    const line = this.sketch_index.get_sketch_line(o_id);
-                    params.push(...line_params(line));
-                } else if (o_type === 'o') {
-                    const o_number = id_param[2];
-                    const param_offset: number = c[`o${o_number}_i`];
-                    const param_addr = this.get_obj_addr(o_id) + param_offset;
-                    params.push(param_addr);
-                } else if (o_type === 'p') {
-                    const point = this.sketch_index.get_sketch_point(o_id);
-                    params.push(...point_params(point));
+            const param_type = constraint_param_index[c.type][parameter];
+            if (param_type === undefined) {
+                throw new Error(`unknown parameter: ${parameter} in constraint ${c.type}`);
+            }
+            
+            if (param_type === 'object_param') {
+                // object param or number
+                if (typeof val === 'number') {
+                    const pos = this.push_params(c.id, [val], true);
+                    add_constraint_args.push(pos);
+                } else if ('o_id' in val && 'o_i' in val) {
+                    const param_addr = this.get_obj_addr(val['o_id']) + val['o_i'];
+                    add_constraint_args.push(param_addr);
+                } else {
+                    throw new Error(`couldn't parse object param: ${parameter} in constraint ${c.type}: invalid value ${JSON.stringify(val)}`);
                 }
-            } else if (!parameter.match(/(id|type|_i$)/)) {
-                const value = c[parameter];
-                const i = this.push_params(c.id, [value], true);
-                params.push(i);
+            } else if (param_type === 'object_id') {
+                // object
+                const obj = this.sketch_index.get_object(val);
+                const gcs_obj = this.sketch_object_to_gcs(obj);
+                add_constraint_args.push(gcs_obj);
+                deletable.push(gcs_obj);
+            } else if (param_type === 'primitive') {
+                const pos = this.push_params(c.id, [val], true);
+                add_constraint_args.push(pos);
+            } else {
+                throw new Error(`unhandled parameter type: ${param_type}`);
             }
         }
         // use the object id as the tag parameter (or use -1 for extra constraints)
-        params.push(is_extra ? -1 : c.id);
+        add_constraint_args.push(is_extra ? -1 : c.id);
         const c_name: string = c.type;
-        this.gcs[`add_constraint_${c_name}`](...params);
+        this.gcs[`add_constraint_${c_name}`](...add_constraint_args);
+
+        // wasm-allocated object must be deleted 
+        for (const obj of deletable) {
+            obj.delete();
+        }
     }
 
     // id can be -1 for extra constraints
