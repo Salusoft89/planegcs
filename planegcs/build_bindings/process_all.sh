@@ -2,7 +2,7 @@
 
 set -e
 
-node process_bindings.mjs \
+node render_templates.mjs \
      gcs_system.cpp.njk ../bindings.cpp \
      gcs_system.ts.njk ../bin/gcs_system.ts \
      gcs_system_mock.ts.njk ../bin/gcs_system_mock.ts \

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { arrToNTuples, filePath } from './utils.mjs';
-import { getConstraintFunctions, getEnums, getFunctionTypesTypescript, getGeometryClasses } from './parse_cpp_constraints.mjs';
+import { getConstraintFunctions, getEnums, getFunctionTypesTypescript, getGeometryClasses } from './parse_cpp.mjs';
 import nunjucks from 'nunjucks';
 nunjucks.configure({ autoescape: false })
 
