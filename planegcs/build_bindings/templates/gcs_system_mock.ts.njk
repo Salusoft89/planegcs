@@ -1,4 +1,12 @@
-import type { GcsSystem, IntVector, DoubleVector } from "./planegcs";
+import type { 
+    GcsSystem,IntVector,DoubleVector,
+    {% for cls in geom_classes -%}
+    {{ cls.name }},
+    {%- endfor %}
+    {% for enum in enums -%}
+    {{ enum.name }},
+    {%- endfor %}
+} from "./planegcs";
 
 export class NumberVector implements IntVector, DoubleVector {
     constructor(arr: number[]) {}
@@ -9,22 +17,8 @@ export class NumberVector implements IntVector, DoubleVector {
 
 export class GcsSystemMock implements GcsSystem {
     constructor() {}
-    params_size(): number { return undefined; }
-    get_param(i: number): number { return undefined; }
-    get_params(): DoubleVector { return undefined; }
-    set_param(i: number, value: number, fixed: boolean): void { return undefined; }
-    push_param(value: number, fixed: boolean): number { return undefined; }
-    get_is_fixed(i: number): boolean { return undefined; }
-    solve_system(): number { return undefined; }
-    get_conflicting(): IntVector { return undefined; }
-    clear(): void { return undefined; }
-    apply_solution(): void { return undefined; }
-    dof(): number { return undefined; }
-    has_conflicting(): boolean { return undefined; }
-    has_redundant(): boolean { return undefined; }
-    clear_by_id(id: number): void { return undefined; }
+    {%- for func in fn_ts_bindings %}
+    {{ func.fname }}({{ func.args }}): {{ func.return_type }} { return undefined; }
+    {%- endfor %}
     delete(): void { return undefined; }
-
-    {# todo: make_<geom> functions #}
-    {# todo: constraint functions #}
 }

@@ -253,9 +253,15 @@ class GcsSystem : System
             a.focus1 = make_point(focus1x_i, focus1y_i);
 
             return a;   
-        }{% include "templates/add_constraint_functions.cpp.njk" %}
+        }
+        
+        BSpline make_bspline()
+        {
+            BSpline b;
 
-        {# todo: make_bspline #}
+            {# todo: implement make_bspline #}
+            throw 1;
+        }{% include "templates/add_constraint_functions.cpp.njk" %}
 };
 
 #include <emscripten/bind.h>  
@@ -270,19 +276,14 @@ EMSCRIPTEN_BINDINGS(module) {
         .value("{{ value.name }}", {{ value.name }})
     {% endfor %};
 {% endfor -%}
-    {# Geo.h classes #}
-    emscripten::class_<Point>("Point");
-    emscripten::class_<Curve>("Curve");
-    emscripten::class_<Line, emscripten::base<Curve>>("Line");
-    emscripten::class_<Circle, emscripten::base<Curve>>("Circle");
-    emscripten::class_<Arc, emscripten::base<Circle>>("Arc");
-    emscripten::class_<Ellipse, emscripten::base<Curve>>("Ellipse");
-    emscripten::class_<ArcOfEllipse, emscripten::base<Ellipse>>("ArcOfEllipse");
-    emscripten::class_<Hyperbola, emscripten::base<Curve>>("Hyperbola");
-    emscripten::class_<ArcOfHyperbola, emscripten::base<Hyperbola>>("ArcOfHyperbola");
-    emscripten::class_<Parabola, emscripten::base<Curve>>("Parabola");
-    emscripten::class_<ArcOfParabola, emscripten::base<Parabola>>("ArcOfParabola");
-    emscripten::class_<BSpline, emscripten::base<Curve>>("BSpline");
+    {# Geo.h Geometry classes (Point, Line, ...) #}
+    {%- for cls in geom_classes -%}
+    {% if cls.base %}
+    emscripten::class_<{{ cls.name }}, emscripten::base<{{ cls.base }}>>("{{ cls.name }}");
+    {%- else %}
+    emscripten::class_<{{ cls.name }}>("{{ cls.name }}");
+    {%- endif %}
+    {%- endfor %}
 
     emscripten::class_<GcsSystem>("GcsSystem")
         .constructor<>()
@@ -295,25 +296,18 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("solve_system", &GcsSystem::solve_system)
         .function("get_conflicting", &GcsSystem::get_conflicting)
         .function("clear", &GcsSystem::clear)
-        // functions derived from GCS::System
+        // functions adapted from GCS::System
         .function("apply_solution", &GcsSystem::apply_solution)
         .function("dof", &GcsSystem::dof)
         .function("has_conflicting", &GcsSystem::has_conflicting)
         .function("has_redundant", &GcsSystem::has_redundant)
         .function("clear_by_id", &GcsSystem::clear_by_id)
-        {# todo: generate make_<geometry> functions #}
-        .function("make_line", &GcsSystem::make_line)
-        .function("make_point", &GcsSystem::make_point)
-        .function("make_circle", &GcsSystem::make_circle)
-        .function("make_arc", &GcsSystem::make_arc)
-        .function("make_ellipse", &GcsSystem::make_ellipse)
-        .function("make_arc_of_ellipse", &GcsSystem::make_arc_of_ellipse)
-        .function("make_hyperbola", &GcsSystem::make_hyperbola)
-        .function("make_arc_of_hyperbola", &GcsSystem::make_arc_of_hyperbola)
-        .function("make_parabola", &GcsSystem::make_parabola)
-        .function("make_arc_of_parabola", &GcsSystem::make_arc_of_parabola)
+        // make_<geometry> functions
+        {%- for cls in geom_classes %}
+        .function("{{ cls.make_fname }}}", &GcsSystem::{{cls.make_fname}})
+        {%- endfor %}
         // constraint functions
-        {% for constraint in fn_constraints %}
+        {%- for constraint in fn_constraints %}
         .function("{{constraint.fname_lower}}", &GcsSystem::{{constraint.fname_lower}}){% endfor %}
         ;
 }

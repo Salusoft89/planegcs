@@ -8,18 +8,14 @@ export interface IntVector {
     size: () => number;
     delete: () => void;
 }
-export interface Curve {}
-export interface Point {}
-export interface Line {}
-export interface Arc {}
-export interface Circle {}
-export interface Ellipse {}
-export interface Hyperbola {}
-export interface Parabola {}
-export interface BSpline {}
-export interface ArcOfParabola {}
-export interface ArcOfHyperbola {}
-export interface ArcOfEllipse {}
+
+{%- for cls in geom_classes -%}
+{% if cls.base %}
+export interface {{ cls.name }} extends {{ cls.base }} {}
+{%- else %}
+export interface {{ cls.name }} {}
+{%- endif %}
+{%- endfor %}
 
 {% for enum in enums %}
 export enum {{ enum.name }} {

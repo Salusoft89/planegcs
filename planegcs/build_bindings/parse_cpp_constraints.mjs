@@ -91,6 +91,62 @@ function mapCppToJsType(cppType) {
     throw new Error(`Unknown type ${cppType}!`);
 }
 
+export function getGeometryClasses() {
+    let classes = [
+        {
+            name: "Point",
+        },
+        {
+            name: "Curve",
+        },
+        {
+            name: "Line",
+            base: "Curve"
+        },
+        {
+            name: "Circle",
+            base: "Curve"
+        },
+        {
+            name: "Ellipse",
+            base: "Curve"
+        },
+        {
+            name: "Hyperbola",
+            base: "Curve"
+        },
+        {
+            name: "Parabola",
+            base: "Curve"
+        },
+        {
+            name: "Arc",
+            base: "Circle"
+        },
+        {
+            name: "ArcOfHyperbola",
+            base: "Hyperbola"
+        },
+        {
+            name: "ArcOfEllipse",
+            base: "Ellipse"
+        },
+        {
+            name: "ArcOfParabola",
+            base: "Parabola"
+        },
+        {
+            name: "BSpline",
+            base: "Curve"
+        }
+    ]
+
+    return classes.map(cls => ({
+        ...cls,
+        make_fname: `make_${camelToSnakeCase(cls.name)}`
+    }));
+}
+
 const classLetterMapping = {
     "Point": "p",
     "Line": "l",
@@ -138,5 +194,3 @@ function paramsToList(params) {
         };
     });
 }
-
-// console.log(getConstraintFunctions().map(fn => fn.non_opt_params));
