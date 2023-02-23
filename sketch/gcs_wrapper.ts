@@ -162,22 +162,24 @@ export class GcsWrapper {
     }
 
     // is_extra => tag = -1
+    // todo: do the parameters really match (order)..?
     push_constraint(c: Constraint, is_extra = false) {
         const add_constraint_args: any[] = [];
-        const deletable: GcsGeometry[] = []
+        const deletable: GcsGeometry[] = [];
 
-        for (const [parameter, val] of Object.entries(c)) {
-            if (['type', 'id'].includes(parameter)) {
-                continue;
-            }
+        const constraint_params = constraint_param_index[c.type];
+        if (constraint_params === undefined) {
+            throw new Error(`unknown constraint type: ${c.type}`);
+        }
 
-            const param_type = constraint_param_index[c.type][parameter];
-            if (param_type === undefined) {
-                throw new Error(`unknown parameter: ${parameter} in constraint ${c.type}`);
+        for (const parameter of Object.keys(constraint_params)) {
+            const type = constraint_params[parameter];
+            if (type === undefined) {
+                throw new Error(`unknown parameter type: ${type} in constraint ${c.type}`);
             }
+            const val = c[parameter];
             
-            if (param_type === 'object_param') {
-                // object param or number
+            if (type === 'object_param_or_number') {
                 if (typeof val === 'number') {
                     const pos = this.push_params(c.id, [val], true);
                     add_constraint_args.push(pos);
@@ -187,27 +189,26 @@ export class GcsWrapper {
                 } else {
                     throw new Error(`couldn't parse object param: ${parameter} in constraint ${c.type}: invalid value ${JSON.stringify(val)}`);
                 }
-            } else if (param_type === 'object_id') {
-                // object
+            } else if (type === 'object_id') {
                 const obj = this.sketch_index.get_object(val);
                 const gcs_obj = this.sketch_object_to_gcs(obj);
                 add_constraint_args.push(gcs_obj);
                 deletable.push(gcs_obj);
-            } else if (param_type === 'primitive') {
+            } else if (type === 'primitive') {
                 const pos = this.push_params(c.id, [val], true);
                 add_constraint_args.push(pos);
             } else {
-                throw new Error(`unhandled parameter type: ${param_type}`);
+                throw new Error(`unhandled parameter type: ${type}`);
             }
         }
-        // use the object id as the tag parameter (or use -1 for extra constraints)
+        // use the object_id as the tag parameter (or use -1 for extra constraints)
         add_constraint_args.push(is_extra ? -1 : c.id);
         const c_name: string = c.type;
         this.gcs[`add_constraint_${c_name}`](...add_constraint_args);
 
-        // wasm-allocated object must be deleted 
-        for (const obj of deletable) {
-            obj.delete();
+        // wasm-allocated object must be manually deleted 
+        for (const geom_shape of deletable) {
+            geom_shape.delete();
         }
     }
 

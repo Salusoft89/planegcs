@@ -29,7 +29,7 @@ export interface {{ item.constraint_name }} extends Id {
     {%- elif param.type == 'InternalAlignmentType' %}
     {{ param.identifier }}: InternalAlignmentType;
     {%- else %} {# object (Line, Parabola, Point, ...) #}
-    {{ param.identifier | replace('&', '') }}: oid; // {{ param.type }}
+    {{ param.identifier | replace('&', '') }}_id: oid; // {{ param.type }}
     {%- endif %}
 {%- endfor %}
 }

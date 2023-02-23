@@ -3,11 +3,11 @@ export const constraint_param_index = {
     {{ constraint.constraint_type }}: {
         {%- for param in constraint.non_opt_params -%}
             {% if param.type == 'double*' %}
-            {{ param.identifier }}: 'object_param',
+            {{ param.identifier }}: 'object_param_or_number',
             {%- elif param.type in ['double', 'int', 'bool', 'InternalAlignmentType'] %}
             {{ param.identifier }}: 'primitive',
             {%- else %} {# object (Line, Parabola, Point, ...) #}
-            {{ param.identifier | replace('&', '') }}: 'object_id', 
+            {{ param.identifier | replace('&', '') }}_id: 'object_id', 
             {%- endif %}
         {%- endfor %}
     },

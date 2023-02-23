@@ -1,4 +1,4 @@
-import { GcsSystemMock } from "../planegcs/bin/gcs_system_mock";
+import { GcsGeometryMock, GcsSystemMock } from "../planegcs/bin/gcs_system_mock";
 jest.mock('../planegcs/bin/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
@@ -50,47 +50,54 @@ describe("gcs_wrapper", () => {
     });
 
     it("calls add_constraint_equal method when adding an equal constraint", () => {
-        jest.spyOn(gcs, 'params_size').mockReturnValue(0);
+        const o1_p1_addr = 0;
+        jest.spyOn(gcs, 'params_size').mockReturnValue(o1_p1_addr);
         gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
-        jest.spyOn(gcs, 'params_size').mockReturnValue(2);
         expect(gcs.push_param).toHaveBeenCalledTimes(2);
-        gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, o_i: 0 }, param2: 5});
 
+        const value_addr = 2;
+        jest.spyOn(gcs, 'params_size').mockReturnValue(value_addr);
+        gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, o_i: 0 }, param2: 5});
         expect(gcs.push_param).toHaveBeenCalledTimes(3);
         expect(gcs.push_param).toHaveBeenLastCalledWith(5, true);
 
-        const o1_p1_addr = 0;
-        const value_addr = 2;
         const tag = 2;
         expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag);
     });
 
-    // it("calls add_constraint_angle_via_point_line_arc when adding a constraint", () => {
-    //     jest.spyOn(gcs, 'params_size').mockReturnValue(0);
-    //     gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
-    //     jest.spyOn(gcs, 'params_size').mockReturnValue(2);
-    //     gcs_wrapper.push_object({type: 'point', id: 2, x: 1, y: 2, fixed: false});
-    //     jest.spyOn(gcs, 'params_size').mockReturnValue(4);
-    //     gcs_wrapper.push_object({type: 'line', id: 3, p1_id: 1, p2_id: 2});
-    //     gcs_wrapper.push_object({type: 'point', id: 4, x: 10, y: 10, fixed: false});
-    //     jest.spyOn(gcs, 'params_size').mockReturnValue(6);
-    //     gcs_wrapper.push_object({type: 'arc', id: 5, c_id: 1, start_id: 2, end_id: 4, angle: Math.PI / 2});
-    //     jest.spyOn(gcs, 'params_size').mockReturnValue(9);
+    it("calls add_constraint_angle_via_point when adding a constraint", () => {
+        jest.spyOn(gcs, 'params_size').mockReturnValueOnce(0);
+        gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
+        jest.spyOn(gcs, 'params_size').mockReturnValueOnce(2);
+        gcs_wrapper.push_object({type: 'point', id: 2, x: 1, y: 2, fixed: false});
+        jest.spyOn(gcs, 'params_size').mockReturnValueOnce(4);
+        gcs_wrapper.push_object({type: 'line', id: 3, p1_id: 1, p2_id: 2});
+        gcs_wrapper.push_object({type: 'point', id: 4, x: 10, y: 10, fixed: false});
+        jest.spyOn(gcs, 'params_size').mockReturnValueOnce(6);
+        gcs_wrapper.push_object({type: 'arc', id: 5, c_id: 1, start_id: 2, end_id: 4, angle: Math.PI / 2});
+        jest.spyOn(gcs, 'params_size').mockReturnValueOnce(9);
 
-    //     gcs_wrapper.push_object({type: 'angle_via_point_line_arc', id: 6, l_id: 3, a_id: 5, p_id: 4, angle: Math.PI / 6});
+        const line = new GcsGeometryMock();
+        const arc = new GcsGeometryMock();
+        const point = new GcsGeometryMock();
 
-    //     // expect(gcs.add_constraint_angle_via_point_line_arc).toHaveBeenCalledWith(
-    //     //     // line
-    //     //     0, 1, 2, 3,
-    //     //     // arc
-    //     //     0, 1, 2, 3, 4, 5,
-    //     //     // arc_params (startangle, endangle, radius)
-    //     //     6, 7, 8, 
-    //     //     // point
-    //     //     4, 5,
-    //     //     // angle
-    //     //     9,
-    //     //     // id
-    //     //     6);
-    // });
+        jest.spyOn(gcs, 'make_line').mockReturnValueOnce(line);
+        jest.spyOn(gcs, 'make_arc').mockReturnValueOnce(arc);
+        jest.spyOn(gcs, 'make_point').mockReturnValueOnce(point);
+
+        gcs_wrapper.push_object({
+            crv1_id: 3, // Line
+            angle: Math.PI / 2,
+            id: 6,
+            crv2_id: 5, // Arc
+            p_id: 4,
+            type: 'angle_via_point'
+        });
+
+        expect(gcs.add_constraint_angle_via_point).toHaveBeenCalledWith(
+            line, arc, point, 
+            9, // angle param id
+            6 // constraint id
+        );
+    });
 });
