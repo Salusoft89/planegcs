@@ -36,7 +36,7 @@ export default class TreeSitterQueries {
         }));
     }
 
-    queryEnum(enumName) {
+    queryEnum(enumName, enumFile) {
         const query_enum = new Parser.Query(Cpp, `
             (enum_specifier
                 name: (type_identifier) @enum_name
@@ -50,7 +50,7 @@ export default class TreeSitterQueries {
                 )
             )
         `);
-        let tree = this.loadCppTree('../Constraints.h');
+        let tree = this.loadCppTree(enumFile);
         const enum_node = query_enum.matches(tree.rootNode)
             .filter(match => match.captures[1].node.text === enumName)[0]
             .captures[0].node;
@@ -66,7 +66,37 @@ export default class TreeSitterQueries {
 
         return enum_values;
     }
+
+    // 2nd step (after creating bindings.cpp)
+    queryFunctionTypes() {
+        const query = new Parser.Query(Cpp, `
+            (function_definition
+                type: [
+                    (type_identifier) @type
+                    (primitive_type) @type
+                ]
+                declarator: (function_declarator
+                    declarator: (field_identifier) @fn_name
+                    parameters: (parameter_list) @params
+                )
+            )`);
+
+        const tree = this.loadCppTree('../bindings.cpp');
+        const matches = query.matches(tree.rootNode);
+
+        return matches.map(match => ({
+            return_type: match.captures[0].node.text,
+            fname: match.captures[1].node.text,
+            params: match.captures[2].node.text
+                .replace('(', '').replace(')', '')
+                .replace(/\s+/g, ' ')
+                .split(', ')
+                .filter(s => s !== '')
+                .map(declaration => declaration.trim().split(' '))
+                .map(([type, identifier]) => ({ type, identifier }))
+        }));
+    }
 }
 
 // const tsq = new TreeSitterQueries();
-// tsq.queryEnum('InternalAlignmentType');
+// console.log(tsq.queryFunctionTypes().map(fn => fn.params));

@@ -42,11 +42,53 @@ export function getConstraintFunctions() {
     })
 }
 
+const exportedEnums = [
+    { 
+        enum_name: 'InternalAlignmentType',
+        file: '../Constraints.h'
+    },
+    { enum_name: 'DebugMode', file: '../GCS.h' }
+]
+
 export function getEnums() {
-    return [{
-        name: "InternalAlignmentType",
-        values: tsq.queryEnum("InternalAlignmentType")
-    }]
+    return exportedEnums.map(({enum_name, file}) => ({
+        name: enum_name,
+        values: tsq.queryEnum(enum_name, file)
+    }));
+}
+
+const cppToJsTypeMapping = {
+    "double": "number",
+    "int": "number",
+    "bool": "boolean",
+    "void" : "void"   
+}
+
+export function getFunctionTypesTypescript() {
+    const cpp_funcs = tsq.queryFunctionTypes();
+    const ts_funcs = cpp_funcs.map(item => ({
+        return_type: mapCppToJsType(item.return_type),
+        fname: item.fname,
+        args: item.params.map(({ type, identifier }) => ({
+            type: mapCppToJsType(type),
+            identifier: identifier.replace('&', '')
+        })).map(({ type, identifier }) => `${identifier}: ${type}`).join(', ')
+    }));
+
+    return ts_funcs;
+}
+
+function mapCppToJsType(cppType) {
+    if (cppType in cppToJsTypeMapping) {
+        return cppToJsTypeMapping[cppType];
+    }
+    const geom_classes = Object.keys(classLetterMapping);
+    const enums = exportedEnums.map(e => e.enum_name);
+    if ([...geom_classes, ...enums].includes(cppType)) {
+        return cppType;
+    }
+
+    throw new Error(`Unknown type ${cppType}!`);
 }
 
 const classLetterMapping = {
@@ -55,9 +97,11 @@ const classLetterMapping = {
     "Circle": "c",
     "Ellipse": "e",
     "Hyperbola": "h",
+    "Parabola": "pb",
     "Arc": "a",
     "ArcOfHyperbola": "ah",
     "ArcOfEllipse": "ae",
+    "ArcOfParabola": "ap",
     "Curve": "cv",
     "BSpline": "bs"
 }
@@ -74,6 +118,7 @@ function fnSpecificator(params) {
     return output;
 }
 
+// used for arguments of addConstraint functions
 function paramsToList(params) {
     let arr = params.split(', ');
     return arr.filter(param => !param.includes('tag') && !param.includes('driving'))
