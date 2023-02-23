@@ -37,4 +37,15 @@ describe("planegcs", () => {
 
         gcs.add_constraint_angle_via_point(line1, line2, point, angle_i, 2);
     });
+
+    test("constraint with a line cannot be called with a point object", () => {
+        const p1x_i = gcs.push_param(1, true);
+        const p1y_i = gcs.push_param(2, true);
+
+        const point = gcs.make_point(p1x_i, p1y_i);
+
+        expect(() => {
+            gcs.add_constraint_vertical_l(point, 1);
+        }).toThrow();
+    });
 });
