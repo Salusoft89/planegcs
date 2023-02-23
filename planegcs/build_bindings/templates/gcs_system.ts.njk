@@ -13,9 +13,13 @@ export interface IntVector {
 {% if cls.base %}
 export interface {{ cls.name }} extends {{ cls.base }} {}
 {%- else %}
-export interface {{ cls.name }} {}
+export interface {{ cls.name }} {
+    delete: () => void;
+}
 {%- endif %}
 {%- endfor %}
+
+export type GcsGeometry = {% for cls in geom_classes %}{{ cls.name }}{% if not loop.last %} | {% endif %}{% endfor %};
 
 {% for enum in enums %}
 export enum {{ enum.name }} {
