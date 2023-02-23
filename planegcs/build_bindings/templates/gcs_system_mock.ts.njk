@@ -8,13 +8,6 @@ import type {
     {%- endfor %}
 } from "./planegcs";
 
-export class NumberVector implements IntVector, DoubleVector {
-    constructor(arr: number[]) {}
-    get(i: number): number { return undefined; }
-    size(): number { return undefined; }
-    delete(): void { return undefined; }
-}
-
 export class GcsSystemMock implements GcsSystem {
     constructor() {}
     {%- for func in fn_ts_bindings %}
