@@ -122,8 +122,8 @@ class GcsSystem : System
         Point make_point(int px_i, int py_i)
         {
             Point p;
-            p.x = params[px_i];
-            p.y = params[py_i];
+            p.x = param_or_fail(px_i);
+            p.y = param_or_fail(py_i);
             return p;
         }
 
@@ -145,7 +145,7 @@ class GcsSystem : System
 
             Circle c;
             c.center = cp;
-            c.rad = params[rad_i];
+            c.rad = param_or_fail(rad_i);
 
             return c;
         }
@@ -157,7 +157,7 @@ class GcsSystem : System
             Ellipse e;
             e.center = make_point(cx_i, cy_i);
             e.focus1 = make_point(focus1x_i, focus1y_i);
-            e.radmin = params[radmin_i];
+            e.radmin = param_or_fail(radmin_i);
 
             return e;
         }
@@ -169,7 +169,7 @@ class GcsSystem : System
             Hyperbola h;
             h.center = make_point(cx_i, cy_i);
             h.focus1 = make_point(focus1x_i, focus1y_i);
-            h.radmin = params[radmin_i];
+            h.radmin = param_or_fail(radmin_i);
 
             return h;
         }
@@ -196,10 +196,10 @@ class GcsSystem : System
             Arc a;
             a.center = c;
             a.start = start;
-            a.startAngle = params[startangle_i];
-            a.endAngle = params[endangle_i];
+            a.startAngle = param_or_fail(startangle_i);
+            a.endAngle = param_or_fail(endangle_i);
             a.end = end;
-            a.rad = params[rad_i];
+            a.rad = param_or_fail(rad_i);
 
             return a;
         }
@@ -213,10 +213,10 @@ class GcsSystem : System
             ArcOfEllipse a;
             a.center = make_point(cx_i, cy_i);
             a.start = make_point(startx_i, starty_i);
-            a.startAngle = params[startangle_i];
+            a.startAngle = param_or_fail(startangle_i);
             a.end = make_point(endx_i, endy_i); 
-            a.endAngle = params[endangle_i];
-            a.radmin = params[radmin_i];
+            a.endAngle = param_or_fail(endangle_i);
+            a.radmin = param_or_fail(radmin_i);
             a.focus1 = make_point(focus1x_i, focus1y_i);
 
             return a;   
@@ -229,9 +229,9 @@ class GcsSystem : System
         {
             ArcOfParabola a;
             a.start = make_point(startx_i, starty_i);
-            a.startAngle = params[startangle_i];
+            a.startAngle = param_or_fail(startangle_i);
             a.end = make_point(endx_i, endy_i);
-            a.endAngle = params[endangle_i];
+            a.endAngle = param_or_fail(endangle_i);
             a.focus1 = make_point(focusx_i, focusy_i);
             a.vertex = make_point(vertexx_i, vertexy_i);
 
@@ -246,10 +246,10 @@ class GcsSystem : System
             ArcOfHyperbola a;
             a.center = make_point(cx_i, cy_i);
             a.start = make_point(startx_i, starty_i);
-            a.startAngle = params[startangle_i];
+            a.startAngle = param_or_fail(startangle_i);
             a.end = make_point(endx_i, endy_i); 
-            a.endAngle = params[endangle_i];
-            a.radmin = params[radmin_i];
+            a.endAngle = param_or_fail(endangle_i);
+            a.radmin = param_or_fail(radmin_i);
             a.focus1 = make_point(focus1x_i, focus1y_i);
 
             return a;   
@@ -262,6 +262,14 @@ class GcsSystem : System
             {# todo: implement make_bspline #}
             throw 1;
         }{% include "templates/add_constraint_functions.cpp.njk" %}
+
+    private:
+        double* param_or_fail(int i) {
+            if (params.size() <= i) {
+                throw std::runtime_error("parameter index outside range");
+            }
+            return params[i];
+        }
 };
 
 #include <emscripten/bind.h>  
@@ -305,7 +313,7 @@ EMSCRIPTEN_BINDINGS(module) {
         // make_<geometry> functions
         {%- for cls in geom_classes -%}
         {% if not cls.skip_make %}
-        .function("{{ cls.make_fname }}}", &GcsSystem::{{cls.make_fname}})
+        .function("{{ cls.make_fname }}", &GcsSystem::{{cls.make_fname}})
         {%- endif %}
         {%- endfor %}
         // constraint functions

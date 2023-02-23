@@ -9,23 +9,32 @@ describe("planegcs", () => {
         gcs = new module.GcsSystem();
     });
     
-    test("by default it has 0 params", async () => {
+    test("by default it has 0 params", () => {
         expect(gcs.params_size()).toBe(0);
     });
 
     test("constraint with a line can be called with a line object", () => {
-        const line = gcs.make_line(0, 0, 1, 1);
+        const p1x_i = gcs.push_param(1, true);
+        const p1y_i = gcs.push_param(2, true);
+        const p2x_i = gcs.push_param(3, true);
+        const p2y_i = gcs.push_param(4, true);
+
+        const line = gcs.make_line(p1x_i, p1y_i, p2x_i, p2y_i);
         gcs.add_constraint_vertical_l(line, 1);
     });
 
     test("constraint with a curve can be called with a line object", () => {
-        const angle_i = gcs.params_size();
-        gcs.push_param(Math.PI / 2, false);
+        const p1x_i = gcs.push_param(1, true);
+        const p1y_i = gcs.push_param(2, true);
+        const p2x_i = gcs.push_param(3, true);
+        const p2y_i = gcs.push_param(4, true);
 
-        const line = gcs.make_line(0, 0, 1, 1);
-        const line2 = gcs.make_line(0, 0, 2, 2);
-        const point = gcs.make_point(0, 0);
+        const angle_i = gcs.push_param(Math.PI / 2, false);
 
-        gcs.add_constraint_angle_via_point(line, line2, point, angle_i, 2);
+        const line1 = gcs.make_line(p1x_i, p1y_i, p2x_i, p2y_i);
+        const line2 = gcs.make_line(p2x_i, p2y_i, p1x_i, p1y_i);
+        const point = gcs.make_point(p1x_i, p1y_i);
+
+        gcs.add_constraint_angle_via_point(line1, line2, point, angle_i, 2);
     });
 });
