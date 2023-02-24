@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "esModuleInterop": true,
-        "target": "es2015" // allow iterating over maps
+        "target": "es2015", // allow iterating over maps
+        "moduleResolution": "node"
     },
 }
