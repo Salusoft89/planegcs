@@ -65,7 +65,7 @@ describe("gcs_wrapper", () => {
         expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag);
     });
 
-    it("calls add_constraint_angle_via_point when adding a constraint", () => {
+    it("calls add_constraint_angle_via_point when adding a constraint (with shuffled arguments)", () => {
         jest.spyOn(gcs, 'params_size').mockReturnValueOnce(0);
         gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
         jest.spyOn(gcs, 'params_size').mockReturnValueOnce(2);
@@ -94,10 +94,26 @@ describe("gcs_wrapper", () => {
             type: 'angle_via_point'
         });
 
+        expect(gcs.make_line).toHaveBeenCalledWith(0, 1, 2, 3);
+        expect(gcs.make_arc).toHaveBeenCalledWith(
+            // center
+            0, 1, 
+            // start
+            2, 3, 
+            // end
+            4, 5,
+            // start angle, end angle, radius
+            6, 7, 8);
+        expect(gcs.make_point).toHaveBeenCalledWith(4, 5);
+
         expect(gcs.add_constraint_angle_via_point).toHaveBeenCalledWith(
             line, arc, point, 
             9, // angle param id
             6 // constraint id
         );
+
+        expect(line.delete).toHaveBeenCalledTimes(1);
+        expect(arc.delete).toHaveBeenCalledTimes(1);
+        expect(point.delete).toHaveBeenCalledTimes(1);
     });
 });
