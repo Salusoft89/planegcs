@@ -2,7 +2,7 @@ import { Constraint } from "../planegcs/bin/constraints";
 import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
 // import { type GcsSystem } from "../planegcs/bin/planegcs";
 import { SketchIndex } from "./sketch_index";
-import { oid, SketchArc, SketchCircle, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
+import { is_sketch_geometry, oid, SketchArc, SketchCircle, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
 import type { GcsGeometry, GcsSystem } from "../planegcs/bin/gcs_system";
 import { Line, Point } from '@mathigon/euclid';
 
@@ -214,7 +214,13 @@ export class GcsWrapper {
 
     // id can be -1 for extra constraints
     delete_constraint_by_id(id: number) {
-        // todo: test if given object is a constraint
+        if (id !== -1) {
+            const item = this.sketch_index.get_object(id);
+            if (!is_sketch_geometry(item)) {
+                throw new Error(`object #${id} (${item.type}) is not a constraint (delete_constraint_by_id)`);
+            }
+        }
+
         this.sketch_index.index.delete(id);
         this.gcs.clear_by_id(id);
     }
