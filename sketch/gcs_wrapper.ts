@@ -4,7 +4,6 @@ import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
 import { SketchIndex } from "./sketch_index";
 import { is_sketch_geometry, oid, SketchArc, SketchCircle, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
 import type { GcsGeometry, GcsSystem } from "../planegcs/bin/gcs_system";
-import { Line, Point } from '@mathigon/euclid';
 
 export class GcsWrapper {
     gcs: GcsSystem;
@@ -42,7 +41,17 @@ export class GcsWrapper {
         if (this.sketch_index.has(o.id)) {
             throw new Error(`object with id ${o.id} already exists`);
         }
+
         this.sketch_index.set_object(o);
+
+        // todo: handle the id better
+        // if (o.type === 'arc') {
+        //     this.push_constraint({
+        //         type: 'arc_rules',
+        //         a_id: o.id,
+        //         id: 100000
+        //     });
+        // }
     }
 
     solve() {
@@ -127,13 +136,10 @@ export class GcsWrapper {
         
         const end = this.sketch_index.get_sketch_point(a.end_id);
         this.push_point(end);
-        
-        const center_p = new Point(center.x, center.y);
-        const start_p = new Point(start.x, start.y);
-        const end_p = new Point(end.x, end.y);
-        const start_angle = new Line(center_p, start_p).angle - 2 * Math.PI;
-        const end_angle = new Line(center_p, end_p).angle;
-        const radius = Point.distance(start_p, center_p);
+
+        const start_angle = Math.atan2(start.y - center.y, start.x - center.x) - 2 * Math.PI;
+        const end_angle = Math.atan2(end.y - center.y, end.x - center.x);
+        const radius = Math.sqrt((start.x - center.x) ** 2 + (start.y - center.y) ** 2);
 
         this.push_params(a.id, [start_angle, end_angle, radius], false);
     }
