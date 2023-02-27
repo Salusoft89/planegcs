@@ -1,6 +1,5 @@
 import { Constraint } from "../planegcs/bin/constraints";
 import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
-// import { type GcsSystem } from "../planegcs/bin/planegcs";
 import { SketchIndex } from "./sketch_index";
 import { is_sketch_geometry, oid, SketchArc, SketchCircle, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
 import type { GcsGeometry, GcsSystem } from "../planegcs/bin/gcs_system";
@@ -164,7 +163,6 @@ export class GcsWrapper {
     }
 
     // is_extra => tag = -1
-    // todo: do the parameters really match (order)..?
     push_constraint(c: Constraint, is_extra = false) {
         const add_constraint_args: any[] = [];
         const deletable: GcsGeometry[] = [];
