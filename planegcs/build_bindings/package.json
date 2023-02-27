@@ -4,7 +4,6 @@
 	"private": true,
 	"type": "module",
 	"dependencies": {
-		"@mathigon/euclid": "^1.1.8",
 		"nunjucks": "^3.2.3",
 		"tree-sitter": "^0.20.1",
 		"tree-sitter-cpp": "^0.20.0"
