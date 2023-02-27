@@ -65,7 +65,7 @@ export class GcsWrapper {
         }
         // todo: add error enums and status handling
         if (status != 0) {
-            throw new Error(`gcs status: ${status}`);
+            console.log(`gcs status: ${status}`);
         }
 
         this.gcs.apply_solution();
