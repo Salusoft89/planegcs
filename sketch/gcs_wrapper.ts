@@ -45,13 +45,13 @@ export class GcsWrapper {
         this.sketch_index.set_object(o);
 
         // todo: handle the id better
-        // if (o.type === 'arc') {
-        //     this.push_constraint({
-        //         type: 'arc_rules',
-        //         a_id: o.id,
-        //         id: 100000
-        //     });
-        // }
+        if (o.type === 'arc') {
+            this.push_constraint({
+                type: 'arc_rules',
+                a_id: o.id,
+                id: 100000
+            });
+        }
     }
 
     solve() {
@@ -137,11 +137,7 @@ export class GcsWrapper {
         const end = this.sketch_index.get_sketch_point(a.end_id);
         this.push_point(end);
 
-        const start_angle = Math.atan2(start.y - center.y, start.x - center.x) - 2 * Math.PI;
-        const end_angle = Math.atan2(end.y - center.y, end.x - center.x);
-        const radius = Math.sqrt((start.x - center.x) ** 2 + (start.y - center.y) ** 2);
-
-        this.push_params(a.id, [start_angle, end_angle, radius], false);
+        this.push_params(a.id, [a.start_angle, a.end_angle, a.radius], false);
     }
 
     sketch_object_to_gcs(o: SketchObject) : GcsGeometry {
@@ -293,13 +289,15 @@ export class GcsWrapper {
         this.pull_object(end);
 
         const addr = this.get_obj_addr(a.id);
-        const start_angle = this.gcs.get_param(addr);
-        const end_angle = this.gcs.get_param(addr + 1);
-        const angle = end_angle - start_angle;
+        let start_angle = fix_angle(this.gcs.get_param(addr));
+        let end_angle = fix_angle(this.gcs.get_param(addr + 1));
+        const radius = this.gcs.get_param(addr + 2);
         
         this.solved_sketch_index.set_object({
             ...a,
-            angle
+            start_angle,
+            end_angle,
+            radius
         });
     }
 
@@ -313,4 +311,12 @@ export class GcsWrapper {
             radius
         });
     }
+}
+
+function fix_angle(angle: number): number {
+    angle %= 2 * Math.PI;
+    if (angle < 0) {
+        angle += 2 * Math.PI;
+    }
+    return angle;
 }

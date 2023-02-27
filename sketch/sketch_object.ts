@@ -27,7 +27,9 @@ export interface SketchArc extends Id {
 	c_id: number;
 	start_id: number;
 	end_id: number;
-	angle: number;
+	start_angle: number;
+	end_angle: number;
+	radius: number;
 }
 
 export type SketchGeometry = SketchPoint | SketchLine | SketchCircle | SketchArc;
