@@ -1,12 +1,22 @@
 import ModuleFactory from '../planegcs/bin/planegcs.js';
 import { GcsSystem } from '../planegcs/bin/gcs_system';
 
+var module;
 var gcs: GcsSystem;
 
 describe("planegcs", () => {
     beforeAll(async () => {
-        var module = await ModuleFactory();
+        module = await ModuleFactory();
+    });
+    
+    beforeEach(() => {
         gcs = new module.GcsSystem();
+    });
+
+    afterEach(() => {
+        // todo: when should we clear?
+        // gcs.clear();
+        gcs.delete();
     });
     
     test("by default it has 0 params", () => {
@@ -47,5 +57,21 @@ describe("planegcs", () => {
         expect(() => {
             gcs.add_constraint_vertical_l(point, 1);
         }).toThrow();
+    });
+
+    test("dof decreases with added constraint", () => {
+        const p1x_i = gcs.push_param(1, true);
+        const p1y_i = gcs.push_param(2, true);
+        const p2x_i = gcs.push_param(1, false);
+        const p2y_i = gcs.push_param(3, false);
+
+        gcs.solve_system();
+        expect(gcs.dof()).toBe(2);
+
+        const line = gcs.make_line(p1x_i, p1y_i, p2x_i, p2y_i);
+        gcs.add_constraint_vertical_l(line, 1);
+        
+        gcs.solve_system();
+        expect(gcs.dof()).toBe(1);
     });
 });
