@@ -219,16 +219,16 @@ export class GcsWrapper {
     }
 
     // id can be -1 for extra constraints
-    delete_constraint_by_id(id: number) {
+    delete_constraint_by_id(id: number): boolean {
         if (id !== -1) {
-            const item = this.sketch_index.get_object(id);
-            if (!is_sketch_geometry(item)) {
+            const item = this.sketch_index.index.get(id);
+            if (item !== undefined && !is_sketch_geometry(item)) {
                 throw new Error(`object #${id} (${item.type}) is not a constraint (delete_constraint_by_id)`);
             }
         }
 
-        this.sketch_index.index.delete(id);
         this.gcs.clear_by_id(id);
+        return this.sketch_index.index.delete(id);
     }
 
     private get_obj_addr(id: oid): number {
