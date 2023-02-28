@@ -56,7 +56,7 @@ describe("gcs_wrapper", () => {
         gcs_wrapper.push_object({type: 'arc', id: 4, c_id: 1, start_id: 2, end_id: 3, start_angle: 0, end_angle: 0, radius: 1});
 
         // todo: id 
-        expect(gcs.add_constraint_arc_rules).toHaveBeenCalledWith(arc, 100000);
+        expect(gcs.add_constraint_arc_rules).toHaveBeenCalledWith(arc, 100000, true);
 
         expect(gcs.push_param).toHaveBeenCalledTimes(3 * 2 + 3);
     });
@@ -74,7 +74,19 @@ describe("gcs_wrapper", () => {
         expect(gcs.push_param).toHaveBeenLastCalledWith(5, true);
 
         const tag = 2;
-        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag);
+        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, true);
+    });
+
+    it("calls add_constraint_equal with driving parameter when provided", () => {
+        const o1_p1_addr = 0;
+        jest.spyOn(gcs, 'params_size').mockReturnValue(o1_p1_addr);
+        gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
+        const value_addr = 2;
+        jest.spyOn(gcs, 'params_size').mockReturnValue(value_addr);
+        gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, o_i: 0 }, param2: 5, driving: false});
+
+        const tag = 2;
+        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, false);
     });
 
     it("calls add_constraint_angle_via_point when adding a constraint (with shuffled arguments)", () => {
@@ -122,7 +134,8 @@ describe("gcs_wrapper", () => {
         expect(gcs.add_constraint_angle_via_point).toHaveBeenCalledWith(
             line, arc, point, 
             9, // angle param id
-            6 // constraint id
+            6, // constraint id
+            true // driving
         );
 
         expect(line.delete).toHaveBeenCalledTimes(1);

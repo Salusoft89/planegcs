@@ -202,10 +202,12 @@ export class GcsWrapper {
                 throw new Error(`unknown parameter type: ${type} in constraint ${c.type}`);
             }
             const val = c[parameter];
+            const is_fixed = (c.driving ?? true);
             
             if (type === 'object_param_or_number') { // or string
                 if (typeof val === 'number') {
-                    const pos = this.push_params(c.id, [val], true);
+                    // todo: add to some index (probably after adding named indexes)
+                    const pos = this.push_params(c.id, [val], is_fixed);
                     add_constraint_args.push(pos);
                 }  else if (typeof val === 'string') {
                     // this is a sketch param
@@ -226,7 +228,8 @@ export class GcsWrapper {
                 add_constraint_args.push(gcs_obj);
                 deletable.push(gcs_obj);
             } else if (type === 'primitive') {
-                const pos = this.push_params(c.id, [val], true);
+                // todo: add to some index (same as above)
+                const pos = this.push_params(c.id, [val], is_fixed); // ? is this correct (driving <=> fixed)? 
                 add_constraint_args.push(pos);
             } else {
                 throw new Error(`unhandled parameter type: ${type}`);
@@ -234,6 +237,9 @@ export class GcsWrapper {
         }
         // use the object_id as the tag parameter (or use -1 for extra constraints)
         add_constraint_args.push(is_extra ? -1 : c.id);
+        // add the driving? value (true by default)
+        add_constraint_args.push(c.driving ?? true);
+
         const c_name: string = c.type;
         this.gcs[`add_constraint_${c_name}`](...add_constraint_args);
 

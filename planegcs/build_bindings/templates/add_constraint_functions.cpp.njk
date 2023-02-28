@@ -17,7 +17,7 @@
     {%- endif %}{% if not loop.last %}, {% endif %}
 {%- endfor %}
 {%- endmacro %}{% for constraint in fn_constraints %}
-        void {{constraint.fname_lower}}({{ definition_params(constraint.non_opt_params)}}, int tag_id) {
-            {{constraint.fname}}({{ call_params(constraint.non_opt_params) }}, tag_id);
+        void {{constraint.fname_lower}}({{ definition_params(constraint.non_opt_params)}}, int tag_id, bool driving) {
+            {{constraint.fname}}({{ call_params(constraint.non_opt_params) }}, tag_id, driving);
         }
 {% endfor %}
