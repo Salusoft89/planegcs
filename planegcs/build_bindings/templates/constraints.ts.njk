@@ -21,7 +21,7 @@ export interface {{ item.constraint_name }} extends Id {
     type: '{{ item.constraint_type }}';
 {%- for param in item.non_opt_params -%}
     {% if param.type == 'double*' %}
-    {{ param.identifier }}: ObjectParam|number;
+    {{ param.identifier }}: ObjectParam|number|string;
     {%- elif param.type in ['double', 'int'] %}
     {{ param.identifier }}: number;
     {%- elif param.type == 'bool' %}

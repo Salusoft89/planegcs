@@ -6,14 +6,17 @@ import type { GcsGeometry, GcsSystem } from "../planegcs/bin/gcs_system";
 
 export class GcsWrapper {
     gcs: GcsSystem;
-    param_index: Map<oid, number>; 
+    param_index: Map<oid, number>;
     sketch_index: SketchIndex;
     solved_sketch_index: SketchIndex;
+    // 'mouse_x' -> 10, 'mouse_y' -> 100, ...
+    sketch_param_index: Map<string, number>;
 
     constructor(gcs: GcsSystem, sketch_index: SketchIndex, param_index = new Map()) {
         this.gcs = gcs;
         this.sketch_index = sketch_index;
         this.param_index = param_index;
+        this.sketch_param_index = new Map();
     }
 
     destructor() {
@@ -24,6 +27,12 @@ export class GcsWrapper {
     // ------ Sketch -> GCS ------- (when building up a sketch)
 
     push_object(o: SketchObject) {
+        if (o.type === 'param') {
+            // todo: handle min/max
+            this.push_sketch_param(o.name, o.value);
+            return;
+        }
+
         if (o.type === 'point') {
             this.push_point(o);
         } else if (o.type === 'line') {
@@ -92,6 +101,21 @@ export class GcsWrapper {
         }
         conflicts.delete();
         return result;
+    }
+
+    push_sketch_param(name: string, value: number): number {
+        const pos = this.gcs.params_size();
+        this.gcs.push_param(value, true);
+        this.sketch_param_index.set(name, pos);
+        return pos;
+    }
+
+    set_sketch_param(name: string, value: number) {
+        const pos = this.sketch_param_index.get(name);
+        if (pos === undefined) {
+            throw new Error(`sketch param ${name} not found`);
+        }
+        this.gcs.set_param(pos, value, true);
     }
 
     private push_params(id: oid, values: number[], fixed: boolean = false): number {
@@ -179,10 +203,17 @@ export class GcsWrapper {
             }
             const val = c[parameter];
             
-            if (type === 'object_param_or_number') {
+            if (type === 'object_param_or_number') { // or string
                 if (typeof val === 'number') {
                     const pos = this.push_params(c.id, [val], true);
                     add_constraint_args.push(pos);
+                }  else if (typeof val === 'string') {
+                    // this is a sketch param
+                    const param_addr = this.sketch_param_index.get(val);
+                    if (param_addr === undefined) {
+                        throw new Error(`couldn't parse object param: ${parameter} in constraint ${c.type}: unknown param ${val}`);
+                    }
+                    add_constraint_args.push(param_addr);
                 } else if ('o_id' in val && 'o_i' in val) {
                     const param_addr = this.get_obj_addr(val['o_id']) + val['o_i'];
                     add_constraint_args.push(param_addr);
@@ -236,7 +267,7 @@ export class GcsWrapper {
     // ------- GCS -> Sketch ------- (when retrieving a solution)
 
     private pull_object(o: SketchObject) {
-        if (this.solved_sketch_index.has(o.id)) {
+        if (o.type === 'param' || this.solved_sketch_index.has(o.id)) {
             return;
         }
 
