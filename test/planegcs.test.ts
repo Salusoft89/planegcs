@@ -23,7 +23,13 @@ describe("planegcs", () => {
         expect(gcs.params_size()).toBe(0);
     });
 
-    test("constraint with a line can be called with a line object", () => {
+    test("parameter can be updated", () => {
+        const addr = gcs.push_param(1, true);
+        gcs.set_param(addr, 2, true);
+        expect(gcs.get_param(addr)).toBe(2);
+    });
+
+    test("constraint with a line can be called with a line object", async () => {
         const p1x_i = gcs.push_param(1, true);
         const p1y_i = gcs.push_param(2, true);
         const p2x_i = gcs.push_param(3, true);
