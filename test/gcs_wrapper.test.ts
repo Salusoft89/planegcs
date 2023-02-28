@@ -53,7 +53,7 @@ describe("gcs_wrapper", () => {
         jest.spyOn(gcs, 'make_arc').mockReturnValueOnce(arc);
 
         jest.spyOn(gcs, 'params_size').mockReturnValueOnce(6);
-        gcs_wrapper.push_object({type: 'arc', id: 4, c_id: 1, start_id: 2, end_id: 3, angle: Math.PI / 2});
+        gcs_wrapper.push_object({type: 'arc', id: 4, c_id: 1, start_id: 2, end_id: 3, start_angle: 0, end_angle: 0, radius: 1});
 
         // todo: id 
         expect(gcs.add_constraint_arc_rules).toHaveBeenCalledWith(arc, 100000);
@@ -88,7 +88,7 @@ describe("gcs_wrapper", () => {
         jest.spyOn(gcs, 'params_size').mockReturnValueOnce(6);
         const arc = new GcsGeometryMock();
         jest.spyOn(gcs, 'make_arc').mockReturnValueOnce(arc);
-        gcs_wrapper.push_object({type: 'arc', id: 5, c_id: 1, start_id: 2, end_id: 4, angle: Math.PI / 2});
+        gcs_wrapper.push_object({type: 'arc', id: 5, c_id: 1, start_id: 2, end_id: 4, start_angle: 0, end_angle: 0, radius: 1});
         jest.spyOn(gcs, 'params_size').mockReturnValueOnce(9);
 
         const line = new GcsGeometryMock();
