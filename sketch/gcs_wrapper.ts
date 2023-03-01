@@ -3,6 +3,7 @@ import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
 import { SketchIndex } from "./sketch_index";
 import { is_sketch_geometry, oid, SketchArc, SketchCircle, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
 import type { GcsGeometry, GcsSystem } from "../planegcs/bin/gcs_system";
+import getParamOffset from "./geom_params";
 
 export class GcsWrapper {
     gcs: GcsSystem;
@@ -216,8 +217,9 @@ export class GcsWrapper {
                         throw new Error(`couldn't parse object param: ${parameter} in constraint ${c.type}: unknown param ${val}`);
                     }
                     add_constraint_args.push(param_addr);
-                } else if ('o_id' in val && 'o_i' in val) {
-                    const param_addr = this.get_obj_addr(val['o_id']) + val['o_i'];
+                } else if ('o_id' in val && 'param' in val) {
+                    const object_type = this.sketch_index.get_object(val['o_id']).type;
+                    const param_addr = this.get_obj_addr(val['o_id']) + getParamOffset(object_type, val['param']);
                     add_constraint_args.push(param_addr);
                 } else {
                     throw new Error(`couldn't parse object param: ${parameter} in constraint ${c.type}: invalid value ${JSON.stringify(val)}`);

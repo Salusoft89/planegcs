@@ -69,7 +69,7 @@ describe("gcs_wrapper", () => {
 
         const value_addr = 2;
         jest.spyOn(gcs, 'params_size').mockReturnValue(value_addr);
-        gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, o_i: 0 }, param2: 5});
+        gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, param: 'x' }, param2: 5});
         expect(gcs.push_param).toHaveBeenCalledTimes(3);
         expect(gcs.push_param).toHaveBeenLastCalledWith(5, true);
 
@@ -83,7 +83,7 @@ describe("gcs_wrapper", () => {
         gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
         const value_addr = 2;
         jest.spyOn(gcs, 'params_size').mockReturnValue(value_addr);
-        gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, o_i: 0 }, param2: 5, driving: false});
+        gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, param: 'x' }, param2: 5, driving: false});
 
         const tag = 2;
         expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, false);
