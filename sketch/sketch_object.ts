@@ -11,7 +11,6 @@ interface IArc {
 	end_id: oid;
 	start_angle: number;
 	end_angle: number;
-	radius: number;
 }
 
 export interface SketchPoint extends Id {
@@ -33,6 +32,7 @@ export interface SketchCircle extends Id {
 export interface SketchArc extends Id, IArc {
 	type: 'arc';
 	c_id: oid;
+	radius: number;
 }
 
 export interface SketchEllipse extends Id {
