@@ -1,4 +1,4 @@
-import { Constraint } from "../planegcs/bin/constraints";
+import { Constraint, ConstraintParam } from "../planegcs/bin/constraints";
 import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
 import { SketchIndex } from "./sketch_index";
 import { is_sketch_geometry, oid, SketchArc, SketchCircle, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
@@ -43,7 +43,6 @@ export class GcsWrapper {
         } else if (o.type === 'arc') {
             this.push_arc(o);
         } else {
-            // todo: better check
             this.push_constraint(o);
         }
 
@@ -202,7 +201,7 @@ export class GcsWrapper {
             if (type === undefined) {
                 throw new Error(`unknown parameter type: ${type} in constraint ${c.type}`);
             }
-            const val = c[parameter];
+            const val = c[parameter] as ConstraintParam;
             const is_fixed = (c.driving ?? true);
             
             if (type === 'object_param_or_number') { // or string
@@ -210,26 +209,26 @@ export class GcsWrapper {
                     // todo: add to some index (probably after adding named indexes)
                     const pos = this.push_params(c.id, [val], is_fixed);
                     add_constraint_args.push(pos);
-                }  else if (typeof val === 'string') {
+                } else if (typeof val === 'string') {
                     // this is a sketch param
                     const param_addr = this.sketch_param_index.get(val);
                     if (param_addr === undefined) {
                         throw new Error(`couldn't parse object param: ${parameter} in constraint ${c.type}: unknown param ${val}`);
                     }
                     add_constraint_args.push(param_addr);
-                } else if ('o_id' in val && 'param' in val) {
-                    const object_type = this.sketch_index.get_object(val['o_id']).type;
-                    const param_addr = this.get_obj_addr(val['o_id']) + getParamOffset(object_type, val['param']);
-                    add_constraint_args.push(param_addr);
+                } else if (typeof val === 'boolean') {
+                    add_constraint_args.push(val);
                 } else {
-                    throw new Error(`couldn't parse object param: ${parameter} in constraint ${c.type}: invalid value ${JSON.stringify(val)}`);
+                    const object_type = this.sketch_index.get_object(val.o_id).type;
+                    const param_addr = this.get_obj_addr(val.o_id) + getParamOffset(object_type, val.param);
+                    add_constraint_args.push(param_addr);
                 }
-            } else if (type === 'object_id') {
+            } else if (type === 'object_id' && typeof val === 'number') {
                 const obj = this.sketch_index.get_object(val);
                 const gcs_obj = this.sketch_object_to_gcs(obj);
                 add_constraint_args.push(gcs_obj);
                 deletable.push(gcs_obj);
-            } else if (type === 'primitive') {
+            } else if (type === 'primitive' && typeof val === 'number') {
                 // todo: add to some index (same as above)
                 const pos = this.push_params(c.id, [val], is_fixed); // ? is this correct (driving <=> fixed)? 
                 add_constraint_args.push(pos);
@@ -245,7 +244,7 @@ export class GcsWrapper {
         const c_name: string = c.type;
         this.gcs[`add_constraint_${c_name}`](...add_constraint_args);
 
-        // wasm-allocated object must be manually deleted 
+        // wasm-allocated objects must be manually deleted 
         for (const geom_shape of deletable) {
             geom_shape.delete();
         }
