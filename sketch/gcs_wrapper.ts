@@ -435,7 +435,7 @@ export class GcsWrapper {
 
 function fix_angle(angle: number): number {
     angle %= 2 * Math.PI;
-    if (angle < 0) {
+    if (angle < -1e-10) { // some comptation nuances for angles near 0
         angle += 2 * Math.PI;
     }
     return angle;
