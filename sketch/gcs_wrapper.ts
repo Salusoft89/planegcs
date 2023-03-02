@@ -1,7 +1,7 @@
 import { Constraint, ConstraintParam } from "../planegcs/bin/constraints";
 import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
 import { SketchIndex } from "./sketch_index";
-import { is_sketch_geometry, oid, SketchArc, SketchCircle, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
+import { is_sketch_geometry, oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
 import type { GcsGeometry, GcsSystem } from "../planegcs/bin/gcs_system";
 import getParamOffset from "./geom_params";
 
@@ -34,16 +34,27 @@ export class GcsWrapper {
             return;
         }
 
-        if (o.type === 'point') {
-            this.push_point(o);
-        } else if (o.type === 'line') {
-            this.push_line(o);
-        } else if (o.type === 'circle') {
-            this.push_circle(o);
-        } else if (o.type === 'arc') {
-            this.push_arc(o);
-        } else {
-            this.push_constraint(o);
+        switch (o.type) {
+            case 'point':
+                this.push_point(o);
+                break;
+            case 'line':
+                this.push_line(o);
+                break;
+            case 'circle':
+                this.push_circle(o);
+                break;
+            case 'arc':
+                this.push_arc(o);
+                break;
+            case 'ellipse':
+                this.push_ellipse(o);
+                break;
+            case 'arc_of_ellipse':
+                this.push_arc_of_ellipse(o);
+                break;
+            default:
+                this.push_constraint(o);
         }
 
         if (this.sketch_index.has(o.id)) {
@@ -161,6 +172,32 @@ export class GcsWrapper {
         this.push_point(end);
 
         this.push_params(a.id, [a.start_angle, a.end_angle, a.radius], false);
+    }
+
+    private push_ellipse(e: SketchEllipse) {
+        const center = this.sketch_index.get_sketch_point(e.c_id);
+        this.push_point(center);
+
+        const focus1 = this.sketch_index.get_sketch_point(e.focus1_id);
+        this.push_point(focus1);
+
+        this.push_params(e.id, [e.radmin], false);
+    }
+
+    private push_arc_of_ellipse(ae: SketchArcOfEllipse) {
+        const center = this.sketch_index.get_sketch_point(ae.c_id);
+        this.push_point(center);
+
+        const focus1 = this.sketch_index.get_sketch_point(ae.focus1_id);
+        this.push_point(focus1);
+
+        const start = this.sketch_index.get_sketch_point(ae.start_id);
+        this.push_point(start);
+
+        const end = this.sketch_index.get_sketch_point(ae.end_id);
+        this.push_point(end);
+
+        this.push_params(ae.id, [ae.start_angle, ae.end_angle, ae.radmin], false);
     }
 
     sketch_object_to_gcs(o: SketchObject) : GcsGeometry {
@@ -287,8 +324,13 @@ export class GcsWrapper {
                 this.pull_arc(o);
             } else if (o.type === 'circle') {
                 this.pull_circle(o);
+            } else if (o.type === 'ellipse') {
+                this.pull_ellipse(o);
+            } else if (o.type === 'arc_of_ellipse') {
+                this.pull_arc_of_ellipse(o);
             } else {
                 // console.log(`${o.type}`);
+                // todo: is this else branch necessary?
                 this.solved_sketch_index.set_object(o);
             }
         } else {
@@ -345,6 +387,48 @@ export class GcsWrapper {
         this.solved_sketch_index.set_object({
             ...c,
             radius
+        });
+    }
+
+    private pull_ellipse(e: SketchEllipse) {
+        let center = this.sketch_index.get_sketch_point(e.c_id);
+        this.pull_object(center);
+        center = this.solved_sketch_index.get_sketch_point(e.c_id);
+
+        let focus1 = this.sketch_index.get_sketch_point(e.focus1_id);
+        this.pull_object(focus1);
+        focus1 = this.solved_sketch_index.get_sketch_point(e.focus1_id);
+
+        const addr = this.get_obj_addr(e.id);
+        const radmin = this.gcs.get_param(addr);
+
+        // compute the radmaj of ellipse
+        const c = Math.sqrt((center.x - focus1.x) ** 2 + (center.y - focus1.y) ** 2);
+        const a = Math.sqrt(c ** 2 + radmin ** 2);
+
+        this.solved_sketch_index.set_object({
+            ...e,
+            radmin,
+            radmaj: a
+        });
+    }
+
+    private pull_arc_of_ellipse(ae: SketchArcOfEllipse) {
+        const center = this.sketch_index.get_sketch_point(ae.c_id);
+        this.pull_object(center);
+
+        const focus1 = this.sketch_index.get_sketch_point(ae.focus1_id);
+        this.pull_object(focus1);
+
+        const addr = this.get_obj_addr(ae.id);
+        let start_angle = fix_angle(this.gcs.get_param(addr));
+        let end_angle = fix_angle(this.gcs.get_param(addr + 1));
+        const radmin = this.gcs.get_param(addr + 2);
+        this.solved_sketch_index.set_object({
+            ...ae,
+            start_angle,
+            end_angle,
+            radmin
         });
     }
 }
