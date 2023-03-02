@@ -1,3 +1,5 @@
+// todo: change indexes, so radius/radmin is always at 0, start_angle at 1, end_angle at 2
+// (keep 0 index unused for parabola)
 const obj_params_offsets = {
     point: {
         x: 0,
@@ -10,6 +12,14 @@ const obj_params_offsets = {
         start_angle: 0,
         end_angle: 1,
         radius: 2
+    },
+    ellipse: {
+        radmin: 0,
+    },
+    arc_of_ellipse: {
+        start_angle: 0,
+        end_angle: 1,
+        radmin: 2
     }
 }
 

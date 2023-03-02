@@ -1,7 +1,7 @@
 import { Constraint, ConstraintParam } from "../planegcs/bin/constraints";
 import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
 import { SketchIndex } from "./sketch_index";
-import { is_sketch_geometry, oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
+import { is_sketch_geometry, oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchGeometry, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
 import type { GcsGeometry, GcsSystem } from "../planegcs/bin/gcs_system";
 import getParamOffset from "./geom_params";
 
@@ -70,6 +70,13 @@ export class GcsWrapper {
                 a_id: o.id,
                 id: 100000
             });
+        } 
+        else if (o.type === 'arc_of_ellipse') {
+            this.push_constraint({
+                type: 'arc_of_ellipse_rules',
+                a_id: o.id,
+                id: 100001
+            })
         }
     }
 
@@ -218,6 +225,18 @@ export class GcsWrapper {
             const end_i = this.get_obj_addr(o.end_id);
             const a_i = this.get_obj_addr(o.id);
             return this.gcs.make_arc(c_i, c_i + 1, start_i, start_i + 1, end_i, end_i + 1, a_i, a_i + 1, a_i + 2);
+        } else if (o.type === 'ellipse') {
+            const c_i = this.get_obj_addr(o.c_id);
+            const focus1_i = this.get_obj_addr(o.focus1_id);
+            const radmin_i = this.get_obj_addr(o.id);
+            return this.gcs.make_ellipse(c_i, c_i + 1, focus1_i, focus1_i + 1, radmin_i);
+        } else if (o.type === 'arc_of_ellipse') {
+            const c_i = this.get_obj_addr(o.c_id);
+            const focus1_i = this.get_obj_addr(o.focus1_id);
+            const start_i = this.get_obj_addr(o.start_id);
+            const end_i = this.get_obj_addr(o.end_id);
+            const a_i = this.get_obj_addr(o.id);
+            return this.gcs.make_arc_of_ellipse(c_i, c_i + 1, focus1_i, focus1_i + 1, start_i, start_i + 1, end_i, end_i + 1, a_i, a_i + 1, a_i + 2);
         } else {
             throw new Error(`not-implemented object type: ${o.type}`);
         }
@@ -414,21 +433,34 @@ export class GcsWrapper {
     }
 
     private pull_arc_of_ellipse(ae: SketchArcOfEllipse) {
-        const center = this.sketch_index.get_sketch_point(ae.c_id);
+        let center = this.sketch_index.get_sketch_point(ae.c_id);
         this.pull_object(center);
+        center = this.solved_sketch_index.get_sketch_point(ae.c_id);
 
-        const focus1 = this.sketch_index.get_sketch_point(ae.focus1_id);
+        let focus1 = this.sketch_index.get_sketch_point(ae.focus1_id);
         this.pull_object(focus1);
+        focus1 = this.solved_sketch_index.get_sketch_point(ae.focus1_id);
+
+        const start = this.sketch_index.get_sketch_point(ae.start_id);
+        this.pull_object(start);
+        const end = this.sketch_index.get_sketch_point(ae.end_id);
+        this.pull_object(end);
 
         const addr = this.get_obj_addr(ae.id);
         let start_angle = fix_angle(this.gcs.get_param(addr));
         let end_angle = fix_angle(this.gcs.get_param(addr + 1));
         const radmin = this.gcs.get_param(addr + 2);
+
+        // compute the radmaj of ellipse
+        const c = Math.sqrt((center.x - focus1.x) ** 2 + (center.y - focus1.y) ** 2);
+        const a = Math.sqrt(c ** 2 + radmin ** 2);
+
         this.solved_sketch_index.set_object({
             ...ae,
             start_angle,
             end_angle,
-            radmin
+            radmin,
+            radmaj: a
         });
     }
 }
