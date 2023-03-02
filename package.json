@@ -8,7 +8,7 @@
 		"build:bindings": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'cd build_bindings && npm install && ./process_all.sh'",
 		"build:docker": "docker build -t gcs_builder .",
 		"build": "npm run build:docker && npm run build:em",
-		"test": "jest"
+		"test": "jest --coverage"
 	},
 	"type": "module",
 	"devDependencies": {

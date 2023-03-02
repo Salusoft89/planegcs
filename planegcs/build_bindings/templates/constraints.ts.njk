@@ -6,7 +6,7 @@ interface Id {
 
 interface ObjectParam {
     o_id: oid;
-    o_i: number;
+    param: string;
 }
 {% for enum in enums %}
 enum {{ enum.name }} {
@@ -21,7 +21,7 @@ export interface {{ item.constraint_name }} extends Id {
     type: '{{ item.constraint_type }}';
 {%- for param in item.non_opt_params -%}
     {% if param.type == 'double*' %}
-    {{ param.identifier }}: ObjectParam|number;
+    {{ param.identifier }}: ObjectParam|number|string;
     {%- elif param.type in ['double', 'int'] %}
     {{ param.identifier }}: number;
     {%- elif param.type == 'bool' %}
@@ -32,7 +32,9 @@ export interface {{ item.constraint_name }} extends Id {
     {{ param.identifier | replace('&', '') }}_id: oid; // {{ param.type }}
     {%- endif %}
 {%- endfor %}
+    driving?: boolean;
 }
 {% endfor %}
 
 export type Constraint = {% for item in fn_constraints %}{{ item.constraint_name }}{%- if not loop.last %} | {% endif %}{% endfor %};
+export type ConstraintParam = {% for item in fn_constraints %}{{ item.constraint_name }}[keyof {{ item.constraint_name }}]{%- if not loop.last %} | {% endif %}{% endfor %};

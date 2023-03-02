@@ -1,20 +1,23 @@
-import { Constraint } from "../planegcs/bin/constraints";
+import { Constraint, ConstraintParam } from "../planegcs/bin/constraints";
 import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
-// import { type GcsSystem } from "../planegcs/bin/planegcs";
 import { SketchIndex } from "./sketch_index";
 import { is_sketch_geometry, oid, SketchArc, SketchCircle, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
 import type { GcsGeometry, GcsSystem } from "../planegcs/bin/gcs_system";
+import getParamOffset from "./geom_params";
 
 export class GcsWrapper {
     gcs: GcsSystem;
-    param_index: Map<oid, number>; 
+    param_index: Map<oid, number>;
     sketch_index: SketchIndex;
     solved_sketch_index: SketchIndex;
+    // 'mouse_x' -> 10, 'mouse_y' -> 100, ...
+    sketch_param_index: Map<string, number>;
 
     constructor(gcs: GcsSystem, sketch_index: SketchIndex, param_index = new Map()) {
         this.gcs = gcs;
         this.sketch_index = sketch_index;
         this.param_index = param_index;
+        this.sketch_param_index = new Map();
     }
 
     destructor() {
@@ -25,6 +28,12 @@ export class GcsWrapper {
     // ------ Sketch -> GCS ------- (when building up a sketch)
 
     push_object(o: SketchObject) {
+        if (o.type === 'param') {
+            // todo: handle min/max
+            this.push_sketch_param(o.name, o.value);
+            return;
+        }
+
         if (o.type === 'point') {
             this.push_point(o);
         } else if (o.type === 'line') {
@@ -34,7 +43,6 @@ export class GcsWrapper {
         } else if (o.type === 'arc') {
             this.push_arc(o);
         } else {
-            // todo: better check
             this.push_constraint(o);
         }
 
@@ -93,6 +101,21 @@ export class GcsWrapper {
         }
         conflicts.delete();
         return result;
+    }
+
+    push_sketch_param(name: string, value: number): number {
+        const pos = this.gcs.params_size();
+        this.gcs.push_param(value, true);
+        this.sketch_param_index.set(name, pos);
+        return pos;
+    }
+
+    set_sketch_param(name: string, value: number) {
+        const pos = this.sketch_param_index.get(name);
+        if (pos === undefined) {
+            throw new Error(`sketch param ${name} not found`);
+        }
+        this.gcs.set_param(pos, value, true);
     }
 
     private push_params(id: oid, values: number[], fixed: boolean = false): number {
@@ -164,7 +187,6 @@ export class GcsWrapper {
     }
 
     // is_extra => tag = -1
-    // todo: do the parameters really match (order)..?
     push_constraint(c: Constraint, is_extra = false) {
         const add_constraint_args: any[] = [];
         const deletable: GcsGeometry[] = [];
@@ -179,25 +201,36 @@ export class GcsWrapper {
             if (type === undefined) {
                 throw new Error(`unknown parameter type: ${type} in constraint ${c.type}`);
             }
-            const val = c[parameter];
+            const val = c[parameter] as ConstraintParam;
+            const is_fixed = (c.driving ?? true);
             
-            if (type === 'object_param_or_number') {
+            if (type === 'object_param_or_number') { // or string
                 if (typeof val === 'number') {
-                    const pos = this.push_params(c.id, [val], true);
+                    // todo: add to some index (probably after adding named indexes)
+                    const pos = this.push_params(c.id, [val], is_fixed);
                     add_constraint_args.push(pos);
-                } else if ('o_id' in val && 'o_i' in val) {
-                    const param_addr = this.get_obj_addr(val['o_id']) + val['o_i'];
+                } else if (typeof val === 'string') {
+                    // this is a sketch param
+                    const param_addr = this.sketch_param_index.get(val);
+                    if (param_addr === undefined) {
+                        throw new Error(`couldn't parse object param: ${parameter} in constraint ${c.type}: unknown param ${val}`);
+                    }
                     add_constraint_args.push(param_addr);
+                } else if (typeof val === 'boolean') {
+                    add_constraint_args.push(val);
                 } else {
-                    throw new Error(`couldn't parse object param: ${parameter} in constraint ${c.type}: invalid value ${JSON.stringify(val)}`);
+                    const object_type = this.sketch_index.get_object(val.o_id).type;
+                    const param_addr = this.get_obj_addr(val.o_id) + getParamOffset(object_type, val.param);
+                    add_constraint_args.push(param_addr);
                 }
-            } else if (type === 'object_id') {
+            } else if (type === 'object_id' && typeof val === 'number') {
                 const obj = this.sketch_index.get_object(val);
                 const gcs_obj = this.sketch_object_to_gcs(obj);
                 add_constraint_args.push(gcs_obj);
                 deletable.push(gcs_obj);
-            } else if (type === 'primitive') {
-                const pos = this.push_params(c.id, [val], true);
+            } else if (type === 'primitive' && typeof val === 'number') {
+                // todo: add to some index (same as above)
+                const pos = this.push_params(c.id, [val], is_fixed); // ? is this correct (driving <=> fixed)? 
                 add_constraint_args.push(pos);
             } else {
                 throw new Error(`unhandled parameter type: ${type}`);
@@ -205,10 +238,13 @@ export class GcsWrapper {
         }
         // use the object_id as the tag parameter (or use -1 for extra constraints)
         add_constraint_args.push(is_extra ? -1 : c.id);
+        // add the driving? value (true by default)
+        add_constraint_args.push(c.driving ?? true);
+
         const c_name: string = c.type;
         this.gcs[`add_constraint_${c_name}`](...add_constraint_args);
 
-        // wasm-allocated object must be manually deleted 
+        // wasm-allocated objects must be manually deleted 
         for (const geom_shape of deletable) {
             geom_shape.delete();
         }
@@ -238,7 +274,7 @@ export class GcsWrapper {
     // ------- GCS -> Sketch ------- (when retrieving a solution)
 
     private pull_object(o: SketchObject) {
-        if (this.solved_sketch_index.has(o.id)) {
+        if (o.type === 'param' || this.solved_sketch_index.has(o.id)) {
             return;
         }
 

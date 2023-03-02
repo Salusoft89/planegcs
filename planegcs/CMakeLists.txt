@@ -21,8 +21,9 @@ ADD_EXECUTABLE(planegcs bindings.cpp)
 # -s ALLOW_MEMORY_GROWTH=1
 # -s DISABLE_EXCEPTION_CATCHING=0
 # -Wno-switch
+# -s ASSERTIONS=1 (for debugging memory issues)
 
 # exceptions are by default enabled in -O0, but disabled in -O1 and above
-set_target_properties(planegcs PROPERTIES LINK_FLAGS "-lembind --closure 1 -s EXPORT_ES6=1 -s MODULARIZE=1 -O0 -s MALLOC=emmalloc -s NO_FILESYSTEM=1 -fwasm-exceptions")
+set_target_properties(planegcs PROPERTIES LINK_FLAGS "-lembind --closure 1 -s EXPORT_ES6=1 -s MODULARIZE=1 -O0 -s MALLOC=emmalloc -s NO_FILESYSTEM=1 -s ASSERTIONS=1 -fwasm-exceptions")
 
 target_link_libraries(planegcs LibsModule)

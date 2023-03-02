@@ -12,6 +12,11 @@ export class SketchIndex {
     }
 
     set_object(obj: SketchObject): void {
+        // todo: refactor the function to not accept a sketch parameter
+        if (obj.type === 'param') {
+            throw new Error('cannot set a parameter in the sketch index');
+        }
+
         this.index.set(obj.id, obj);
     }
 

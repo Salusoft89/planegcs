@@ -33,12 +33,14 @@ export interface SketchArc extends Id {
 }
 
 export type SketchGeometry = SketchPoint | SketchLine | SketchCircle | SketchArc;
-export type SketchObject = SketchGeometry | Constraint;
+export type SketchObject = SketchGeometry | Constraint | SketchParam;
 
 export interface SketchParam {
+	type: 'param';
 	name: string;
-	o_id: number;
-	o_i: number;
+	// min_value: number|null;
+	// max_value: number|null;
+	value: number;
 }
 
 export function is_sketch_geometry(o: SketchObject): o is SketchGeometry {
