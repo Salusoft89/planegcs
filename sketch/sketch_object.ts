@@ -6,6 +6,13 @@ export type oid = number;
 interface Id {
 	id: oid;
 }
+interface IArc {
+	start_id: oid;
+	end_id: oid;
+	start_angle: number;
+	end_angle: number;
+}
+
 export interface SketchPoint extends Id {
 	type: 'point';
 	x: number;
@@ -14,25 +21,37 @@ export interface SketchPoint extends Id {
 }
 export interface SketchLine extends Id {
 	type: 'line';
-	p1_id: number;
-	p2_id: number;
+	p1_id: oid;
+	p2_id: oid;
 }
 export interface SketchCircle extends Id {
 	type: 'circle';
-	c_id: number;
+	c_id: oid;
 	radius: number;
 }
-export interface SketchArc extends Id {
+export interface SketchArc extends Id, IArc {
 	type: 'arc';
-	c_id: number;
-	start_id: number;
-	end_id: number;
-	start_angle: number;
-	end_angle: number;
+	c_id: oid;
 	radius: number;
 }
 
-export type SketchGeometry = SketchPoint | SketchLine | SketchCircle | SketchArc;
+export interface SketchEllipse extends Id {
+	type: 'ellipse';
+	c_id: oid;
+	focus1_id: oid;
+	radmin: number;
+	radmaj?: number;
+}
+
+export interface SketchArcOfEllipse extends Id, IArc {
+	type: 'arc_of_ellipse';
+	c_id: oid;
+	focus1_id: oid;
+	radmin: number;
+	radmaj?: number;
+}
+
+export type SketchGeometry = SketchPoint | SketchLine | SketchCircle | SketchArc | SketchEllipse | SketchArcOfEllipse;
 export type SketchObject = SketchGeometry | Constraint | SketchParam;
 
 export interface SketchParam {
@@ -44,5 +63,5 @@ export interface SketchParam {
 }
 
 export function is_sketch_geometry(o: SketchObject): o is SketchGeometry {
-	return o.type === 'point' || o.type === 'line' || o.type === 'circle' || o.type === 'arc';
+	return ['point', 'line', 'circle', 'arc', 'ellipse', 'arc_of_ellipse'].includes(o.type);
 }
