@@ -14,6 +14,7 @@ describe("gcs_wrapper", () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.resetAllMocks();
         gcs_wrapper.param_index = new Map();
         gcs_wrapper.sketch_index = new SketchIndex();
     });
