@@ -40,7 +40,6 @@ export interface SketchEllipse extends Id {
 	c_id: oid;
 	focus1_id: oid;
 	radmin: number;
-	radmaj?: number;
 }
 
 export interface SketchArcOfEllipse extends Id, IArc {
@@ -48,7 +47,6 @@ export interface SketchArcOfEllipse extends Id, IArc {
 	c_id: oid;
 	focus1_id: oid;
 	radmin: number;
-	radmaj?: number;
 }
 
 export type SketchGeometry = SketchPoint | SketchLine | SketchCircle | SketchArc | SketchEllipse | SketchArcOfEllipse;
@@ -65,3 +63,18 @@ export interface SketchParam {
 export function is_sketch_geometry(o: SketchObject): o is SketchGeometry {
 	return ['point', 'line', 'circle', 'arc', 'ellipse', 'arc_of_ellipse'].includes(o.type);
 }
+
+// todo: add SketchHyperbola and SketchArcOfHyperbola
+// export function get_radmaj(obj: SketchEllipse|SketchArcOfEllipse) {
+// 	// compute the radmaj of ellipse
+// 	const c = Math.sqrt((obj.center.x - obj.focus1.x) ** 2 + (center.y - focus1.y) ** 2);
+// 	const a = Math.sqrt(c ** 2 + obj.radmin ** 2);
+// }
+
+// export function fix_angle(angle: number): number {
+//     angle %= 2 * Math.PI;
+//     if (angle < -1e-10) { // some comptation nuances for angles near 0
+//         angle += 2 * Math.PI;
+//     }
+//     return angle;
+// }
