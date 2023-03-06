@@ -29,7 +29,6 @@ export class GcsWrapper {
 
     push_object(o: SketchObject) {
         if (o.type === 'param') {
-            // todo: handle min/max
             this.push_sketch_param(o.name, o.value);
             return;
         }
@@ -62,22 +61,6 @@ export class GcsWrapper {
         }
 
         this.sketch_index.set_object(o);
-
-        // todo: handle the id better
-        if (o.type === 'arc') {
-            this.push_constraint({
-                type: 'arc_rules',
-                a_id: o.id,
-                id: 100000
-            });
-        } 
-        else if (o.type === 'arc_of_ellipse') {
-            this.push_constraint({
-                type: 'arc_of_ellipse_rules',
-                a_id: o.id,
-                id: 100001
-            })
-        }
     }
 
     solve() {
