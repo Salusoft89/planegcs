@@ -47,7 +47,7 @@ export function getConstraintFunctions() {
 export function getEnums() {
     return exported_enums.map(({enum_name, file}) => ({
         name: enum_name,
-        values: tsq.queryEnum(enum_name, file)
+        values: tsq.queryEnum(enum_name, utilReadFile(file))
     }));
 }
 
