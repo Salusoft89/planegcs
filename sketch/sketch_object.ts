@@ -40,7 +40,6 @@ export interface SketchEllipse extends Id {
 	c_id: oid;
 	focus1_id: oid;
 	radmin: number;
-	radmaj?: number;
 }
 
 export interface SketchArcOfEllipse extends Id, IArc {
@@ -48,7 +47,6 @@ export interface SketchArcOfEllipse extends Id, IArc {
 	c_id: oid;
 	focus1_id: oid;
 	radmin: number;
-	radmaj?: number;
 }
 
 export type SketchGeometry = SketchPoint | SketchLine | SketchCircle | SketchArc | SketchEllipse | SketchArcOfEllipse;
@@ -65,3 +63,5 @@ export interface SketchParam {
 export function is_sketch_geometry(o: SketchObject): o is SketchGeometry {
 	return ['point', 'line', 'circle', 'arc', 'ellipse', 'arc_of_ellipse'].includes(o.type);
 }
+
+// todo: add SketchHyperbola and SketchArcOfHyperbola

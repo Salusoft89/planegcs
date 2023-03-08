@@ -1,26 +1,18 @@
-import { SketchObject, SketchPoint, oid, is_sketch_geometry, SketchLine, SketchCircle, SketchArc, SketchGeometry } from "./sketch_object";
+import { SketchPoint, oid, is_sketch_geometry, SketchLine, SketchCircle, SketchArc, SketchGeometry } from "./sketch_object";
 import { Constraint } from "../planegcs/bin/constraints";
 
 export class SketchIndex {
-    index: Map<oid, SketchObject> = new Map();
-
-    constructor() {
-    }
+    index: Map<oid, Constraint|SketchGeometry> = new Map();
 
     has(id: oid): boolean {
         return this.index.has(id);
     }
 
-    set_object(obj: SketchObject): void {
-        // todo: refactor the function to not accept a sketch parameter
-        if (obj.type === 'param') {
-            throw new Error('cannot set a parameter in the sketch index');
-        }
-
+    set_object(obj: Constraint|SketchGeometry): void {
         this.index.set(obj.id, obj);
     }
 
-    get_object(id: oid): SketchObject {
+    get_object(id: oid): Constraint|SketchGeometry {
         const obj = this.index.get(id);
         if (obj === undefined) {
             throw new Error(`sketch object ${id} not found`);
@@ -64,7 +56,7 @@ export class SketchIndex {
         return Array.from(this.index.values()).filter(o => !is_sketch_geometry(o)) as Constraint[];
     }
 
-    get_objects(): SketchObject[] {
+    get_objects(): (Constraint|SketchGeometry)[] {
         return Array.from(this.index.values());
     }
 

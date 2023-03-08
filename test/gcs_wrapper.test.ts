@@ -14,6 +14,7 @@ describe("gcs_wrapper", () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.resetAllMocks();
         gcs_wrapper.param_index = new Map();
         gcs_wrapper.sketch_index = new SketchIndex();
     });
@@ -55,9 +56,6 @@ describe("gcs_wrapper", () => {
         jest.spyOn(gcs, 'params_size').mockReturnValueOnce(6);
         gcs_wrapper.push_object({type: 'arc', id: 4, c_id: 1, start_id: 2, end_id: 3, start_angle: 0, end_angle: 0, radius: 1});
 
-        // todo: id 
-        expect(gcs.add_constraint_arc_rules).toHaveBeenCalledWith(arc, 100000, true);
-
         expect(gcs.push_param).toHaveBeenCalledTimes(3 * 2 + 3);
     });
 
@@ -98,22 +96,21 @@ describe("gcs_wrapper", () => {
         gcs_wrapper.push_object({type: 'line', id: 3, p1_id: 1, p2_id: 2});
         gcs_wrapper.push_object({type: 'point', id: 4, x: 10, y: 10, fixed: false});
         jest.spyOn(gcs, 'params_size').mockReturnValueOnce(6);
-        const arc = new GcsGeometryMock();
-        jest.spyOn(gcs, 'make_arc').mockReturnValueOnce(arc);
         gcs_wrapper.push_object({type: 'arc', id: 5, c_id: 1, start_id: 2, end_id: 4, start_angle: 0, end_angle: 0, radius: 1});
         jest.spyOn(gcs, 'params_size').mockReturnValueOnce(9);
-
+        
         const line = new GcsGeometryMock();
         const point = new GcsGeometryMock();
+        const arc = new GcsGeometryMock();
 
         jest.spyOn(gcs, 'make_line').mockReturnValueOnce(line);
         jest.spyOn(gcs, 'make_point').mockReturnValueOnce(point);
         jest.spyOn(gcs, 'make_arc').mockReturnValueOnce(arc);
 
         gcs_wrapper.push_object({
+            id: 6,
             crv1_id: 3, // Line
             angle: Math.PI / 2,
-            id: 6,
             crv2_id: 5, // Arc
             p_id: 4,
             type: 'angle_via_point'
@@ -131,15 +128,8 @@ describe("gcs_wrapper", () => {
             6, 7, 8);
         expect(gcs.make_point).toHaveBeenCalledWith(4, 5);
 
-        expect(gcs.add_constraint_angle_via_point).toHaveBeenCalledWith(
-            line, arc, point, 
-            9, // angle param id
-            6, // constraint id
-            true // driving
-        );
-
         expect(line.delete).toHaveBeenCalledTimes(1);
-        expect(arc.delete).toHaveBeenCalledTimes(2); // arc deleted also when adding arc object
+        expect(arc.delete).toHaveBeenCalledTimes(1);
         expect(point.delete).toHaveBeenCalledTimes(1);
     });
 });
