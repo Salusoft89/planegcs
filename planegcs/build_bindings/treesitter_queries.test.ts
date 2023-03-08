@@ -29,10 +29,10 @@ describe('TreeSitterQueries', () => {
                 params: 'double *param1, double *param2, double *difference, int tagId=0, bool driving = true'
             }]);
         });
-    });
+    }); 
 
     describe('queryEnum', () => {
-        it('returns a valid list of values for a given enum', () => {
+        it('works with (old) enum outside a class', () => {
             const src_string = `
             enum DebugMode {
                 NoDebug = 0,
@@ -53,7 +53,7 @@ describe('TreeSitterQueries', () => {
             }]);
         });
 
-        it('returns a valid list of values for an enum within a class', () => {
+        it('works with (old) enum inside a class', () => {
             const src_string = `
             class Test {
                 enum DebugMode {
@@ -73,6 +73,51 @@ describe('TreeSitterQueries', () => {
             }, {
                 name: 'IterationLevel',
                 value: 2
+            }]);
+        });
+
+        it('works with enum class inside a class', () => {
+            const src_string = `
+            class Test { 
+                public: 
+                    enum class Alignment {
+                        NoInternalAlignment,
+                        InternalAlignment,
+                        WhateverAlignment = 20,
+                        OtherAlignment
+                    }; 
+            };`; 
+  
+            const result = q.queryEnum('Test::Alignment', src_string);
+            expect(result).toEqual([{
+                name: 'NoInternalAlignment',
+                value: 0
+            }, {
+                name: 'InternalAlignment',
+                value: 1
+            }, {
+                name: 'WhateverAlignment',
+                value: 20
+            }, {
+                name: 'OtherAlignment',
+                value: 21
+            }]);
+        });
+
+        it('works with enum class outside a class', () => {
+            const src_string = `
+            enum class Alignment {
+                NoInternalAlignment,
+                InternalAlignment
+            };`; 
+  
+            const result = q.queryEnum('Alignment', src_string);
+            expect(result).toEqual([{
+                name: 'NoInternalAlignment',
+                value: 0
+            }, {
+                name: 'InternalAlignment',
+                value: 1
             }]);
         });
     });

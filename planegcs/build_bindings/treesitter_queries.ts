@@ -39,23 +39,23 @@ export default class TreeSitterQueries {
         `);
 
         const tree = this.parser.parse(src_string);
-        const enum_node = query_enum.matches(tree.rootNode)
-            .filter(match => match.captures[1].node.text === enum_base_name)[0]
-            .captures[0].node;
-
-        if (enum_node === undefined) {
+        const enums = query_enum.matches(tree.rootNode)
+            .filter(match => match.captures[1].node.text === enum_base_name);
+        if (enums.length === 0) {
             throw new Error(`Enum ${enum_name} not found`);
-        }
-
+        }        
+        const enum_node = enums[0].captures[0].node;
         let query_values: Parser.Query;
         if (enum_node.parent.type === 'field_declaration') {
             // enum is a member of a class, handle it differently
             query_values = new Parser.Query(Cpp, `
                 (initializer_list
-                    (assignment_expression
+                    [
+                     (assignment_expression
                         left: (identifier) @name
-                        right: (number_literal) @value
-                    )
+                        right: (number_literal) @value)
+                     (identifier) @name
+                    ]
                 )
             `);
         } else {
@@ -63,16 +63,24 @@ export default class TreeSitterQueries {
                 (enumerator_list
                     (enumerator
                         name: (identifier) @name
-                        value: (number_literal) @value
+                        value: (number_literal)? @value
                     )
                 )
             `);
         }
 
-        const enum_values = query_values.matches(enum_node.parent).map(match => ({
-            name: match.captures[0].node.text,
-            value: parseInt(match.captures[1].node.text, 10)
-        }));
+        const enum_values = [];
+        let i = 0;
+        for (const match of query_values.matches(enum_node.parent)) {
+            const name = match.captures[0].node.text;
+            if (match.captures[1] === undefined) {
+                // enum class does not have to have values
+                enum_values.push({ name, value: i++ });
+            } else {
+                i = parseInt(match.captures[1].node.text, 10);
+                enum_values.push({ name, value: i++ });
+            }
+        }
 
         return enum_values;
     }
