@@ -1,11 +1,12 @@
-import { camelToSnakeCase } from './utils.mjs';
+import { camelToSnakeCase } from './utils';
 
 export const exported_enums = [
     { 
         enum_name: 'InternalAlignmentType',
         file: '../Constraints.h'
     },
-    { enum_name: 'DebugMode', file: '../GCS.h' }
+    { enum_name: 'DebugMode', file: '../GCS.h' },
+    { enum_name: 'Constraint::Alignment', file: '../Constraints.h'}
 ];
 
 const exported_geometry_classes = [

@@ -1,20 +1,19 @@
 import Cpp from 'tree-sitter-cpp';
 import Parser from 'tree-sitter';
-import { filePath } from './utils.mjs';
+import { filePath } from './utils';
 import fs from 'fs';
 
 export default class TreeSitterQueries {
+    private parser: Parser;
+
     constructor() {
         this.parser = new Parser();
         this.parser.setLanguage(Cpp);
     }
 
-    loadCppTree(fname) {
-        const parser = new Parser(Cpp);
-        parser.setLanguage(Cpp);
-    
+    loadCppTree(fname) {    
         const sourceCode = fs.readFileSync(filePath(fname), 'utf8');
-        return parser.parse(sourceCode);
+        return this.parser.parse(sourceCode);
     }
 
     // () -> [ { fname: string, params: string } ]
@@ -50,9 +49,10 @@ export default class TreeSitterQueries {
                 )
             )
         `);
-        let tree = this.loadCppTree(enumFile);
+        const tree = this.loadCppTree(enumFile);
+        const enum_base_name = enumName.split('::').pop();
         const enum_node = query_enum.matches(tree.rootNode)
-            .filter(match => match.captures[1].node.text === enumName)[0]
+            .filter(match => match.captures[1].node.text === enum_base_name)[0]
             .captures[0].node;
 
         if (enum_node === undefined) {

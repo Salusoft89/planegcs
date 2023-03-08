@@ -1,10 +1,10 @@
-import { camelToSnakeCase } from './utils.mjs';
-import TreeSitterQueries from './treesitter_queries.mjs';
-import { class_letter_mapping, exported_enums, exported_vectors } from './config.mjs';
+import { camelToSnakeCase } from './utils';
+import TreeSitterQueries from './treesitter_queries';
+import { class_letter_mapping, exported_enums, exported_vectors } from './config';
 const tsq = new TreeSitterQueries();
 
 export function getConstraintFunctions() {
-    let functions = tsq.queryConstraintFunctions().map(item => ({
+    const functions = tsq.queryConstraintFunctions().map(item => ({
         ...item,
         fname_lower: camelToSnakeCase(item.fname),
         non_opt_params: paramsToList(item.params)
@@ -100,7 +100,7 @@ function fnSpecificator(params) {
 
 // used for arguments of addConstraint functions
 function paramsToList(params) {
-    let arr = params.split(', ');
+    const arr = params.split(', ');
     return arr.filter(param => !param.includes('tag') && !param.includes('driving'))
     .map(param => {
         const param_splitted = param
