@@ -1,7 +1,8 @@
 import Cpp from 'tree-sitter-cpp';
-import Parser from 'tree-sitter';
-import { filePath } from './utils';
-import fs from 'fs';
+import Parser, { Input, InputReader } from 'tree-sitter';
+
+type StringInput = string | Input | InputReader;
+type ParamType = { type: string, identifier: string };
 
 export default class TreeSitterQueries {
     private parser: Parser;
@@ -11,13 +12,7 @@ export default class TreeSitterQueries {
         this.parser.setLanguage(Cpp);
     }
 
-    loadCppTree(fname) {    
-        const sourceCode = fs.readFileSync(filePath(fname), 'utf8');
-        return this.parser.parse(sourceCode);
-    }
-
-    // () -> [ { fname: string, params: string } ]
-    queryConstraintFunctions() {
+    queryConstraintFunctions(src_string: StringInput): { fname: string, params: string }[] {
         // see https://tree-sitter.github.io/tree-sitter/playground
         const query = new Parser.Query(Cpp, `
         (field_declaration  
@@ -27,7 +22,7 @@ export default class TreeSitterQueries {
             (#match? @fn "addConstraint.+")        
         )
         `);
-        const tree = this.loadCppTree('../GCS.h');
+        const tree = this.parser.parse(src_string);
         const matches = query.matches(tree.rootNode);
         return matches.map(match => ({
             fname: match.captures[0].node.text,
@@ -35,40 +30,55 @@ export default class TreeSitterQueries {
         }));
     }
 
-    queryEnum(enumName, enumFile) {
+    queryEnum(enum_name: string, src_string: StringInput) {
+        const enum_base_name = enum_name.split('::').pop();
         const query_enum = new Parser.Query(Cpp, `
             (enum_specifier
                 name: (type_identifier) @enum_name
             ) @enum
         `);
-        const query_values = new Parser.Query(Cpp, `
-            (enumerator_list
-                (enumerator
-                    name: (identifier) @name
-                    value: (number_literal) @value
-                )
-            )
-        `);
-        const tree = this.loadCppTree(enumFile);
-        const enum_base_name = enumName.split('::').pop();
+
+        const tree = this.parser.parse(src_string);
         const enum_node = query_enum.matches(tree.rootNode)
             .filter(match => match.captures[1].node.text === enum_base_name)[0]
             .captures[0].node;
 
         if (enum_node === undefined) {
-            throw new Error(`Enum ${enumName} not found`);
+            throw new Error(`Enum ${enum_name} not found`);
         }
 
-        const enum_values = query_values.matches(enum_node).map(match => ({
+        let query_values: Parser.Query;
+        if (enum_node.parent.type === 'field_declaration') {
+            // enum is a member of a class, handle it differently
+            query_values = new Parser.Query(Cpp, `
+                (initializer_list
+                    (assignment_expression
+                        left: (identifier) @name
+                        right: (number_literal) @value
+                    )
+                )
+            `);
+        } else {
+            query_values = new Parser.Query(Cpp, `
+                (enumerator_list
+                    (enumerator
+                        name: (identifier) @name
+                        value: (number_literal) @value
+                    )
+                )
+            `);
+        }
+
+        const enum_values = query_values.matches(enum_node.parent).map(match => ({
             name: match.captures[0].node.text,
-            value: parseInt(match.captures[1].node.text)
+            value: parseInt(match.captures[1].node.text, 10)
         }));
 
         return enum_values;
     }
 
     // 2nd step (after creating bindings.cpp)
-    queryFunctionTypes() {
+    queryFunctionTypes(src_string: StringInput): { return_type: string, fname: string, params: ParamType[] }[] {
         const query = new Parser.Query(Cpp, `
             (function_definition
                 type: [
@@ -82,7 +92,7 @@ export default class TreeSitterQueries {
                 )
             )`);
 
-        const tree = this.loadCppTree('../bindings.cpp');
+        const tree = this.parser.parse(src_string);
         const matches = query.matches(tree.rootNode);
 
         return matches.map(match => ({
@@ -98,6 +108,3 @@ export default class TreeSitterQueries {
         }));
     }
 }
-
-// const tsq = new TreeSitterQueries();
-// console.log(tsq.queryFunctionTypes().map(fn => fn.params));

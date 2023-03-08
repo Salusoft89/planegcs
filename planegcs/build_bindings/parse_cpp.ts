@@ -1,10 +1,11 @@
-import { camelToSnakeCase } from './utils';
+import { camelToSnakeCase, utilReadFile } from './utils';
 import TreeSitterQueries from './treesitter_queries';
 import { class_letter_mapping, exported_enums, exported_vectors } from './config';
 const tsq = new TreeSitterQueries();
 
 export function getConstraintFunctions() {
-    const functions = tsq.queryConstraintFunctions().map(item => ({
+    const src_string = utilReadFile('../GCS.h');
+    const functions = tsq.queryConstraintFunctions(src_string).map(item => ({
         ...item,
         fname_lower: camelToSnakeCase(item.fname),
         non_opt_params: paramsToList(item.params)
@@ -58,7 +59,8 @@ const cppToJsTypeMapping = {
 }
 
 export function getFunctionTypesTypescript() {
-    const cpp_funcs = tsq.queryFunctionTypes();
+    const src_string = utilReadFile('../bindings.cpp');
+    const cpp_funcs = tsq.queryFunctionTypes(src_string);
     const ts_funcs = cpp_funcs.map(item => ({
         return_type: mapCppToJsType(item.return_type),
         fname: item.fname,

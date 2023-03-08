@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 
 export function camelToSnakeCase(str: string): string {
     str = str.replace(/([PL]2[PL])/, "$1_");
@@ -20,4 +21,8 @@ export function arrToNTuples(arr, n: number) {
 // fix relative paths for nodejs
 export function filePath(fname: string): string {
     return path.dirname(process.argv[1]) + "/" + fname;
+}
+
+export function utilReadFile(fname: string): string {
+    return fs.readFileSync(filePath(fname)).toString();
 }
