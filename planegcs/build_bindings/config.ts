@@ -80,7 +80,7 @@ export const exported_vectors = {
     'vector<int>': 'IntVector'
 };
 
-export function geometry_classes() {
+export function geometry_classes(): ({name: string, base?: string, skip_make?: boolean, make_fname: string})[] {
     return exported_geometry_classes.map(cls => ({
         ...cls,
         make_fname: `make_${camelToSnakeCase(cls.name)}`

@@ -3,8 +3,8 @@ jest.mock('../planegcs/bin/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
 
-var gcs_wrapper: GcsWrapper;
-var gcs: GcsSystemMock;
+let gcs_wrapper: GcsWrapper;
+let gcs: GcsSystemMock;
 
 describe("gcs_wrapper", () => {
     beforeAll(() => {
