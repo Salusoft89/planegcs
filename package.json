@@ -10,7 +10,8 @@
 		"build:emsc": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder ./build_emscripten.sh",
 		"build:docker": "docker build -t gcs_builder .",
 		"build": "npm run build:docker && npm run build:emsc",
-		"test": "jest --coverage"
+		"test": "jest",
+		"testc": "jest --coverage"
 	},
 	"devDependencies": {
 		"@babel/preset-env": "^7.20.2",
