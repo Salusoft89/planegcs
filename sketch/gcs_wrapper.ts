@@ -79,7 +79,7 @@ export class GcsWrapper {
 
         this.gcs.apply_solution();
         this.solved_sketch_index = new SketchIndex();
-        for (const [_, obj] of this.sketch_index.index) {
+        for (const [, obj] of this.sketch_index.index) {
             this.pull_object(obj);
         }
     }
@@ -119,7 +119,7 @@ export class GcsWrapper {
         this.gcs.set_param(pos, value, true);
     }
 
-    private push_params(id: oid, values: number[], fixed: boolean = false): number {
+    private push_params(id: oid, values: number[], fixed = false): number {
         const pos = this.gcs.params_size();
         for (const value of values) {
             this.gcs.push_param(value, fixed);
@@ -227,7 +227,7 @@ export class GcsWrapper {
 
     // is_extra => tag = -1
     push_constraint(c: Constraint, is_extra = false) {
-        const add_constraint_args: any[] = [];
+        const add_constraint_args: (string|number|boolean|GcsGeometry)[] = [];
         const deletable: GcsGeometry[] = [];
 
         const constraint_params = constraint_param_index[c.type];

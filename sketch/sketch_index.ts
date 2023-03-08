@@ -1,11 +1,8 @@
-import { SketchObject, SketchPoint, oid, is_sketch_geometry, SketchLine, SketchCircle, SketchArc, SketchGeometry, SketchParam } from "./sketch_object";
+import { SketchPoint, oid, is_sketch_geometry, SketchLine, SketchCircle, SketchArc, SketchGeometry } from "./sketch_object";
 import { Constraint } from "../planegcs/bin/constraints";
 
 export class SketchIndex {
     index: Map<oid, Constraint|SketchGeometry> = new Map();
-
-    constructor() {
-    }
 
     has(id: oid): boolean {
         return this.index.has(id);

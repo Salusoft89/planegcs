@@ -23,7 +23,7 @@ const obj_params_offsets = {
     }
 }
 
-export default function getParamOffset(obj_type: string, param_name: string) {
+export default function getParamOffset(obj_type: string, param_name: string): number {
     const obj_params = obj_params_offsets[obj_type];
     if (obj_params) {
         const offset = obj_params[param_name];
