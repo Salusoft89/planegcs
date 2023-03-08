@@ -2,7 +2,7 @@ import { SketchObject, SketchPoint, oid, is_sketch_geometry, SketchLine, SketchC
 import { Constraint } from "../planegcs/bin/constraints";
 
 export class SketchIndex {
-    index: Map<oid, SketchObject> = new Map();
+    index: Map<oid, Constraint|SketchGeometry> = new Map();
 
     constructor() {
     }
@@ -15,7 +15,7 @@ export class SketchIndex {
         this.index.set(obj.id, obj);
     }
 
-    get_object(id: oid): SketchObject {
+    get_object(id: oid): Constraint|SketchGeometry {
         const obj = this.index.get(id);
         if (obj === undefined) {
             throw new Error(`sketch object ${id} not found`);
@@ -59,7 +59,7 @@ export class SketchIndex {
         return Array.from(this.index.values()).filter(o => !is_sketch_geometry(o)) as Constraint[];
     }
 
-    get_objects(): SketchObject[] {
+    get_objects(): (Constraint|SketchGeometry)[] {
         return Array.from(this.index.values());
     }
 
