@@ -1,5 +1,6 @@
 import { camelToSnakeCase } from './utils.mjs';
 import TreeSitterQueries from './treesitter_queries.mjs';
+import { class_letter_mapping, exported_enums, exported_vectors } from './config.mjs';
 const tsq = new TreeSitterQueries();
 
 export function getConstraintFunctions() {
@@ -42,16 +43,8 @@ export function getConstraintFunctions() {
     })
 }
 
-const exportedEnums = [
-    { 
-        enum_name: 'InternalAlignmentType',
-        file: '../Constraints.h'
-    },
-    { enum_name: 'DebugMode', file: '../GCS.h' }
-]
-
 export function getEnums() {
-    return exportedEnums.map(({enum_name, file}) => ({
+    return exported_enums.map(({enum_name, file}) => ({
         name: enum_name,
         values: tsq.queryEnum(enum_name, file)
     }));
@@ -82,92 +75,15 @@ function mapCppToJsType(cppType) {
     if (cppType in cppToJsTypeMapping) {
         return cppToJsTypeMapping[cppType];
     }
-    const geom_classes = Object.keys(classLetterMapping);
-    const enums = exportedEnums.map(e => e.enum_name);
-    const vectors = {
-        'vector<double>': 'DoubleVector',
-        'vector<int>': 'IntVector'
-    };
+    const geom_classes = Object.keys(class_letter_mapping);
+    const enums = exported_enums.map(e => e.enum_name);
     if ([...geom_classes, ...enums].includes(cppType)) {
         return cppType;
-    } else if (cppType in vectors) {
-        return vectors[cppType]
+    } else if (cppType in exported_vectors) {
+        return exported_vectors[cppType]
     }
 
     throw new Error(`Unknown type ${cppType}!`);
-}
-
-export function getGeometryClasses() {
-    let classes = [
-        {
-            name: "Point",
-        },
-        {
-            name: "Curve",
-            skip_make: true,
-        },
-        {
-            name: "Line",
-            base: "Curve"
-        },
-        {
-            name: "Circle",
-            base: "Curve"
-        },
-        {
-            name: "Ellipse",
-            base: "Curve"
-        },
-        {
-            name: "Hyperbola",
-            base: "Curve"
-        },
-        {
-            name: "Parabola",
-            base: "Curve"
-        },
-        {
-            name: "Arc",
-            base: "Circle"
-        },
-        {
-            name: "ArcOfHyperbola",
-            base: "Hyperbola"
-        },
-        {
-            name: "ArcOfEllipse",
-            base: "Ellipse"
-        },
-        {
-            name: "ArcOfParabola",
-            base: "Parabola"
-        },
-        {
-            name: "BSpline",
-            base: "Curve",
-            skip_make: true
-        }
-    ]
-
-    return classes.map(cls => ({
-        ...cls,
-        make_fname: `make_${camelToSnakeCase(cls.name)}`
-    }));
-}
-
-const classLetterMapping = {
-    "Point": "p",
-    "Line": "l",
-    "Circle": "c",
-    "Ellipse": "e",
-    "Hyperbola": "h",
-    "Parabola": "pb",
-    "Arc": "a",
-    "ArcOfHyperbola": "ah",
-    "ArcOfEllipse": "ae",
-    "ArcOfParabola": "ap",
-    "Curve": "cv",
-    "BSpline": "bs"
 }
 
 // necessary for specifying overloaded functions
@@ -175,8 +91,8 @@ const classLetterMapping = {
 function fnSpecificator(params) {
     let output = "";
     for (const token of params.split(' ')) {
-        if (token in classLetterMapping) {
-            output += classLetterMapping[token];
+        if (token in class_letter_mapping) {
+            output += class_letter_mapping[token];
         }
     }
     return output;

@@ -1,13 +1,14 @@
 import fs from 'fs';
 import { arrToNTuples, filePath } from './utils.mjs';
-import { getConstraintFunctions, getEnums, getFunctionTypesTypescript, getGeometryClasses } from './parse_cpp.mjs';
+import { getConstraintFunctions, getEnums, getFunctionTypesTypescript } from './parse_cpp.mjs';
+import { geometry_classes } from './config.mjs';
 import nunjucks from 'nunjucks';
 nunjucks.configure({ autoescape: false })
 
 // get the data from the cpp analysis
 const fn_constraints = getConstraintFunctions();
 const enums = getEnums();
-const geom_classes = getGeometryClasses();
+const geom_classes = geometry_classes();
 // todo: refactor the deps to Makefile
 let fn_ts_bindings = null; // depends on generating bindings.cpp first
 
