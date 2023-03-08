@@ -5,6 +5,7 @@
 	"main": "index.ts",
 	"scripts": {
 		"build:em": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder ./build_emscripten.sh",
+		"build:update": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder ./update_freecad.sh",
 		"build:bindings": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'cd build_bindings && npm install && ./process_all.sh'",
 		"build:docker": "docker build -t gcs_builder .",
 		"build": "npm run build:docker && npm run build:em",
