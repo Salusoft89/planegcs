@@ -65,16 +65,3 @@ export function is_sketch_geometry(o: SketchObject): o is SketchGeometry {
 }
 
 // todo: add SketchHyperbola and SketchArcOfHyperbola
-// export function get_radmaj(obj: SketchEllipse|SketchArcOfEllipse) {
-// 	// compute the radmaj of ellipse
-// 	const c = Math.sqrt((obj.center.x - obj.focus1.x) ** 2 + (center.y - focus1.y) ** 2);
-// 	const a = Math.sqrt(c ** 2 + obj.radmin ** 2);
-// }
-
-// export function fix_angle(angle: number): number {
-//     angle %= 2 * Math.PI;
-//     if (angle < -1e-10) { // some comptation nuances for angles near 0
-//         angle += 2 * Math.PI;
-//     }
-//     return angle;
-// }
