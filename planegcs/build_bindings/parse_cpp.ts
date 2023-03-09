@@ -118,6 +118,7 @@ function paramsToList(params: string) {
             type,
             identifier,
             i_suffix: identifier.startsWith('param') ? '_i' : '_param_i',
+            is_enum: exported_enums.map(e => e.enum_name).includes(type),
         };
     });
 }

@@ -9,7 +9,7 @@ interface ObjectParam {
     param: string;
 }
 {% for enum in enums %}
-enum {{ enum.name }} {
+enum {{ enum.name | replace('::', '_') }} {
     {% for val in enum.values -%}
     {{ val.name }} = {{ val.value }},
     {% endfor %}
@@ -26,8 +26,8 @@ export interface {{ item.constraint_name }} extends Id {
     {{ param.identifier }}: number;
     {%- elif param.type == 'bool' %}
     {{ param.identifier }}: boolean;
-    {%- elif param.type == 'InternalAlignmentType' %}
-    {{ param.identifier }}: InternalAlignmentType;
+    {%- elif param.is_enum %}
+    {{ param.identifier }}: {{ param.type | replace('::', '_') }};
     {%- else %} {# object (Line, Parabola, Point, ...) #}
     {{ param.identifier | replace('&', '') }}_id: oid; // {{ param.type }}
     {%- endif %}
