@@ -7,8 +7,8 @@ export function camelToSnakeCase(str: string): string {
 }
 
 // [1, 2, 3, 4], 2 -> [[1, 2], [3, 4]]
-export function arrToNTuples(arr, n: number) {
-    return arr.reduce((acc, arg, i) => {
+export function arrToNTuples<T>(arr: T[], n: number): T[][] {
+    return arr.reduce((acc: T[][], arg, i) => {
         if (i % n === 0) {
             acc.push([arg]);
         } else {

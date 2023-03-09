@@ -6,7 +6,7 @@ export const exported_enums = [
         file: '../Constraints.h'
     },
     { enum_name: 'DebugMode', file: '../GCS.h' },
-    // { enum_name: 'Constraint::Alignment', file: '../Constraints.h'}
+    { enum_name: 'Constraint::Alignment', file: '../Constraints.h'}
 ];
 
 const exported_geometry_classes = [
@@ -60,7 +60,7 @@ const exported_geometry_classes = [
     }
 ]
 
-export const class_letter_mapping = {
+export const class_letter_mapping: Record<string, string> = {
     "Point": "p",
     "Line": "l",
     "Circle": "c",
@@ -75,7 +75,7 @@ export const class_letter_mapping = {
     "BSpline": "bs"
 }
 
-export const exported_vectors = {
+export const exported_vectors: Record<string, string> = {
     'vector<double>': 'DoubleVector',
     'vector<int>': 'IntVector'
 };

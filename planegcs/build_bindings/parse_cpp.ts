@@ -51,7 +51,7 @@ export function getEnums() {
     }));
 }
 
-const cppToJsTypeMapping = {
+const cppToJsTypeMapping: Record<string, string> = {
     "double": "number",
     "int": "number",
     "bool": "boolean",
@@ -73,7 +73,7 @@ export function getFunctionTypesTypescript() {
     return ts_funcs;
 }
 
-function mapCppToJsType(cppType) {
+function mapCppToJsType(cppType: string): string {
     if (cppType in cppToJsTypeMapping) {
         return cppToJsTypeMapping[cppType];
     }
@@ -90,7 +90,7 @@ function mapCppToJsType(cppType) {
 
 // necessary for specifying overloaded functions
 // e.g. function that takes Point, Line as arguments would be suffixed with `_pl`
-function fnSpecificator(params) {
+function fnSpecificator(params: string) {
     let output = "";
     for (const token of params.split(' ')) {
         if (token in class_letter_mapping) {
@@ -101,7 +101,7 @@ function fnSpecificator(params) {
 }
 
 // used for arguments of addConstraint functions
-function paramsToList(params) {
+function paramsToList(params: string) {
     const arr = params.split(', ');
     return arr.filter(param => !param.includes('tag') && !param.includes('driving'))
     .map(param => {
