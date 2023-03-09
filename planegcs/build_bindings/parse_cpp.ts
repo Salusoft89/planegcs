@@ -108,6 +108,7 @@ function paramsToList(params: string) {
         const param_splitted = param
             .replace('double *', 'double* ')
             .replace('internal=false', 'internal') // only in addConstraintTangentCircumf
+            .replace('unsigned int', 'int') // javascript has only 'number' so we use int 
             .trim()
             .split(' ');
 
