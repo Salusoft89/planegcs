@@ -44,9 +44,9 @@ export default class TreeSitterQueries {
         if (enums.length === 0) {
             throw new Error(`Enum ${enum_name} not found`);
         }        
-        const enum_node = enums[0].captures[0].node;
+        let enum_node = enums[0].captures[0].node;
         let query_values: Parser.Query;
-        if (enum_node.parent.type === 'field_declaration') {
+        if (enum_node.parent?.type === 'field_declaration') {
             // enum is a member of a class, handle it differently
             query_values = new Parser.Query(Cpp, `
                 (initializer_list
@@ -58,6 +58,7 @@ export default class TreeSitterQueries {
                     ]
                 )
             `);
+            enum_node = enum_node.parent;
         } else {
             query_values = new Parser.Query(Cpp, `
                 (enumerator_list
@@ -71,7 +72,7 @@ export default class TreeSitterQueries {
 
         const enum_values = [];
         let i = 0;
-        for (const match of query_values.matches(enum_node.parent)) {
+        for (const match of query_values.matches(enum_node)) {
             const name = match.captures[0].node.text;
             if (match.captures[1] === undefined) {
                 // enum class does not have to have values
