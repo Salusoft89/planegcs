@@ -23,10 +23,23 @@ describe('TreeSitterQueries', () => {
 
             expect(result).toEqual([{
                 fname: 'addConstraintEqual',
-                params: 'double *param1, double *param2, int tagId=0, bool driving = true'
+                params: 'double *param1, double *param2, int tagId=0, bool driving = true',
+                params_list: [
+                    { type: 'double', identifier: '*param1' },
+                    { type: 'double', identifier: '*param2' },
+                    { type: 'int', identifier: 'tagId', optional_value: '0' },
+                    { type: 'bool', identifier: 'driving', optional_value: 'true' }
+                ]
             }, {
                 fname: 'addConstraintDifference',
-                params: 'double *param1, double *param2, double *difference, int tagId=0, bool driving = true'
+                params: 'double *param1, double *param2, double *difference, int tagId=0, bool driving = true',
+                params_list: [
+                    { type: 'double', identifier: '*param1' },
+                    { type: 'double', identifier: '*param2' },
+                    { type: 'double', identifier: '*difference' },
+                    { type: 'int', identifier: 'tagId', optional_value: '0' },
+                    { type: 'bool', identifier: 'driving', optional_value: 'true' }
+                ]
             }]);
         });
     }); 
@@ -166,6 +179,75 @@ describe('TreeSitterQueries', () => {
                     }
                 ],
                 return_type: 'Ellipse'
+            }]);
+        });
+
+        it('works with a function with reference arguments', () => {
+            const src_string = `
+                class Test {
+                    void set_x(int &x, double y) {}
+                };
+            `;
+
+            const result = q.queryFunctionTypes(src_string);
+            expect(result).toEqual([{
+                fname: 'set_x',
+                params: [
+                    {
+                        identifier: '&x',
+                        type: 'int'
+                    }, 
+                    {
+                        identifier: 'y',
+                        type: 'double'
+                    }
+                ],
+                return_type: 'void'
+            }]);
+        });
+
+        it('works with a function with double* arguments', () => {
+            const src_string = `
+                class Test {
+                    void set_x(double *x) {}
+                };
+            `;
+ 
+            const result = q.queryFunctionTypes(src_string);
+            expect(result).toEqual([{
+                fname: 'set_x',
+                params: [
+                    {
+                        identifier: '*x',
+                        type: 'double'
+                    }
+                ],
+                return_type: 'void'
+            }]);
+        });
+
+        it ('works with a function with a default argument', () => {
+            const src_string = `
+                class Test {
+                    void set_x(double x, double y=0) {}
+                };
+            `;
+
+            const result = q.queryFunctionTypes(src_string);
+            expect(result).toEqual([{
+                fname: 'set_x',
+                params: [
+                    {
+                        identifier: 'x',
+                        type: 'double'
+                    },
+                    {
+                        identifier: 'y',
+                        type: 'double',
+                        optional_value: '0'
+                    }
+                ],
+                return_type: 'void'
             }]);
         });
     });

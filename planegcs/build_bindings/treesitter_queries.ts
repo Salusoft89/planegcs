@@ -2,7 +2,7 @@ import Cpp from 'tree-sitter-cpp';
 import Parser, { Input, InputReader } from 'tree-sitter';
 
 type StringInput = string | Input | InputReader;
-type ParamType = { type: string, identifier: string };
+type ParamType = { type: string, identifier: string, optional_value?: string };
 
 export default class TreeSitterQueries {
     private parser: Parser;
@@ -26,7 +26,8 @@ export default class TreeSitterQueries {
         const matches = query.matches(tree.rootNode);
         return matches.map(match => ({
             fname: match.captures[0].node.text,
-            params: match.captures[1].node.text.replace('(', '').replace(')', '').replace(/\s+/g, ' ')
+            params: match.captures[1].node.text.replace('(', '').replace(')', '').replace(/\s+/g, ' '),
+            params_list: this.getParameters(match.captures[1].node)
         }));
     }
 
@@ -107,13 +108,44 @@ export default class TreeSitterQueries {
         return matches.map(match => ({
             return_type: match.captures[0].node.text,
             fname: match.captures[1].node.text,
-            params: match.captures[2].node.text
-                .replace('(', '').replace(')', '')
-                .replace(/\s+/g, ' ')
-                .split(', ')
-                .filter(s => s !== '')
-                .map(declaration => declaration.trim().split(' '))
-                .map(([type, identifier]) => ({ type, identifier }))
+            params: this.getParameters(match.captures[2].node)
         }));
+    }
+
+    private getParameters(param_list_node: Parser.SyntaxNode): ParamType[] {
+        if (param_list_node.type !== 'parameter_list') {
+            throw new Error('Expected parameter_list, got ' + param_list_node.type);
+        }
+
+        const query = new Parser.Query(Cpp, `
+            declarator: [
+                (identifier) @name
+                (reference_declarator
+                    (identifier)) @name
+                (pointer_declarator
+                    (identifier)) @name
+            ]`);
+        const matches = query.matches(param_list_node);
+
+        const params: ParamType[] = [];
+        for (const match of matches) {
+            const match_node = match.captures[0].node;
+            let optional_value: string | null = null;
+            if (match_node.parent?.type === 'optional_parameter_declaration') {
+                optional_value = match_node.parent.children[3].text;
+            } else if (match_node.parent?.type !== 'parameter_declaration') {
+                // this case has already been handled by other match, because
+                // the declarations can be nested
+                continue;
+            }
+
+            const identifier = match_node.text;
+            const type = match_node.parent?.children[0]?.text;
+            if (type === undefined) {
+                throw new Error(`Could not find type for parameter ${identifier}`);
+            }
+            params.push(optional_value ? { identifier, type, optional_value } : { identifier, type });
+        }
+        return params;
     }
 }
