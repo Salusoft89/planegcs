@@ -1,6 +1,8 @@
 #ifndef BASE_H
 #define BASE_H
 
+#include <stdio.h>
+
 class Console {
 public:
     static void Log(const char* format, ...) {
@@ -10,5 +12,6 @@ public:
         va_end(args);
     }
 };
+
 
 #endif // BASE_H

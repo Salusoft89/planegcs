@@ -24,7 +24,7 @@
 #define PLANEGCS_SUBSYSTEM_H
 
 #undef min
-#undef max 
+#undef max
 
 #include <Eigen/Core>
 #include "Constraints.h"
