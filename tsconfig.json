@@ -1,10 +1,15 @@
 {
     "compilerOptions": {
         "esModuleInterop": true,
-        "target": "es2015", // allow iterating over maps
+        "target": "es2021", // allow iterating over maps
         "moduleResolution": "node"
     },
     "exclude": [
         "**/CMakeFiles",
     ],
+    // "extends": "ts-node/node16/tsconfig.json",
+    "ts-node": {
+        "transpileOnly": true,
+        "files": true,
+    },
 }

@@ -9,7 +9,7 @@ interface ObjectParam {
     param: string;
 }
 {% for enum in enums %}
-enum {{ enum.name }} {
+enum {{ enum.name | replace('::', '_') }} {
     {% for val in enum.values -%}
     {{ val.name }} = {{ val.value }},
     {% endfor %}
@@ -19,20 +19,21 @@ enum {{ enum.name }} {
 {% for item in fn_constraints %}
 export interface {{ item.constraint_name }} extends Id {
     type: '{{ item.constraint_type }}';
-{%- for param in item.non_opt_params -%}
-    {% if param.type == 'double*' %}
-    {{ param.identifier }}: ObjectParam|number|string;
-    {%- elif param.type in ['double', 'int'] %}
-    {{ param.identifier }}: number;
+{%- for param in item.params_list -%}
+    {% set optional = '?' if param.optional_value else '' -%}
+    {% if param.type == 'double' and param.identifier[0] == '*' %}
+    {{ param.identifier | replace('*', '') + optional}}: ObjectParam|number|string;
+    {%- elif param.identifier == 'tagId' %} {# skip #}
+    {%- elif param.type in ['double', 'int', 'unsigned double', 'unsigned int'] %}
+    {{ param.identifier + optional }}: number;
     {%- elif param.type == 'bool' %}
-    {{ param.identifier }}: boolean;
-    {%- elif param.type == 'InternalAlignmentType' %}
-    {{ param.identifier }}: InternalAlignmentType;
+    {{ param.identifier + optional }}: boolean;
+    {%- elif param.is_enum %}
+    {{ param.identifier + optional }}: {{ param.type | replace('::', '_') }};
     {%- else %} {# object (Line, Parabola, Point, ...) #}
-    {{ param.identifier | replace('&', '') }}_id: oid; // {{ param.type }}
+    {{ param.identifier | replace('&', '') + optional }}_id: oid; // {{ param.type }}
     {%- endif %}
 {%- endfor %}
-    driving?: boolean;
 }
 {% endfor %}
 

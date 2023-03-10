@@ -70,7 +70,7 @@
 #   ifndef FC_OS_MACOSX
 #   define FC_OS_MACOSX
 #   endif
-#elif defined(linux) || defined(__linux) || defined(__linux__) || defined(__GLIBC__) || defined(unix)
+#elif defined(unix) || defined(__linux) || defined(__linux__) || defined(__GLIBC__)
 #   ifndef FC_OS_LINUX
 #   define FC_OS_LINUX
 #   endif
@@ -304,10 +304,10 @@ typedef unsigned __int64    uint64_t;
 
 //**************************************************************************
 // Windows import export DLL defines
-#include "FCGlobal.h"
+#include <FCGlobal.h>
 
 //**************************************************************************
-// here get the warnings of too long specifiers disabled (needed for VC6)
+// point at which warnings of overly long specifiers disabled (needed for VC6)
 #ifdef _MSC_VER
 #   pragma warning( disable : 4251 )
 //#   pragma warning( disable : 4503 )

@@ -1,10 +1,10 @@
 export const constraint_param_index = {
 {%- for constraint in fn_constraints %}
     {{ constraint.constraint_type }}: {
-        {%- for param in constraint.non_opt_params -%}
-            {% if param.type == 'double*' %}
-            {{ param.identifier }}: 'object_param_or_number',
-            {%- elif param.type in ['double', 'int', 'bool', 'InternalAlignmentType'] %}
+        {%- for param in constraint.params_list -%}
+            {% if param.type == 'double' and param.identifier[0] == '*' %}
+            {{ param.identifier | replace('*', '') }}: 'object_param_or_number',
+            {%- elif param.type in ['double', 'int', 'bool'] or param.is_enum %}
             {{ param.identifier }}: 'primitive',
             {%- else %} {# object (Line, Parabola, Point, ...) #}
             {{ param.identifier | replace('&', '') }}_id: 'object_id', 
