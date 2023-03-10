@@ -24,6 +24,7 @@ rm -rf FreeCAD
 # apply patches
 ts-node patch_file.ts GCS.cpp "Base::Console().Log" "Console::Log"
 ts-node patch_file.ts GCS.cpp "<Base/Console.h>" "<Console.h>"
+# disable using std::async (not available in emscripten without use of web workers)
 ts-node patch_file.ts GCS.cpp \
      "auto fut = std::async(&System::identifyDependentParametersSparseQR,this,J,jacobianconstraintmap, pdiagnoselist, /*silent=*/true);" \
      "identifyDependentParametersSparseQR(J, jacobianconstraintmap, pdiagnoselist, true);"
