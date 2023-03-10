@@ -1,16 +1,16 @@
-import ModuleFactory from '../planegcs/bin/planegcs.js';
+import PlanegcsWasm from '../planegcs/bin/planegcs.js';
 import { GcsSystem } from '../planegcs/bin/gcs_system';
 
-let module;
+let gcs_factory;
 let gcs: GcsSystem;
 
 describe("planegcs", () => {
     beforeAll(async () => {
-        module = await ModuleFactory();
+        gcs_factory = await PlanegcsWasm();
     });
     
     beforeEach(() => {
-        gcs = new module.GcsSystem();
+        gcs = new gcs_factory.GcsSystem();
     });
 
     afterEach(() => {
