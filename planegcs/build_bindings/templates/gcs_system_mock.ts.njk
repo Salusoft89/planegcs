@@ -4,17 +4,15 @@ import type {
     {{ cls.name }},
     {%- endfor %}
     {% for enum in enums -%}
-    {{ enum.name }},
+    {{ enum.name | replace('::', '_') }},
     {%- endfor %}
 } from "./planegcs";
 
 export class GcsGeometryMock implements GcsGeometry {
-    constructor() {}
     delete(): void { return undefined; }
 }
 
 export class GcsSystemMock implements GcsSystem {
-    constructor() {}
     {%- for func in fn_ts_bindings %}
     {{ func.fname }}({{ func.args }}): {{ func.return_type }} { return undefined; }
     {%- endfor %}

@@ -1,8 +1,8 @@
 import ModuleFactory from '../planegcs/bin/planegcs.js';
 import { GcsSystem } from '../planegcs/bin/gcs_system';
 
-var module;
-var gcs: GcsSystem;
+let module;
+let gcs: GcsSystem;
 
 describe("planegcs", () => {
     beforeAll(async () => {

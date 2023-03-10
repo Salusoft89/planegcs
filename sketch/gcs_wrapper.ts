@@ -2,14 +2,14 @@ import { Constraint, ConstraintParam } from "../planegcs/bin/constraints";
 import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
 import { SketchIndex } from "./sketch_index";
 import { is_sketch_geometry, oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
-import type { GcsGeometry, GcsSystem } from "../planegcs/bin/gcs_system";
+import { Constraint_Alignment, GcsGeometry, GcsSystem, InternalAlignmentType } from "../planegcs/bin/gcs_system";
 import getParamOffset from "./geom_params";
 
-export class GcsWrapper {
+export class GcsWrapper { 
     gcs: GcsSystem;
     param_index: Map<oid, number>;
     sketch_index: SketchIndex;
-    solved_sketch_index: SketchIndex;
+    solved_sketch_index: SketchIndex = new SketchIndex();
     // 'mouse_x' -> 10, 'mouse_y' -> 100, ...
     sketch_param_index: Map<string, number>;
 
@@ -240,6 +240,22 @@ export class GcsWrapper {
             if (type === undefined) {
                 throw new Error(`unknown parameter type: ${type} in constraint ${c.type}`);
             }
+
+            // parameters with default values
+            if (parameter === 'tagId') {
+                add_constraint_args.push(is_extra ? -1 : c.id);
+                continue;
+            }
+            if (parameter === 'driving') {
+                // add the driving? value (true by default)
+                add_constraint_args.push(c.driving ?? true);
+                continue;
+            }
+            if (parameter === 'internalalignment' && c.type === 'equal') {
+                add_constraint_args.push(c.internalalignment ?? Constraint_Alignment.NoInternalAlignment);
+                continue;
+            }
+
             const val = c[parameter] as ConstraintParam;
             const is_fixed = (c.driving ?? true);
             
@@ -257,7 +273,7 @@ export class GcsWrapper {
                     add_constraint_args.push(param_addr);
                 } else if (typeof val === 'boolean') {
                     add_constraint_args.push(val);
-                } else {
+                } else if (val !== undefined) {
                     const object_type = this.sketch_index.get_object(val.o_id).type;
                     const param_addr = this.get_obj_addr(val.o_id) + getParamOffset(object_type, val.param);
                     add_constraint_args.push(param_addr);
@@ -275,10 +291,6 @@ export class GcsWrapper {
                 throw new Error(`unhandled parameter type: ${type}`);
             }
         }
-        // use the object_id as the tag parameter (or use -1 for extra constraints)
-        add_constraint_args.push(is_extra ? -1 : c.id);
-        // add the driving? value (true by default)
-        add_constraint_args.push(c.driving ?? true);
 
         const c_name: string = c.type;
         this.gcs[`add_constraint_${c_name}`](...add_constraint_args);

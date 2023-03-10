@@ -2,6 +2,7 @@ import { GcsGeometryMock, GcsSystemMock } from "../planegcs/bin/gcs_system_mock"
 jest.mock('../planegcs/bin/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
+import { Constraint_Alignment } from "../planegcs/bin/gcs_system";
 
 let gcs_wrapper: GcsWrapper;
 let gcs: GcsSystemMock;
@@ -72,19 +73,19 @@ describe("gcs_wrapper", () => {
         expect(gcs.push_param).toHaveBeenLastCalledWith(5, true);
 
         const tag = 2;
-        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, true);
+        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, true, 0);
     });
 
-    it("calls add_constraint_equal with driving parameter when provided", () => {
+    it("calls add_constraint_equal with driving parameter and internal constraint when provided", () => {
         const o1_p1_addr = 0;
         jest.spyOn(gcs, 'params_size').mockReturnValue(o1_p1_addr);
         gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
         const value_addr = 2;
         jest.spyOn(gcs, 'params_size').mockReturnValue(value_addr);
-        gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, param: 'x' }, param2: 5, driving: false});
+        gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, param: 'x' }, param2: 5, driving: false, internalalignment: Constraint_Alignment.InternalAlignment});
 
-        const tag = 2;
-        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, false);
+        const tag = 2; 
+        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, false, 1);
     });
 
     it("calls add_constraint_angle_via_point when adding a constraint (with shuffled arguments)", () => {
