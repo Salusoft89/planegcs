@@ -18,12 +18,11 @@ describe('TreeSitterQueries', () => {
                         double *difference, int tagId=0, bool driving = true);
             };
             `;
-
+ 
             const result = q.queryConstraintFunctions(src_string);
 
             expect(result).toEqual([{
                 fname: 'addConstraintEqual',
-                params: 'double *param1, double *param2, int tagId=0, bool driving = true',
                 params_list: [
                     { type: 'double', identifier: '*param1' },
                     { type: 'double', identifier: '*param2' },
@@ -32,7 +31,6 @@ describe('TreeSitterQueries', () => {
                 ]
             }, {
                 fname: 'addConstraintDifference',
-                params: 'double *param1, double *param2, double *difference, int tagId=0, bool driving = true',
                 params_list: [
                     { type: 'double', identifier: '*param1' },
                     { type: 'double', identifier: '*param2' },
@@ -245,6 +243,26 @@ describe('TreeSitterQueries', () => {
                         identifier: 'y',
                         type: 'double',
                         optional_value: '0'
+                    }
+                ],
+                return_type: 'void'
+            }]);
+        });
+
+        it('works with unsigned int', () => {
+            const src_string = `
+                class Test {
+                    void set_x(unsigned int x) {}
+                };
+            `;
+
+            const result = q.queryFunctionTypes(src_string);
+            expect(result).toEqual([{
+                fname: 'set_x',
+                params: [
+                    {
+                        identifier: 'x',
+                        type: 'unsigned int'
                     }
                 ],
                 return_type: 'void'

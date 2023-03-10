@@ -22,7 +22,7 @@ export interface {{ cls.name }} {
 export type GcsGeometry = {% for cls in geom_classes %}{{ cls.name }}{% if not loop.last %} | {% endif %}{% endfor %};
 
 {% for enum in enums %}
-export enum {{ enum.name }} {
+export enum {{ enum.name | replace('::', '_') }} {
     {% for value in enum.values -%}
         {{ value.name }} = {{ value.value }},
     {% endfor -%}

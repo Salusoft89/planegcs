@@ -2,7 +2,7 @@ import Cpp from 'tree-sitter-cpp';
 import Parser, { Input, InputReader } from 'tree-sitter';
 
 type StringInput = string | Input | InputReader;
-type ParamType = { type: string, identifier: string, optional_value?: string };
+export type ParamType = { type: string, identifier: string, optional_value?: string };
 
 export default class TreeSitterQueries {
     private parser: Parser;
@@ -12,7 +12,7 @@ export default class TreeSitterQueries {
         this.parser.setLanguage(Cpp);
     }
 
-    queryConstraintFunctions(src_string: StringInput): { fname: string, params: string }[] {
+    queryConstraintFunctions(src_string: StringInput): { fname: string, params_list: ParamType[] }[] {
         // see https://tree-sitter.github.io/tree-sitter/playground
         const query = new Parser.Query(Cpp, `
         (field_declaration  
@@ -26,7 +26,6 @@ export default class TreeSitterQueries {
         const matches = query.matches(tree.rootNode);
         return matches.map(match => ({
             fname: match.captures[0].node.text,
-            params: match.captures[1].node.text.replace('(', '').replace(')', '').replace(/\s+/g, ' '),
             params_list: this.getParameters(match.captures[1].node)
         }));
     }
