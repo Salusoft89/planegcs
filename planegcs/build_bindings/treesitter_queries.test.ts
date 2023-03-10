@@ -46,22 +46,27 @@ describe('TreeSitterQueries', () => {
         it('works with (old) enum outside a class', () => {
             const src_string = `
             enum DebugMode {
-                NoDebug = 0,
+                NoDebug = 0, 
                 Minimal = 1,
                 IterationLevel = 2
             };`;
  
             const result = q.queryEnum('DebugMode', src_string);
-            expect(result).toEqual([{
-                name: 'NoDebug',
-                value: 0
-            }, {
-                name: 'Minimal',
-                value: 1
-            }, {
-                name: 'IterationLevel',
-                value: 2
-            }]);
+            expect(result).toEqual(
+                {
+                    name: 'DebugMode',
+                    is_enum_class: false,
+                    values: [{
+                        name: 'NoDebug',
+                        value: 0
+                    }, {
+                        name: 'Minimal',
+                        value: 1
+                    }, {
+                        name: 'IterationLevel',
+                        value: 2
+                    }]
+                });
         });
 
         it('works with (old) enum inside a class', () => {
@@ -75,16 +80,20 @@ describe('TreeSitterQueries', () => {
             };`;
  
             const result = q.queryEnum('Test::DebugMode', src_string);
-            expect(result).toEqual([{
-                name: 'NoDebug',
-                value: 0
-            }, {
-                name: 'Minimal',
-                value: 1
-            }, {
-                name: 'IterationLevel',
-                value: 2
-            }]);
+            expect(result).toEqual({
+                name: 'Test::DebugMode',
+                is_enum_class: false, 
+                values: [{
+                    name: 'NoDebug',
+                    value: 0
+                }, {
+                    name: 'Minimal',
+                    value: 1
+                }, {
+                    name: 'IterationLevel',
+                    value: 2
+                }]
+            });
         });
 
         it('works with enum class inside a class', () => {
@@ -100,19 +109,22 @@ describe('TreeSitterQueries', () => {
             };`; 
   
             const result = q.queryEnum('Test::Alignment', src_string);
-            expect(result).toEqual([{
-                name: 'NoInternalAlignment',
-                value: 0
-            }, {
-                name: 'InternalAlignment',
-                value: 1
-            }, {
-                name: 'WhateverAlignment',
-                value: 20
-            }, {
-                name: 'OtherAlignment',
-                value: 21
-            }]);
+            expect(result).toEqual({
+                name: 'Test::Alignment',
+                is_enum_class: true, 
+                values: [{
+                    name: 'NoInternalAlignment',
+                    value: 0
+                }, {
+                    name: 'InternalAlignment',
+                    value: 1
+                }, {
+                    name: 'WhateverAlignment',
+                    value: 20
+                }, {
+                    name: 'OtherAlignment',
+                    value: 21
+                }]});
         });
 
         it('works with enum class outside a class', () => {
@@ -123,13 +135,16 @@ describe('TreeSitterQueries', () => {
             };`; 
   
             const result = q.queryEnum('Alignment', src_string);
-            expect(result).toEqual([{
-                name: 'NoInternalAlignment',
-                value: 0
-            }, {
-                name: 'InternalAlignment',
-                value: 1
-            }]);
+            expect(result).toEqual({
+                name: 'Alignment', 
+                is_enum_class: true, 
+                values: [{
+                    name: 'NoInternalAlignment',
+                    value: 0
+                }, {
+                    name: 'InternalAlignment',
+                    value: 1
+                }]});
         });
     });
 

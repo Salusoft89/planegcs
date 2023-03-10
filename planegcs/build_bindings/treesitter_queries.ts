@@ -3,6 +3,7 @@ import Parser, { Input, InputReader } from 'tree-sitter';
 
 type StringInput = string | Input | InputReader;
 export type ParamType = { type: string, identifier: string, optional_value?: string };
+export type EnumType = { name: string, is_enum_class: boolean, values: { name: string, value: number }[] };
 
 export default class TreeSitterQueries {
     private parser: Parser;
@@ -30,7 +31,7 @@ export default class TreeSitterQueries {
         }));
     }
 
-    queryEnum(enum_name: string, src_string: StringInput) {
+    queryEnum(enum_name: string, src_string: StringInput): EnumType {
         const enum_base_name = enum_name.split('::').pop();
         const query_enum = new Parser.Query(Cpp, `
             (enum_specifier
@@ -83,7 +84,11 @@ export default class TreeSitterQueries {
             }
         }
 
-        return enum_values;
+        return {
+            name: enum_name,
+            is_enum_class: enum_node.text.trim().startsWith('enum class'),
+            values: enum_values,
+        };
     }
 
     // 2nd step (after creating bindings.cpp)

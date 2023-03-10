@@ -1,5 +1,5 @@
 import { camelToSnakeCase, utilReadFile } from './utils';
-import TreeSitterQueries, { ParamType } from './treesitter_queries';
+import TreeSitterQueries, { EnumType, ParamType } from './treesitter_queries';
 import { class_letter_mapping, exported_enums } from './config';
 import { cpp_type_to_js_type } from './cpp2js';
 const tsq = new TreeSitterQueries();
@@ -50,11 +50,8 @@ export function getConstraintFunctions() {
     })
 }
 
-export function getEnums() {
-    return exported_enums.map(({enum_name, file}) => ({
-        name: enum_name,
-        values: tsq.queryEnum(enum_name, utilReadFile(file))
-    }));
+export function getEnums(): EnumType[] {
+    return exported_enums.map(({enum_name, file}) => tsq.queryEnum(enum_name, utilReadFile(file)));
 }
 
 export function getFunctionTypesTypescript() {

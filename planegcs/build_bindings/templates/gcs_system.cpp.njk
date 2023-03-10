@@ -280,8 +280,12 @@ EMSCRIPTEN_BINDINGS(module) {
 
 {%- for enum in enums %}
     emscripten::enum_<{{ enum.name }}>("{{ enum.name }}")
-    {% for value in enum.values -%}
+    {%- for value in enum.values -%}
+        {%- if enum.is_enum_class %}
+        .value("{{ value.name }}", {{ enum.name }}::{{ value.name }})
+        {%- else %}
         .value("{{ value.name }}", {{ value.name }})
+        {%- endif -%}
     {% endfor %};
 {% endfor -%}
     {# Geo.h Geometry classes (Point, Line, ...) #}
