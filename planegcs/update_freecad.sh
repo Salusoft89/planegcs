@@ -12,11 +12,23 @@ popd
 
 # move the planegcs source files
 mv FreeCAD/src/Mod/Sketcher/App/planegcs/* . 
+# move the commit hash file
+mv FreeCAD/commit.txt .
 # move some required headers
 mv FreeCAD/src/boost_graph_adjacency_list.hpp headers
 mv FreeCAD/src/FCConfig.h headers
 mv FreeCAD/src/FCGlobal.h headers
-# move the commit hash file
-mv FreeCAD/commit.txt .
 
 rm -rf FreeCAD
+
+# apply patches
+ts-node patch_file.ts GCS.cpp "Base::Console().Log" "Console::Log"
+ts-node patch_file.ts GCS.cpp "<Base/Console.h>" "<Console.h>"
+ts-node patch_file.ts GCS.cpp \
+     "auto fut = std::async(&System::identifyDependentParametersSparseQR,this,J,jacobianconstraintmap, pdiagnoselist, /*silent=*/true);" \
+     "identifyDependentParametersSparseQR(J, jacobianconstraintmap, pdiagnoselist, true);"
+ts-node patch_file.ts GCS.cpp \
+     "fut.wait();" \
+     "// fut.wait();"
+
+ts-node patch_file.ts headers/FCConfig.h "defined(linux)" "defined(unix)"
