@@ -13,9 +13,9 @@ popd
 # move the planegcs source files
 mv FreeCAD/src/Mod/Sketcher/App/planegcs/* . 
 # move some required headers
-mv FreeCAD/src/boost_graph_adjacency_list.hpp .
-mv FreeCAD/src/FCConfig.h .
-mv FreeCAD/src/FCGlobal.h .
+mv FreeCAD/src/boost_graph_adjacency_list.hpp headers
+mv FreeCAD/src/FCConfig.h headers
+mv FreeCAD/src/FCGlobal.h headers
 # move the commit hash file
 mv FreeCAD/commit.txt .
 
