@@ -6,7 +6,8 @@
 	"scripts": {
 		"gcs:update": "cd ./planegcs && ./update_freecad.sh",
 		"gcs:bindings": "cd ./planegcs/build_bindings && ./process_all.sh",
-		"build:emsc": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder ./build_emscripten.sh",
+		"build:emsc": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'cmake . && make -j $(nproc)'",
+		"build:emsc-release": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'cmake . -DCMAKE_BUILD_TYPE=Release && make -j $(nproc) && ls -lh bin'",
 		"build:docker": "docker build -t gcs_builder .",
 		"build": "npm run build:docker && npm run build:emsc",
 		"test": "jest",

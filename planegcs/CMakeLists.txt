@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.3)
 
 set(EXECUTABLE_OUTPUT_PATH "bin")
 
-ADD_LIBRARY(LibsModule
+add_library(LibsModule
     GCS.cpp
     Geo.cpp
     Constraints.cpp
@@ -17,14 +17,20 @@ include_directories(${Boost_INCLUDE_DIR})
 
 include_directories("/usr/include/eigen3")
 
-ADD_EXECUTABLE(planegcs bindings.cpp)
-# -s ALLOW_MEMORY_GROWTH=1
-# -s DISABLE_EXCEPTION_CATCHING=0
-# -Wno-switch
-# -s ASSERTIONS=1 (for debugging memory issues)
-
-# exceptions are by default enabled in -O0, but disabled in -O1 and above
-set_target_properties(planegcs PROPERTIES LINK_FLAGS "-lembind --closure 1 -s EXPORT_ES6=1 -s MODULARIZE=1 -O0 -s MALLOC=emmalloc -s NO_FILESYSTEM=1 -fwasm-exceptions")
+add_executable(planegcs bindings.cpp)
 
 include_directories(planegcs headers)
 target_link_libraries(planegcs LibsModule)
+
+# exceptions are by default enabled in -O0, but disabled in -O1 and above
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(BUILD_TYPE_FLAGS "-O3 -s ENVIRONMENT=web -s WASM_BIGINT=0 -s ASSERTIONS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ELIMINATE_DUPLICATE_FUNCTIONS=1")
+else()
+    # for complete debug, add -g -O0 
+    set(BUILD_TYPE_FLAGS "-fwasm-exceptions -s ASSERTIONS=1")
+endif()
+
+set_target_properties(planegcs PROPERTIES LINK_FLAGS "${BUILD_TYPE_FLAGS} -lembind --closure 1 -s EXPORT_ES6=1 -s MODULARIZE=1 -s MALLOC=emmalloc -s NO_FILESYSTEM=1")
+
+# turn off deprecated warnings coming from Boost
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
