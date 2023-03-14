@@ -3,7 +3,10 @@ import Cpp from 'tree-sitter-cpp';
 // this import was not working while running Jest in some environments:
 // > import Parser, { Input, InputReader } from 'tree-sitter';
 // see: https://github.com/tree-sitter/node-tree-sitter/pull/75
-const Parser = require('tree-sitter');
+let Parser;
+if (Parser === undefined) {
+    Parser = require('tree-sitter');
+}
 const { Input, InputReader } = require('tree-sitter');
 import type { default as ParserType, Input, InputReader } from 'tree-sitter';
 
