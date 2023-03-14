@@ -22,7 +22,7 @@ jobs:
         ./process_all.sh
     - name: Install emscripten dependencies
       run: |
-        sudo apt-get -y update
+        sudo apt-get -qqy update
         sudo apt install -qqy libeigen3-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-test-dev libboost-filesystem-dev
         mkdir /inc && ln -sf /usr/include/boost /inc
     - name: Setup emscripten
