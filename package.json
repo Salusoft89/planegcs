@@ -1,8 +1,31 @@
 {
-	"name": "planegcs-wrapper",
-	"version": "0.0.1",
-	"private": true,
+	"name": "planegcs",
+	"description": "A wasm build and a simple wrapper of the FreeCAD PlaneGCS (2D geometric solver)",
+	"keywords": [
+		"wasm",
+		"freecad",
+		"gemetric",
+		"solver",
+		"2d",
+		"plane",
+		"geometry",
+		"constraint"
+	],
+	"homepage": "https://github.com/thes01/planegcs-wrapper",
+	"bugs": {
+		"url": "https://github.com/thes01/planegcs-wrapper/issues",
+		"email": "miroslav.sery@salusoft89.cz"
+	},
+	"repository": "github:thes01/planegcs-wrapper",
+	"license": "GPL-2.0-only",
+	"version": "0.1.0",
+	"private": false,
 	"main": "index.ts",
+	"files": [
+		"index.ts",
+		"planegcs/bin",
+		"sketch"
+	],
 	"scripts": {
 		"gcs:update": "cd ./planegcs && ./update_freecad.sh",
 		"gcs:bindings": "cd ./planegcs/build_bindings && ./process_all.sh",
