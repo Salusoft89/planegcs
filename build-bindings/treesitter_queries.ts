@@ -4,9 +4,9 @@ import Cpp from 'tree-sitter-cpp';
 // > import Parser, { Input, InputReader } from 'tree-sitter';
 // see: https://github.com/tree-sitter/node-tree-sitter/pull/75
 let Parser;
-if (Parser === undefined) {
+try {
     Parser = require('tree-sitter');
-}
+} catch {}
 const { Input, InputReader } = require('tree-sitter');
 import type { default as ParserType, Input, InputReader } from 'tree-sitter';
 
