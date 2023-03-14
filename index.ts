@@ -1,5 +1,5 @@
-export type { GcsWrapper } from "./sketch/gcs_wrapper";
-export type { SketchIndex } from "./sketch/sketch_index";
+export { GcsWrapper } from "./sketch/gcs_wrapper";
+export { SketchIndex } from "./sketch/sketch_index";
  
 import ModuleFactory from "./planegcs/bin/planegcs.js";
 import { GcsWrapper } from "./sketch/gcs_wrapper";
