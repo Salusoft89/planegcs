@@ -1,16 +1,40 @@
 {
-	"name": "planegcs-wrapper",
-	"version": "0.0.1",
-	"private": true,
+	"name": "planegcs",
+	"description": "A wasm build and a simple wrapper of the FreeCAD PlaneGCS (2D geometric solver)",
+	"keywords": [
+		"wasm",
+		"freecad",
+		"gemetric",
+		"solver",
+		"2d",
+		"plane",
+		"geometry",
+		"constraint"
+	],
+	"homepage": "https://github.com/thes01/planegcs-wrapper",
+	"bugs": {
+		"url": "https://github.com/thes01/planegcs-wrapper/issues",
+		"email": "miroslav.sery@salusoft89.cz"
+	},
+	"repository": "github:thes01/planegcs-wrapper",
+	"license": "GPL-2.0-only",
+	"version": "0.1.0",
+	"private": false,
 	"main": "index.ts",
+	"files": [
+		"dist",
+		"sketch",
+		"index.ts"
+	],
 	"scripts": {
 		"gcs:update": "cd ./planegcs && ./update_freecad.sh",
-		"gcs:bindings": "cd ./planegcs/build_bindings && ./process_all.sh",
-		"build:emsc": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'cmake . && make -j $(nproc)'",
-		"build:emsc-release": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'cmake . -DCMAKE_BUILD_TYPE=Release && make -j $(nproc) && ls -lh bin'",
+		"gcs:bindings": "cd build-bindings && ./process_all.sh",
+		"build:emsc": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'cmake . -DCMAKE_BUILD_TYPE=Debug && make -j $(nproc)' && cp planegcs/bin/* dist",
+		"build:emsc-release": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'cmake . -DCMAKE_BUILD_TYPE=Release && make -j $(nproc) && ls -lh bin' && cp planegcs/bin/* dist",
 		"build:docker": "docker build -t gcs_builder .",
 		"build": "npm run build:docker && npm run build:emsc",
 		"test": "jest",
+		"test:basic": "jest -t 'basic:'",
 		"testc": "jest --coverage"
 	},
 	"devDependencies": {

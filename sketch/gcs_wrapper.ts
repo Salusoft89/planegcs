@@ -1,8 +1,8 @@
-import { Constraint, ConstraintParam } from "../planegcs/bin/constraints";
-import { constraint_param_index } from "../planegcs/bin/constraint_param_index";
+import { Constraint, ConstraintParam } from "../dist/constraints";
+import { constraint_param_index } from "../dist/constraint_param_index";
 import { SketchIndex } from "./sketch_index";
 import { is_sketch_geometry, oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
-import { Constraint_Alignment, GcsGeometry, GcsSystem, InternalAlignmentType } from "../planegcs/bin/gcs_system";
+import { Constraint_Alignment, GcsGeometry, GcsSystem, InternalAlignmentType } from "../dist/gcs_system";
 import getParamOffset from "./geom_params";
 
 export class GcsWrapper { 

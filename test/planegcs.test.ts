@@ -1,5 +1,5 @@
-import PlanegcsWasm from '../planegcs/bin/planegcs.js';
-import { GcsSystem } from '../planegcs/bin/gcs_system';
+import PlanegcsWasm from '../dist/planegcs.js';
+import { GcsSystem } from '../dist/gcs_system';
 
 let gcs_factory;
 let gcs: GcsSystem;

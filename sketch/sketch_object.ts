@@ -1,4 +1,4 @@
-import { Constraint } from '../planegcs/bin/constraints';
+import { Constraint } from '../dist/constraints';
 
 // object id type
 export type oid = number;
