@@ -21,6 +21,11 @@
 	"version": "0.1.0",
 	"private": false,
 	"main": "index.ts",
+	"files": [
+		"dist",
+		"sketch",
+		"index.ts"
+	],
 	"scripts": {
 		"gcs:update": "cd ./planegcs && ./update_freecad.sh",
 		"gcs:bindings": "cd build-bindings && ./process_all.sh",
