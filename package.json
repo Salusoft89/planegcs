@@ -29,6 +29,7 @@
 		"build:docker": "docker build -t gcs_builder .",
 		"build": "npm run build:docker && npm run build:emsc",
 		"test": "jest",
+		"test:basic": "jest -t 'basic:'",
 		"testc": "jest --coverage"
 	},
 	"devDependencies": {

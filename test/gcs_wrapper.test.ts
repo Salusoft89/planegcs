@@ -7,7 +7,9 @@ import { Constraint_Alignment } from "../planegcs/bin/gcs_system";
 let gcs_wrapper: GcsWrapper;
 let gcs: GcsSystemMock;
 
-describe("gcs_wrapper", () => {
+// the prefix 'basic:' makes this test run before the wasm compilation
+// in the pipeline process
+describe("basic: gcs_wrapper", () => {
     beforeAll(() => {
         gcs = new GcsSystemMock();
         gcs_wrapper = new GcsWrapper(gcs, new SketchIndex());

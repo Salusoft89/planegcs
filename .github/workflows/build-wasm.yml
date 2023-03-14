@@ -7,33 +7,48 @@ on:
     branches: ['main']
 
 jobs:
-  build_wasm:
-    timeout-minutes: 20
+  build_bindings:
+    timeout-minutes: 10
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
-    - name: Install (globally) ts-node
-      run: |
-        npm i ts-node -g
-    - name: Process bindings
-      run: |
-        npm install
-        cd planegcs/build_bindings
-        ./process_all.sh
-    - name: Install emscripten dependencies
-      run: |
-        sudo apt-get -qqy update
-        sudo apt install -qqy libeigen3-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-test-dev libboost-filesystem-dev
-        mkdir /inc && ln -sf /usr/include/boost /inc
-    - name: Setup emscripten
-      run: |
-        git clone https://github.com/emscripten-core/emsdk.git
-        cd emsdk
-        ./emsdk install latest
-        ./emsdk activate latest
-    - uses: jwlawson/actions-setup-cmake@v1.12
-    - name: Build WASM
-      run: |
-        source ./emsdk/emsdk_env.sh 
-        pushd planegcs
-        emcmake cmake -DCMAKE_BUILD_TYPE=Release . && emmake make
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'npm'
+    - run: npm i ts-node -g # for the gcs:bindings script
+    - run: npm install
+    - run: npm run gcs:bindings
+    - run: npm run test:basic # tests that don't require building the wasm
+
+
+  # build_wasm:
+  #   timeout-minutes: 20
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Install (globally) ts-node
+  #     run: |
+  #       npm i ts-node -g
+  #   - name: Process bindings
+  #     run: |
+  #       npm install
+  #       cd planegcs/build_bindings
+  #       ./process_all.sh
+  #   - name: Install emscripten dependencies
+  #     run: |
+  #       sudo apt-get -qqy update
+  #       sudo apt install -qqy libeigen3-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-test-dev libboost-filesystem-dev
+  #       mkdir /inc && ln -sf /usr/include/boost /inc
+  #   - name: Setup emscripten
+  #     run: |
+  #       git clone https://github.com/emscripten-core/emsdk.git
+  #       cd emsdk
+  #       ./emsdk install latest
+  #       ./emsdk activate latest
+  #   - uses: jwlawson/actions-setup-cmake@v1.12
+  #   - name: Build WASM
+  #     run: |
+  #       source ./emsdk/emsdk_env.sh 
+  #       pushd planegcs
+  #       emcmake cmake -DCMAKE_BUILD_TYPE=Release . && emmake make
