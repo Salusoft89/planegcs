@@ -1,12 +1,18 @@
 import Cpp from 'tree-sitter-cpp';
-import Parser, { Input, InputReader } from 'tree-sitter';
+
+// this import was not working while running Jest in some environments:
+// > import Parser, { Input, InputReader } from 'tree-sitter';
+// see: https://github.com/tree-sitter/node-tree-sitter/pull/75
+const Parser = require('tree-sitter');
+const { Input, InputReader } = require('tree-sitter');
+import type { default as ParserType, Input, InputReader } from 'tree-sitter';
 
 type StringInput = string | Input | InputReader;
 export type ParamType = { type: string, identifier: string, optional_value?: string };
 export type EnumType = { name: string, is_enum_class: boolean, values: { name: string, value: number }[] };
 
 export default class TreeSitterQueries {
-    private parser: Parser;
+    private parser: ParserType;
 
     constructor() {
         this.parser = new Parser();
@@ -46,7 +52,7 @@ export default class TreeSitterQueries {
             throw new Error(`Enum ${enum_name} not found`);
         }        
         let enum_node = enums[0].captures[0].node;
-        let query_values: Parser.Query;
+        let query_values: ParserType.Query;
         if (enum_node.parent?.type === 'field_declaration') {
             // enum is a member of a class, handle it differently
             query_values = new Parser.Query(Cpp, `
@@ -116,7 +122,7 @@ export default class TreeSitterQueries {
         }));
     }
 
-    private getParameters(param_list_node: Parser.SyntaxNode): ParamType[] {
+    private getParameters(param_list_node: ParserType.SyntaxNode): ParamType[] {
         if (param_list_node.type !== 'parameter_list') {
             throw new Error('Expected parameter_list, got ' + param_list_node.type);
         }
