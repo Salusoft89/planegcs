@@ -1,5 +1,5 @@
-project(PlaneGCS)
 cmake_minimum_required(VERSION 3.3)
+project(PlaneGCS)
 
 set(EXECUTABLE_OUTPUT_PATH "bin")
 
