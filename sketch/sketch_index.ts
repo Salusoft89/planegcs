@@ -1,5 +1,5 @@
 import { SketchPoint, oid, is_sketch_geometry, SketchLine, SketchCircle, SketchArc, SketchGeometry } from "./sketch_object";
-import { Constraint } from "../planegcs/bin/constraints";
+import { Constraint } from "../dist/constraints";
 
 export class SketchIndex {
     index: Map<oid, Constraint|SketchGeometry> = new Map();

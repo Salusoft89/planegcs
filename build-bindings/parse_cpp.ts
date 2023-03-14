@@ -4,8 +4,10 @@ import { class_letter_mapping, exported_enums } from './config';
 import { cpp_type_to_js_type } from './cpp2js';
 const tsq = new TreeSitterQueries();
 
+const planegcs_dir = '../planegcs';
+
 export function getConstraintFunctions() {
-    const src_string = utilReadFile('../GCS.h');
+    const src_string = utilReadFile(planegcs_dir + '/GCS.h');
     const functions = tsq.queryConstraintFunctions(src_string).map(item => ({
         ...item,
         params_list: item.params_list.map(param => ({
@@ -51,11 +53,11 @@ export function getConstraintFunctions() {
 }
 
 export function getEnums(): EnumType[] {
-    return exported_enums.map(({enum_name, file}) => tsq.queryEnum(enum_name, utilReadFile(file)));
+    return exported_enums.map(({enum_name, file}) => tsq.queryEnum(enum_name, utilReadFile(planegcs_dir + '/' + file)));
 }
 
 export function getFunctionTypesTypescript() {
-    const src_string = utilReadFile('../bindings.cpp');
+    const src_string = utilReadFile(planegcs_dir + '/bindings.cpp');
     const cpp_funcs = tsq.queryFunctionTypes(src_string);
     const ts_funcs = cpp_funcs.map(item => ({
         return_type: cpp_type_to_js_type(item.return_type),

@@ -33,7 +33,7 @@ jobs:
   #   - name: Process bindings
   #     run: |
   #       npm install
-  #       cd planegcs/build_bindings
+  #       cd build-bindings
   #       ./process_all.sh
   #   - name: Install emscripten dependencies
   #     run: |
