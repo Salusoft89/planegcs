@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 20
     runs-on: ubuntu-22.04
     steps:
-    - name: Install emscripten dependencies
+    - name: Install Boost and Eigen3 dependencies required for compiling planegcs
       run: |
         sudo apt-get -qqy update
         sudo apt install -qqy libeigen3-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-test-dev libboost-filesystem-dev
@@ -41,8 +41,8 @@ jobs:
 
     - name: Setup emscripten
       run: |
-        git clone https://github.com/emscripten-core/emsdk.git /.local/emsdk
-        cd /.local/emsdk
+        sudo git clone https://github.com/emscripten-core/emsdk.git /bin/emsdk
+        cd /bin/emsdk
         ./emsdk install latest
         ./emsdk activate latest
 
@@ -56,7 +56,7 @@ jobs:
 
     - name: Build WASM
       run: |
-        source /.local/emsdk/emsdk_env.sh 
+        source /bin/emsdk/emsdk_env.sh 
         pushd planegcs
         emcmake cmake -DCMAKE_BUILD_TYPE=Release . && emmake make
         popd
