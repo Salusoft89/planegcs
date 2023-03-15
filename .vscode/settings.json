@@ -1,0 +1,11 @@
+{
+    "vitest.commandLine": "npx vitest --coverage",
+    "coverage-gutters.coverageFileNames": [
+        "clover.xml",
+        "lcov.info",
+        "cov.xml",
+        "coverage.xml",
+        "jacoco.xml",
+        "coverage.cobertura.xml"
+    ]
+}

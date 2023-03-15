@@ -34,16 +34,16 @@
 		"build:emsc-release": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Release && emmake make -j $(nproc) && ls -lh bin' && cp planegcs/bin/* dist",
 		"build:docker": "docker build -t gcs_builder .",
 		"build": "npm run build:docker && npm run build:emsc",
-		"test": "vitest run",
-		"test:basic": "vitest run -t 'basic:'",
-		"test:watch": "vitest",
-		"testc": "vitest --coverage"
+		"test": "vitest run --coverage",
+		"test:basic": "vitest run -t 'basic:' --coverage",
+		"test:watch": "vitest --coverage"
 	},
 	"devDependencies": {
 		"@types/node": "^18.14.6",
 		"@types/nunjucks": "^3.2.2",
 		"@typescript-eslint/eslint-plugin": "^5.54.1",
 		"@typescript-eslint/parser": "^5.54.1",
+		"@vitest/coverage-c8": "^0.29.2",
 		"eslint": "^8.35.0",
 		"nunjucks": "^3.2.3",
 		"tree-sitter": "^0.20.1",
