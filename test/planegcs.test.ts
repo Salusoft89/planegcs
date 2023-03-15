@@ -1,3 +1,4 @@
+import { it, describe, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import PlanegcsWasm from '../dist/planegcs.js';
 import { GcsSystem } from '../dist/gcs_system';
 
@@ -19,17 +20,17 @@ describe("planegcs", () => {
         gcs.delete();
     });
     
-    test("by default it has 0 params", () => {
+    it("by default it has 0 params", () => {
         expect(gcs.params_size()).toBe(0);
     });
 
-    test("parameter can be updated", () => {
+    it("parameter can be updated", () => {
         const addr = gcs.push_param(1, true);
         gcs.set_param(addr, 2, true);
         expect(gcs.get_param(addr)).toBe(2);
     });
 
-    test("constraint with a line can be called with a line object", async () => {
+    it("constraint with a line can be called with a line object", async () => {
         const p1x_i = gcs.push_param(1, true);
         const p1y_i = gcs.push_param(2, true);
         const p2x_i = gcs.push_param(3, true);
@@ -39,7 +40,7 @@ describe("planegcs", () => {
         gcs.add_constraint_vertical_l(line, 1, true);
     });
 
-    test("constraint with a curve can be called with a line object", () => {
+    it("constraint with a curve can be called with a line object", () => {
         const p1x_i = gcs.push_param(1, true);
         const p1y_i = gcs.push_param(2, true);
         const p2x_i = gcs.push_param(3, true);
@@ -54,7 +55,7 @@ describe("planegcs", () => {
         gcs.add_constraint_angle_via_point(line1, line2, point, angle_i, 2, true);
     });
 
-    test("constraint with a line cannot be called with a point object", () => {
+    it("constraint with a line cannot be called with a point object", () => {
         const p1x_i = gcs.push_param(1, true);
         const p1y_i = gcs.push_param(2, true);
 
@@ -65,7 +66,7 @@ describe("planegcs", () => {
         }).toThrow();
     });
 
-    test("dof decreases with added constraint", () => {
+    it("dof decreases with added constraint", () => {
         const p1x_i = gcs.push_param(1, true);
         const p1y_i = gcs.push_param(2, true);
         const p2x_i = gcs.push_param(1, false);
