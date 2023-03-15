@@ -8,10 +8,6 @@ import type {
     {%- endfor %}
 } from "./planegcs";
 
-export class GcsGeometryMock implements GcsGeometry {
-    delete(): void { return undefined; }
-}
-
 export class GcsSystemMock implements GcsSystem {
     {%- for func in fn_ts_bindings %}
     {{ func.fname }}({{ func.args }}): {{ func.return_type }} { return undefined; }

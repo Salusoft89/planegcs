@@ -1,5 +1,5 @@
 import { it, describe, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { GcsGeometryMock, GcsSystemMock } from "../dist/gcs_system_mock";
+import { GcsSystemMock } from "../dist/gcs_system_mock";
 vi.mock('../dist/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
@@ -54,7 +54,7 @@ describe("basic: gcs_wrapper", () => {
         vi.spyOn(gcs, 'params_size').mockReturnValueOnce(4);
         gcs_wrapper.push_object({type: 'point', id: 3, x: 10, y: 10, fixed: true});
 
-        const arc = new GcsGeometryMock();
+        const arc = { delete: vi.fn() };
         vi.spyOn(gcs, 'make_arc').mockReturnValueOnce(arc);
 
         vi.spyOn(gcs, 'params_size').mockReturnValueOnce(6);
@@ -103,9 +103,9 @@ describe("basic: gcs_wrapper", () => {
         gcs_wrapper.push_object({type: 'arc', id: 5, c_id: 1, start_id: 2, end_id: 4, start_angle: 0, end_angle: 0, radius: 1});
         vi.spyOn(gcs, 'params_size').mockReturnValueOnce(9);
         
-        const line = new GcsGeometryMock();
-        const point = new GcsGeometryMock();
-        const arc = new GcsGeometryMock();
+        const line = { delete: vi.fn() };
+        const point = { delete: vi.fn() };
+        const arc = { delete: vi.fn() };
 
         vi.spyOn(gcs, 'make_line').mockReturnValueOnce(line);
         vi.spyOn(gcs, 'make_point').mockReturnValueOnce(point);
@@ -132,9 +132,8 @@ describe("basic: gcs_wrapper", () => {
             6, 7, 8);
         expect(gcs.make_point).toHaveBeenCalledWith(4, 5);
 
-        // todo: check these tests
-        // expect(line.delete).toHaveBeenCalledTimes(1);
-        // expect(arc.delete).toHaveBeenCalledTimes(1);
-        // expect(point.delete).toHaveBeenCalledTimes(1);
+        expect(line.delete).toHaveBeenCalledTimes(1);
+        expect(arc.delete).toHaveBeenCalledTimes(1);
+        expect(point.delete).toHaveBeenCalledTimes(1);
     });
 });
