@@ -43,7 +43,10 @@ jobs:
       run: |
         sudo git clone https://github.com/emscripten-core/emsdk.git /bin/emsdk
         cd /bin/emsdk
-        sudo ./emsdk install latest
+        ls -als
+        sudo -S chown -R $USER:$USER .
+        ls -als
+        ./emsdk install latest
         ./emsdk activate latest
 
     - uses: jwlawson/actions-setup-cmake@v1.12
