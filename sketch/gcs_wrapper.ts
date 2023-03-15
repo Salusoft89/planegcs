@@ -63,17 +63,15 @@ export class GcsWrapper {
     }
 
     solve(): SolveStatus {
-        const status = this.gcs.solve_system();
+        return this.gcs.solve_system();
+    }
 
-        if (status !== SolveStatus.Failed) {
-            this.gcs.apply_solution();
-            this.solved_sketch_index = new SketchIndex();
-            for (const [, obj] of this.sketch_index.index) {
-                this.pull_object(obj);
-            }
+    apply_solution() {
+        this.gcs.apply_solution();
+        this.solved_sketch_index = new SketchIndex();
+        for (const [, obj] of this.sketch_index.index) {
+            this.pull_object(obj);
         }
-
-        return status;
     }
 
     get_gcs_params(): number[] {

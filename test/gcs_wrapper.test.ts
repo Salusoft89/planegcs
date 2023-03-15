@@ -3,7 +3,7 @@ import { GcsSystemMock } from "../dist/gcs_system_mock";
 vi.mock('../dist/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
-import { Constraint_Alignment } from "../dist/gcs_system";
+import { Constraint_Alignment, SolveStatus } from "../dist/gcs_system";
 
 let gcs_wrapper: GcsWrapper;
 let gcs: GcsSystemMock;
@@ -33,6 +33,12 @@ describe("basic: gcs_wrapper", () => {
         vi.spyOn(gcs, 'params_size').mockImplementation(() => {
             return arr_params.length;
         })
+        vi.spyOn(gcs, 'get_param').mockImplementation((i: number) => {
+            return arr_params[i];
+        });
+        vi.spyOn(gcs, 'apply_solution').mockImplementation(() => {
+            arr_params = arr_params.map(p => p + 1);
+        });
     });
 
     it("calls gcs when pushing a param", () => {
@@ -141,5 +147,33 @@ describe("basic: gcs_wrapper", () => {
         expect(line.delete).toHaveBeenCalledTimes(1);
         expect(arc.delete).toHaveBeenCalledTimes(1);
         expect(point.delete).toHaveBeenCalledTimes(1);
+    });
+
+    it('updates the solved_sketch_index after calling solve', () => {
+        gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
+        gcs_wrapper.push_object({type: 'point', id: 2, x: 1, y: 2, fixed: false});
+        gcs_wrapper.push_object({type: 'line', id: 3, p1_id: 1, p2_id: 2});
+        gcs_wrapper.push_object({type: 'circle', id: 4, c_id: 1, radius: 3});
+
+        const old_index = gcs_wrapper.sketch_index.index;
+        expect(old_index).toHaveLength(4);
+
+        // does +1 to each parameter
+        gcs_wrapper.apply_solution();
+
+        for (const item of old_index.values()) {
+            const new_object = gcs_wrapper.solved_sketch_index.get_object(item.id);
+            expect(new_object.type).toEqual(item.type);
+
+            switch(new_object.type) {
+                case 'point':
+                    expect(new_object.x).toBe(item['x'] + 1)
+                    expect(new_object.y).toBe(item['y'] + 1)
+                    break;
+                case 'circle':
+                    expect(new_object.radius).toBe(item['radius'] + 1)
+                    break;
+            }
+        }
     });
 });
