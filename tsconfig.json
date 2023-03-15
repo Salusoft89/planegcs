@@ -2,7 +2,10 @@
     "compilerOptions": {
         "esModuleInterop": true,
         "target": "es2021", // allow iterating over maps
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+
+        // fix for imported enums being undefined in vitest
+        "noResolve": false
     },
     "exclude": [
         "**/CMakeFiles",
