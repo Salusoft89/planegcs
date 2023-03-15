@@ -155,13 +155,13 @@ describe("basic: gcs_wrapper", () => {
         gcs_wrapper.push_object({type: 'line', id: 3, p1_id: 1, p2_id: 2});
         gcs_wrapper.push_object({type: 'circle', id: 4, c_id: 1, radius: 3});
 
-        const old_index = gcs_wrapper.sketch_index.index;
-        expect(old_index).toHaveLength(4);
+        const old_index = gcs_wrapper.sketch_index;
+        expect(old_index.get_objects()).toHaveLength(4);
 
         // does +1 to each parameter
         gcs_wrapper.apply_solution();
 
-        for (const item of old_index.values()) {
+        for (const item of old_index.get_objects()) {
             const new_object = gcs_wrapper.solved_sketch_index.get_object(item.id);
             expect(new_object.type).toEqual(item.type);
 

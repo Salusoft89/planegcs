@@ -1,19 +1,15 @@
 import { SketchPoint, oid, is_sketch_geometry, SketchLine, SketchCircle, SketchArc, SketchGeometry } from "./sketch_object";
 import { Constraint } from "../dist/constraints";
 
-export class SketchIndex {
-    index: Map<oid, Constraint|SketchGeometry> = new Map();
+export abstract class SketchIndexBase {
+    abstract get_objects(): (Constraint|SketchGeometry)[];
+    abstract get_object(id: oid): Constraint|SketchGeometry|undefined;
+    abstract set_object(obj: Constraint|SketchGeometry): void;
+    abstract delete_object(id: oid): boolean;
+    abstract has(id: oid): boolean;
 
-    has(id: oid): boolean {
-        return this.index.has(id);
-    }
-
-    set_object(obj: Constraint|SketchGeometry): void {
-        this.index.set(obj.id, obj);
-    }
-
-    get_object(id: oid): Constraint|SketchGeometry {
-        const obj = this.index.get(id);
+    get_object_or_fail(id: oid): Constraint|SketchGeometry {
+        const obj = this.get_object(id);
         if (obj === undefined) {
             throw new Error(`sketch object ${id} not found`);
         }
@@ -27,7 +23,6 @@ export class SketchIndex {
         }
         return obj as SketchPoint;
     }
-
     get_sketch_line(id: oid): SketchLine {
         const obj = this.get_object(id);
         if (obj.type !== 'line') {
@@ -35,7 +30,6 @@ export class SketchIndex {
         }
         return obj as SketchLine;
     }
-
     get_sketch_circle(id: oid): SketchCircle {
         const obj = this.get_object(id);
         if (obj.type !== 'circle') {
@@ -43,7 +37,6 @@ export class SketchIndex {
         }
         return obj as SketchCircle;
     }
-
     get_sketch_arc(id: oid): SketchArc {
         const obj = this.get_object(id);
         if (obj.type !== 'arc') {
@@ -51,20 +44,35 @@ export class SketchIndex {
         }
         return obj as SketchArc;
     }
-
     get_constraints(): Constraint[] {
-        return Array.from(this.index.values()).filter(o => !is_sketch_geometry(o)) as Constraint[];
+        return this.get_objects().filter(o => !is_sketch_geometry(o)) as Constraint[];
+    }
+
+    toString(): string {
+        return this.get_objects().map(o => JSON.stringify(o)).join('\n');
+    }
+}
+
+export class SketchIndex extends SketchIndexBase {
+    index: Map<oid, Constraint|SketchGeometry> = new Map();
+
+    has(id: oid): boolean {
+        return this.index.has(id);
+    }
+
+    delete_object(id: oid): boolean {
+        return this.index.delete(id);
+    }
+
+    set_object(obj: Constraint|SketchGeometry): void {
+        this.index.set(obj.id, obj);
+    }
+
+    get_object(id: oid): Constraint|SketchGeometry|undefined {
+        return this.index.get(id);
     }
 
     get_objects(): (Constraint|SketchGeometry)[] {
         return Array.from(this.index.values());
-    }
-
-    get_geometry_objects(): SketchGeometry[] {
-        return Array.from(this.index.values()).filter(o => is_sketch_geometry(o)) as SketchGeometry[];
-    }
-
-    toString() {
-        return Array.from(this.index.values()).map(o => JSON.stringify(o)).join('\n');
     }
 }

@@ -1,6 +1,6 @@
 import { Constraint, ConstraintParam } from "../dist/constraints";
 import { constraint_param_index } from "../dist/constraint_param_index";
-import { SketchIndex } from "./sketch_index";
+import { SketchIndex, SketchIndexBase } from "./sketch_index";
 import { is_sketch_geometry, oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
 import { Constraint_Alignment, GcsGeometry, GcsSystem, SolveStatus } from "../dist/gcs_system";
 import getParamOffset from "./geom_params";
@@ -8,12 +8,12 @@ import getParamOffset from "./geom_params";
 export class GcsWrapper { 
     gcs: GcsSystem;
     param_index: Map<oid, number>;
-    sketch_index: SketchIndex;
+    sketch_index: SketchIndexBase;
     solved_sketch_index: SketchIndex = new SketchIndex();
     // 'mouse_x' -> 10, 'mouse_y' -> 100, ...
     sketch_param_index: Map<string, number>;
 
-    constructor(gcs: GcsSystem, sketch_index: SketchIndex, param_index = new Map()) {
+    constructor(gcs: GcsSystem, sketch_index: SketchIndexBase, param_index = new Map()) {
         this.gcs = gcs;
         this.sketch_index = sketch_index;
         this.param_index = param_index; 
@@ -69,7 +69,7 @@ export class GcsWrapper {
     apply_solution() {
         this.gcs.apply_solution();
         this.solved_sketch_index = new SketchIndex();
-        for (const [, obj] of this.sketch_index.index) {
+        for (const obj of this.sketch_index.get_objects()) {
             this.pull_object(obj);
         }
     }
@@ -264,12 +264,12 @@ export class GcsWrapper {
                 } else if (typeof val === 'boolean') {
                     add_constraint_args.push(val);
                 } else if (val !== undefined) {
-                    const object_type = this.sketch_index.get_object(val.o_id).type;
+                    const object_type = this.sketch_index.get_object_or_fail(val.o_id).type;
                     const param_addr = this.get_obj_addr(val.o_id) + getParamOffset(object_type, val.param);
                     add_constraint_args.push(param_addr);
                 }
             } else if (type === 'object_id' && typeof val === 'number') {
-                const obj = this.sketch_index.get_object(val);
+                const obj = this.sketch_index.get_object_or_fail(val);
                 const gcs_obj = this.sketch_object_to_gcs(obj);
                 add_constraint_args.push(gcs_obj);
                 deletable.push(gcs_obj);
@@ -294,14 +294,14 @@ export class GcsWrapper {
     // id can be -1 for extra constraints
     delete_constraint_by_id(id: number): boolean {
         if (id !== -1) {
-            const item = this.sketch_index.index.get(id);
+            const item = this.sketch_index.get_object(id);
             if (item !== undefined && !is_sketch_geometry(item)) {
                 throw new Error(`object #${id} (${item.type}) is not a constraint (delete_constraint_by_id)`);
             }
         }
 
         this.gcs.clear_by_id(id);
-        return this.sketch_index.index.delete(id);
+        return this.sketch_index.delete_object(id);
     }
 
     private get_obj_addr(id: oid): number {
