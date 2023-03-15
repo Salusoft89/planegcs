@@ -16,15 +16,14 @@ export class GcsWrapper {
     constructor(gcs: GcsSystem, sketch_index: SketchIndex, param_index = new Map()) {
         this.gcs = gcs;
         this.sketch_index = sketch_index;
-        this.param_index = param_index;
+        this.param_index = param_index; 
         this.sketch_param_index = new Map();
     }
 
-    destructor() {
-        console.log('gcs_wrapper destructor called, deleting the gcs object');
+    destroyGcsModule() {
         this.gcs.delete();
     }
-
+ 
     // ------ Sketch -> GCS ------- (when building up a sketch)
 
     push_object(o: SketchObject) {
