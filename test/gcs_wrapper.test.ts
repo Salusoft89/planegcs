@@ -23,6 +23,14 @@ describe("basic: gcs_wrapper", () => {
         gcs_wrapper.sketch_index = new SketchIndex();
     });
 
+    it("calls gcs when pushing a param", () => {
+        const param_i = 0;
+        vi.spyOn(gcs, 'params_size').mockReturnValueOnce(param_i);
+        gcs_wrapper.push_object({type: 'param', name: 'my_param', value: 10});
+        expect(gcs.push_param).toHaveBeenCalledWith(10, true);
+        expect(gcs_wrapper.sketch_param_index.get('my_param')).to.equal(param_i);
+    });
+
     it("calls gcs when pushing a point", () => {
         gcs_wrapper.push_object({type: 'point', id: 1, x: 3, y: 4, fixed: true});
         expect(gcs.push_param).toHaveBeenNthCalledWith(1, 3, true)
