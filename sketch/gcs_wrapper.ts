@@ -2,7 +2,7 @@ import { Constraint, ConstraintParam } from "../dist/constraints";
 import { constraint_param_index } from "../dist/constraint_param_index";
 import { SketchIndex } from "./sketch_index";
 import { is_sketch_geometry, oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
-import { Constraint_Alignment, GcsGeometry, GcsSystem, InternalAlignmentType } from "../dist/gcs_system";
+import { Constraint_Alignment, GcsGeometry, GcsSystem, SolveStatus } from "../dist/gcs_system";
 import getParamOffset from "./geom_params";
 
 export class GcsWrapper { 
@@ -63,25 +63,18 @@ export class GcsWrapper {
         this.sketch_index.set_object(o);
     }
 
-    solve() {
+    solve(): SolveStatus {
         const status = this.gcs.solve_system();
-        // console.log(`gcs dof: ${this.gcs.dof()}`);
-        if (this.gcs.has_conflicting()) {
-            console.log(`gcs has conflicts: ${this.get_gcs_conflicts().join(', ')}`);
-        }
-        if (this.gcs.has_redundant()) {
-            console.log(`gcs has redundant`);
-        }
-        // todo: add error enums and status handling
-        if (status != 0) {
-            console.log(`gcs status: ${status}`);
+
+        if (status !== SolveStatus.Failed) {
+            this.gcs.apply_solution();
+            this.solved_sketch_index = new SketchIndex();
+            for (const [, obj] of this.sketch_index.index) {
+                this.pull_object(obj);
+            }
         }
 
-        this.gcs.apply_solution();
-        this.solved_sketch_index = new SketchIndex();
-        for (const [, obj] of this.sketch_index.index) {
-            this.pull_object(obj);
-        }
+        return status;
     }
 
     get_gcs_params(): number[] {

@@ -47,7 +47,7 @@ class GcsSystem : System
             return is_fixed[i];
         }
 
-        int solve_system()
+        SolveStatus solve_system()
         {
             vector<double *> solved_params;
             for (int i = 0; i < params.size(); ++i)
@@ -57,7 +57,7 @@ class GcsSystem : System
                     solved_params.push_back(params[i]);
                 }
             }
-            return solve(solved_params);
+            return static_cast<SolveStatus>(solve(solved_params));
         }
 
         vector<double> get_params()
