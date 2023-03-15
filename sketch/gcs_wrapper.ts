@@ -9,7 +9,6 @@ export class GcsWrapper {
     gcs: GcsSystem;
     param_index: Map<oid, number>;
     sketch_index: SketchIndexBase;
-    solved_sketch_index: SketchIndex = new SketchIndex();
     // 'mouse_x' -> 10, 'mouse_y' -> 100, ...
     sketch_param_index: Map<string, number>;
 
@@ -68,7 +67,6 @@ export class GcsWrapper {
 
     apply_solution() {
         this.gcs.apply_solution();
-        this.solved_sketch_index = new SketchIndex();
         for (const obj of this.sketch_index.get_objects()) {
             this.pull_object(obj);
         }
@@ -315,7 +313,7 @@ export class GcsWrapper {
     // ------- GCS -> Sketch ------- (when retrieving a solution)
 
     private pull_object(o: SketchObject) {
-        if (o.type === 'param' || this.solved_sketch_index.has(o.id)) {
+        if (o.type === 'param') {
             return;
         }
 
@@ -335,11 +333,11 @@ export class GcsWrapper {
             } else {
                 // console.log(`${o.type}`);
                 // todo: is this else branch necessary?
-                this.solved_sketch_index.set_object(o);
+                this.sketch_index.set_object(o);
             }
         } else {
             // console.log(`object ${o.type} #${o.id} not found in params when retrieving solution`);
-            this.solved_sketch_index.set_object(o);
+            this.sketch_index.set_object(o);
         }
     }
 
@@ -350,28 +348,16 @@ export class GcsWrapper {
             x: this.gcs.get_param(point_addr),
             y: this.gcs.get_param(point_addr + 1),
         }
-        this.solved_sketch_index.set_object(point);
+        this.sketch_index.set_object(point);
     }
 
     private pull_line(l: SketchLine) {
-        const p1 = this.sketch_index.get_sketch_point(l.p1_id);
-        const p2 = this.sketch_index.get_sketch_point(l.p2_id);
-        this.pull_object(p1);
-        this.pull_object(p2);
-
-        this.solved_sketch_index.set_object(l);
+        this.sketch_index.set_object(l);
     }
 
     private pull_arc(a: SketchArc) {
-        const center = this.sketch_index.get_sketch_point(a.c_id);
-        const start = this.sketch_index.get_sketch_point(a.start_id);
-        const end = this.sketch_index.get_sketch_point(a.end_id);
-        this.pull_object(center);
-        this.pull_object(start);
-        this.pull_object(end);
-
         const addr = this.get_obj_addr(a.id);
-        this.solved_sketch_index.set_object({
+        this.sketch_index.set_object({
             ...a,
             start_angle: this.gcs.get_param(addr),
             end_angle: this.gcs.get_param(addr + 1),
@@ -380,49 +366,25 @@ export class GcsWrapper {
     }
 
     private pull_circle(c: SketchCircle) {
-        const center = this.sketch_index.get_sketch_point(c.c_id);
-        this.pull_object(center);
-
-        this.solved_sketch_index.set_object({
+        this.sketch_index.set_object({
             ...c,
             radius: this.get_obj_addr(c.id)
         });
     }
 
     private pull_ellipse(e: SketchEllipse) {
-        let center = this.sketch_index.get_sketch_point(e.c_id);
-        this.pull_object(center);
-        center = this.solved_sketch_index.get_sketch_point(e.c_id);
-
-        let focus1 = this.sketch_index.get_sketch_point(e.focus1_id);
-        this.pull_object(focus1);
-        focus1 = this.solved_sketch_index.get_sketch_point(e.focus1_id);
-
         const addr = this.get_obj_addr(e.id);
 
-        this.solved_sketch_index.set_object({
+        this.sketch_index.set_object({
             ...e,
             radmin: this.gcs.get_param(addr),
         });
     }
 
     private pull_arc_of_ellipse(ae: SketchArcOfEllipse) {
-        let center = this.sketch_index.get_sketch_point(ae.c_id);
-        this.pull_object(center);
-        center = this.solved_sketch_index.get_sketch_point(ae.c_id);
-
-        let focus1 = this.sketch_index.get_sketch_point(ae.focus1_id);
-        this.pull_object(focus1);
-        focus1 = this.solved_sketch_index.get_sketch_point(ae.focus1_id);
-
-        const start = this.sketch_index.get_sketch_point(ae.start_id);
-        this.pull_object(start);
-        const end = this.sketch_index.get_sketch_point(ae.end_id);
-        this.pull_object(end);
-
         const addr = this.get_obj_addr(ae.id);
 
-        this.solved_sketch_index.set_object({
+        this.sketch_index.set_object({
             ...ae,
             start_angle: this.gcs.get_param(addr),
             end_angle: this.gcs.get_param(addr + 1),
