@@ -21,11 +21,22 @@ describe("basic: gcs_wrapper", () => {
         vi.resetAllMocks();
         gcs_wrapper.param_index = new Map();
         gcs_wrapper.sketch_index = new SketchIndex();
+
+        // simulate the behaviour of pushing params
+        let arr_params = [];
+        let arr_fixed = [];
+        vi.spyOn(gcs, 'push_param').mockImplementation((val: number, fixed: boolean) => {
+            arr_params.push(val);
+            arr_fixed.push(fixed);
+            return arr_params.length;
+        });
+        vi.spyOn(gcs, 'params_size').mockImplementation(() => {
+            return arr_params.length;
+        })
     });
 
     it("calls gcs when pushing a param", () => {
         const param_i = 0;
-        vi.spyOn(gcs, 'params_size').mockReturnValueOnce(param_i);
         gcs_wrapper.push_object({type: 'param', name: 'my_param', value: 10});
         expect(gcs.push_param).toHaveBeenCalledWith(10, true);
         expect(gcs_wrapper.sketch_param_index.get('my_param')).to.equal(param_i);
@@ -55,30 +66,24 @@ describe("basic: gcs_wrapper", () => {
     });
 
     it("calls gcs when pushing an arc", () => {
-        vi.spyOn(gcs, 'params_size').mockReturnValueOnce(0);
         gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: true});
-        vi.spyOn(gcs, 'params_size').mockReturnValueOnce(2);
         gcs_wrapper.push_object({type: 'point', id: 2, x: 1, y: 2, fixed: true});
-        vi.spyOn(gcs, 'params_size').mockReturnValueOnce(4);
         gcs_wrapper.push_object({type: 'point', id: 3, x: 10, y: 10, fixed: true});
 
         const arc = { delete: vi.fn() };
         vi.spyOn(gcs, 'make_arc').mockReturnValueOnce(arc);
 
-        vi.spyOn(gcs, 'params_size').mockReturnValueOnce(6);
         gcs_wrapper.push_object({type: 'arc', id: 4, c_id: 1, start_id: 2, end_id: 3, start_angle: 0, end_angle: 0, radius: 1});
 
         expect(gcs.push_param).toHaveBeenCalledTimes(3 * 2 + 3);
     });
 
     it("calls add_constraint_equal method when adding an equal constraint", () => {
-        const o1_p1_addr = 0;
-        vi.spyOn(gcs, 'params_size').mockReturnValue(o1_p1_addr);
+        const o1_p1_addr = gcs.params_size();
         gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
         expect(gcs.push_param).toHaveBeenCalledTimes(2);
 
-        const value_addr = 2;
-        vi.spyOn(gcs, 'params_size').mockReturnValue(value_addr);
+        const value_addr = gcs.params_size();
         gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, param: 'x' }, param2: 5});
         expect(gcs.push_param).toHaveBeenCalledTimes(3);
         expect(gcs.push_param).toHaveBeenLastCalledWith(5, true);
@@ -88,11 +93,9 @@ describe("basic: gcs_wrapper", () => {
     });
 
     it("calls add_constraint_equal with driving parameter and internal constraint when provided", () => {
-        const o1_p1_addr = 0;
-        vi.spyOn(gcs, 'params_size').mockReturnValue(o1_p1_addr);
+        const o1_p1_addr = gcs.params_size();
         gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
-        const value_addr = 2;
-        vi.spyOn(gcs, 'params_size').mockReturnValue(value_addr);
+        const value_addr = gcs.params_size();
         gcs_wrapper.push_object({type: 'equal', id: 2, param1: { o_id: 1, param: 'x' }, param2: 5, driving: false, internalalignment: Constraint_Alignment.InternalAlignment});
 
         const tag = 2; 
@@ -100,16 +103,11 @@ describe("basic: gcs_wrapper", () => {
     });
 
     it("calls add_constraint_angle_via_point when adding a constraint (with shuffled arguments)", () => {
-        vi.spyOn(gcs, 'params_size').mockReturnValueOnce(0);
         gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
-        vi.spyOn(gcs, 'params_size').mockReturnValueOnce(2);
         gcs_wrapper.push_object({type: 'point', id: 2, x: 1, y: 2, fixed: false});
-        vi.spyOn(gcs, 'params_size').mockReturnValue(4);
         gcs_wrapper.push_object({type: 'line', id: 3, p1_id: 1, p2_id: 2});
         gcs_wrapper.push_object({type: 'point', id: 4, x: 10, y: 10, fixed: false});
-        vi.spyOn(gcs, 'params_size').mockReturnValueOnce(6);
         gcs_wrapper.push_object({type: 'arc', id: 5, c_id: 1, start_id: 2, end_id: 4, start_angle: 0, end_angle: 0, radius: 1});
-        vi.spyOn(gcs, 'params_size').mockReturnValueOnce(9);
         
         const line = { delete: vi.fn() };
         const point = { delete: vi.fn() };
