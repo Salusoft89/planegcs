@@ -2,6 +2,7 @@
 #define BASE_H
 
 #include <stdio.h>
+#include <stdarg.h>
 
 class Console {
 public:

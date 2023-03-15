@@ -29,8 +29,8 @@
 	"scripts": {
 		"gcs:update": "cd ./planegcs && ./update_freecad.sh",
 		"gcs:bindings": "cd build-bindings && ./process_all.sh",
-		"build:emsc": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'cmake . -DCMAKE_BUILD_TYPE=Debug && make -j $(nproc)' && cp planegcs/bin/* dist",
-		"build:emsc-release": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'cmake . -DCMAKE_BUILD_TYPE=Release && make -j $(nproc) && ls -lh bin' && cp planegcs/bin/* dist",
+		"build:emsc": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Debug && emmake make -j $(nproc)' && cp planegcs/bin/* dist",
+		"build:emsc-release": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Release && emmake make -j $(nproc) && ls -lh bin' && cp planegcs/bin/* dist",
 		"build:docker": "docker build -t gcs_builder .",
 		"build": "npm run build:docker && npm run build:emsc",
 		"test": "jest",
