@@ -1,4 +1,5 @@
 
+import { it, describe, expect } from 'vitest'; 
 import { params_to_call_string, params_to_definition_string } from "./parse_cpp";
 
 describe('file', () => {

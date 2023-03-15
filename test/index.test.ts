@@ -1,3 +1,4 @@
+import { it, describe, expect } from 'vitest';
 import { GcsWrapper, make_gcs_wrapper } from "..";
 
 describe('make_gcs_wrapper', () => {

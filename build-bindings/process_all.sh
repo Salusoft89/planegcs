@@ -4,7 +4,7 @@ set -e
 
 mkdir -p ../dist
 
-ts-node render_templates.ts \
+npx tsx ./render_templates.ts \
      gcs_system.cpp.njk ../planegcs/bindings.cpp \
      gcs_system.ts.njk ../dist/gcs_system.ts \
      gcs_system_mock.ts.njk ../dist/gcs_system_mock.ts \

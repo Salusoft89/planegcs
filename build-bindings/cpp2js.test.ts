@@ -1,3 +1,4 @@
+import { it, describe, expect } from 'vitest';
 import { cpp_type_to_js_type } from "./cpp2js";
  
 describe('cppTypeToJsType', () => {

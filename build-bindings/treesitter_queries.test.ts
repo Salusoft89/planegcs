@@ -1,3 +1,4 @@
+import { it, describe, expect, beforeAll } from 'vitest';
 import TreeSitterQueries from "./treesitter_queries";
 
 let q: TreeSitterQueries;
