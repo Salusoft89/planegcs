@@ -37,7 +37,7 @@ jobs:
       run: |
         sudo apt-get -qqy update
         sudo apt install -qqy libeigen3-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-test-dev libboost-filesystem-dev
-        sudo mkdir -p /inc && ln -sf /usr/include/boost /inc
+        sudo mkdir -p /inc && sudo ln -sf /usr/include/boost /inc
 
     - name: Setup emscripten
       run: |
