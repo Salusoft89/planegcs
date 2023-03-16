@@ -1,3 +1,23 @@
+/**************************************************************************************************
+* This library provides WebAssembly bindings for the FreeCAD's geometric solver library planegcs. *
+* Copyright (C) 2023  Miroslav Šerý, Salusoft89 <miroslav.sery@salusoft89.cz>                     *
+* Copyright (C) 2023  Jiří Hon, Salusoft89 <jiri.hon@salusoft89.cz>                               *
+*                                                                                                 *
+* This library is free software; you can redistribute it and/or                                   *
+* modify it under the terms of the GNU Lesser General Public                                      *
+* License as published by the Free Software Foundation; either                                    *
+* version 2.1 of the License, or (at your option) any later version.                              *
+*                                                                                                 *
+* This library is distributed in the hope that it will be useful,                                 *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU                               *
+* Lesser General Public License for more details.                                                 *
+*                                                                                                 *
+* You should have received a copy of the GNU Lesser General Public                                *
+* License along with this library; if not, write to the Free Software                             *
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA                    *
+**************************************************************************************************/
+
 #include <iostream>
 #include <vector>
 #include "GCS.h"
@@ -118,7 +138,7 @@ class GcsSystem : System
             this->debug_mode = debug_mode;
         }
 
-        // make objects from params
+        /* make objects from params */
         Point make_point(int px_i, int py_i)
         {
             Point p;
@@ -308,19 +328,19 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("solve_system", &GcsSystem::solve_system)
         .function("get_conflicting", &GcsSystem::get_conflicting)
         .function("clear", &GcsSystem::clear)
-        // functions adapted from GCS::System
+        /* functions adapted from GCS::System */
         .function("apply_solution", &GcsSystem::apply_solution)
         .function("dof", &GcsSystem::dof)
         .function("has_conflicting", &GcsSystem::has_conflicting)
         .function("has_redundant", &GcsSystem::has_redundant)
         .function("clear_by_id", &GcsSystem::clear_by_id)
-        // make_<geometry> functions
+        /* make_<geometry> functions */
         {%- for cls in geom_classes -%}
         {% if not cls.skip_make %}
         .function("{{ cls.make_fname }}", &GcsSystem::{{cls.make_fname}})
         {%- endif %}
         {%- endfor %}
-        // constraint functions
+        /* constraint functions */
         {%- for constraint in fn_constraints %}
         .function("{{constraint.fname_lower}}", &GcsSystem::{{constraint.fname_lower}}){% endfor %}
         ;
