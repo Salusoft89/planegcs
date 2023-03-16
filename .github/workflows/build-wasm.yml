@@ -49,7 +49,7 @@ jobs:
         ./emsdk install latest
         ./emsdk activate latest
 
-    - uses: jwlawson/actions-setup-cmake@v1.12
+    - uses: jwlawson/actions-setup-cmake@v1.13
     - uses: actions/checkout@v3
 
     - name: Download WASM files
