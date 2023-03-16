@@ -16,7 +16,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import { camelToSnakeCase, utilReadFile } from './utils';
-import TreeSitterQueries, { EnumType, ParamType } from './treesitter_queries';
+import TreeSitterQueries, { type EnumType, type ParamType } from './treesitter_queries';
 import { class_letter_mapping, exported_enums } from './config';
 import { cpp_type_to_js_type } from './cpp2js';
 const tsq = new TreeSitterQueries();
@@ -102,7 +102,7 @@ function fn_specificator(params: ParamType[]) {
 
 // for addConstraint functions
 export function params_to_definition_string(params: ParamType[]) {
-    const arr = [];
+    const arr: string[] = [];
     for (const param of params) {
         if (param.type === 'double' && param.identifier.startsWith('*')) {
             const id = double_pointer_param_to_param_i(param.identifier);
@@ -115,7 +115,7 @@ export function params_to_definition_string(params: ParamType[]) {
 }
 
 export function params_to_call_string(params: ParamType[]) {
-    const arr = [];
+    const arr: string[] = [];
     for (const param of params) {
         if (param.type === 'double' && param.identifier.startsWith('*')) {
             const id = double_pointer_param_to_param_i(param.identifier);

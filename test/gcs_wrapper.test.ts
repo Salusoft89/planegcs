@@ -40,8 +40,8 @@ describe("basic: gcs_wrapper", () => {
         gcs_wrapper.sketch_index = new SketchIndex();
 
         // simulate the behaviour of pushing params
-        let arr_params = [];
-        let arr_fixed = [];
+        let arr_params: number[] = [];
+        let arr_fixed: boolean[] = [];
         vi.spyOn(gcs, 'push_param').mockImplementation((val: number, fixed: boolean) => {
             arr_params.push(val);
             arr_fixed.push(fixed);
@@ -179,7 +179,7 @@ describe("basic: gcs_wrapper", () => {
         gcs_wrapper.apply_solution(); 
 
         for (const item of old_objects) {
-            const new_object = gcs_wrapper.sketch_index.get_object(item.id);
+            const new_object = gcs_wrapper.sketch_index.get_object_or_fail(item.id);
             expect(new_object.type).toEqual(item.type);
 
             switch(new_object.type) {

@@ -32,7 +32,9 @@ let fileContents: string;
 try {
   fileContents = readFileSync(filename, 'utf-8');
 } catch (err) {
-  console.error(`Error: ${err.message}`);
+  if (err instanceof Error) {
+    console.error(`Error: ${err.message}`);
+  }
   process.exit(1);
 }
 
@@ -45,7 +47,9 @@ if (replacedContents !== fileContents) {
   try {
     writeFileSync(filename, replacedContents, 'utf-8');
   } catch (err) {
-    console.error(`Error: ${err.message}`);
+    if (err instanceof Error) {
+      console.error(`Error: ${err.message}`);
+    }
     process.exit(1);
   }
 } else {

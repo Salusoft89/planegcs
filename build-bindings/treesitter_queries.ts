@@ -17,7 +17,7 @@
 
 import Cpp from 'tree-sitter-cpp';
 
-import Parser, { Input, InputReader } from 'tree-sitter';
+import Parser, { type Input, type InputReader } from 'tree-sitter';
 
 type StringInput = string | Input | InputReader;
 export type ParamType = { type: string, identifier: string, optional_value?: string };
@@ -89,7 +89,7 @@ export default class TreeSitterQueries {
             `);
         }
 
-        const enum_values = [];
+        const enum_values: { name: string, value: number}[] = [];
         let i = 0;
         for (const match of query_values.matches(enum_node)) {
             const name = match.captures[0].node.text;

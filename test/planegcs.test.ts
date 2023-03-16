@@ -17,7 +17,7 @@
 
 import { it, describe, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import PlanegcsWasm from '../dist/planegcs.js';
-import { GcsSystem } from '../dist/gcs_system';
+import type { GcsSystem } from '../dist/gcs_system';
 
 let gcs_factory;
 let gcs: GcsSystem;

@@ -15,11 +15,12 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import { Constraint, ConstraintParam } from "../dist/constraints";
+import type { Constraint, ConstraintParam } from "../dist/constraints";
 import { constraint_param_index } from "../dist/constraint_param_index";
-import { SketchIndexBase } from "./sketch_index";
-import { is_sketch_geometry, oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
-import { Constraint_Alignment, GcsGeometry, GcsSystem, SolveStatus } from "../dist/gcs_system";
+import type { SketchIndexBase } from "./sketch_index";
+import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
+import { is_sketch_geometry } from "./sketch_object";
+import { Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, } from "../dist/gcs_system";
 import getParamOffset from "./geom_params";
 
 export class GcsWrapper { 

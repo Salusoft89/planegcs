@@ -15,8 +15,9 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import { SketchPoint, oid, is_sketch_geometry, SketchLine, SketchCircle, SketchArc, SketchGeometry } from "./sketch_object";
-import { Constraint } from "../dist/constraints";
+import type { SketchPoint, oid, SketchLine, SketchCircle, SketchArc, SketchGeometry } from "./sketch_object";
+import { is_sketch_geometry } from "./sketch_object";
+import type { Constraint } from "../dist/constraints";
 
 export abstract class SketchIndexBase {
     abstract get_objects(): (Constraint|SketchGeometry)[];
@@ -34,28 +35,28 @@ export abstract class SketchIndexBase {
     }
 
     get_sketch_point(id: oid): SketchPoint {
-        const obj = this.get_object(id);
+        const obj = this.get_object_or_fail(id);
         if (obj.type !== 'point') {
             throw new Error(`sketch object ${id} is not a sketch point`);
         }
         return obj as SketchPoint;
     }
     get_sketch_line(id: oid): SketchLine {
-        const obj = this.get_object(id);
+        const obj = this.get_object_or_fail(id);
         if (obj.type !== 'line') {
             throw new Error(`sketch object ${id} is not a sketch line`);
         }
         return obj as SketchLine;
     }
     get_sketch_circle(id: oid): SketchCircle {
-        const obj = this.get_object(id);
+        const obj = this.get_object_or_fail(id);
         if (obj.type !== 'circle') {
             throw new Error(`sketch object ${id} is not a sketch circle`);
         }
         return obj as SketchCircle;
     }
     get_sketch_arc(id: oid): SketchArc {
-        const obj = this.get_object(id);
+        const obj = this.get_object_or_fail(id);
         if (obj.type !== 'arc') {
             throw new Error(`sketch object ${id} is not a sketch arc`);
         }

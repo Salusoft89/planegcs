@@ -27,7 +27,13 @@ import type {
 
 export class GcsSystemMock implements GcsSystem {
     {%- for func in fn_ts_bindings %}
-    {{ func.fname }}({{ func.args }}): {{ func.return_type }} { return undefined; }
+    {{ func.fname }}({{ func.args }}): {{ func.return_type }} { 
+        // @ts-ignore 
+        return undefined; 
+    }
     {%- endfor %}
-    delete(): void { return undefined; }
+    delete(): void {
+        // @ts-ignore 
+        return undefined; 
+    }
 }

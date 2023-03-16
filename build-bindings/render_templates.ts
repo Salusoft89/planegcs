@@ -27,7 +27,7 @@ const fn_constraints = getConstraintFunctions();
 const enums = getEnums();
 const geom_classes = geometry_classes();
 // todo: refactor the deps to Makefile
-let fn_ts_bindings = null; // depends on generating bindings.cpp first
+let fn_ts_bindings; // depends on generating bindings.cpp first
 
 // get script cli args: input_file1 output_file1 input_file2 output_file2 ...
 const args = process.argv.slice(2);
