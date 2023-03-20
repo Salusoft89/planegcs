@@ -26,7 +26,7 @@ npx tsx ./render_templates.ts \
      gcs_system.ts.njk ../dist/gcs_system.ts \
      gcs_system_mock.ts.njk ../dist/gcs_system_mock.ts \
      constraints.ts.njk ../dist/constraints.ts \
-     constraint_param_index.js.njk ../dist/constraint_param_index.js \
+     constraint_param_index.ts.njk ../dist/constraint_param_index.ts \
 
 # this file would be normally redundant, but it is to make ts checker happy
 # while running a subset of tests (npm run test:basic)

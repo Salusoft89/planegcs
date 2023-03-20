@@ -21,6 +21,7 @@ vi.mock('../dist/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
 import { Constraint_Alignment, SolveStatus } from "../dist/gcs_system";
+import type { SketchCircle, SketchPoint } from '../sketch/sketch_object';
 
 let gcs_wrapper: GcsWrapper;
 let gcs: GcsSystemMock;
@@ -180,15 +181,19 @@ describe("basic: gcs_wrapper", () => {
 
         for (const item of old_objects) {
             const new_object = gcs_wrapper.sketch_index.get_object_or_fail(item.id);
-            expect(new_object.type).toEqual(item.type);
+            if (new_object.type !== item.type) {
+                expect(new_object.type).toEqual(item.type);
+            }
 
             switch(new_object.type) {
                 case 'point':
-                    expect(new_object.x).toBe(item['x'] + 1)
-                    expect(new_object.y).toBe(item['y'] + 1)
+                    const point = item as SketchPoint;
+                    expect(new_object.x).toBe(point.x + 1)
+                    expect(new_object.y).toBe(point.y + 1)
                     break;
                 case 'circle':
-                    expect(new_object.radius).toBe(item['radius'] + 1)
+                    const circle = item as SketchCircle;
+                    expect(new_object.radius).toBe(circle.radius + 1)
                     break;
             }
         }

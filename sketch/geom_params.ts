@@ -17,7 +17,7 @@
 
 // todo: change indexes, so radius/radmin is always at 0, start_angle at 1, end_angle at 2
 // (keep 0 index unused for parabola)
-const obj_params_offsets = {
+const obj_params_offsets: Record<string, Record<string, number>> = {
     point: {
         x: 0,
         y: 1

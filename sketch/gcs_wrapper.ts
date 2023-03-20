@@ -262,6 +262,7 @@ export class GcsWrapper {
                 continue;
             }
 
+            // @ts-ignore
             const val = c[parameter] as ConstraintParam;
             const is_fixed = (c.driving ?? true);
             
@@ -299,6 +300,7 @@ export class GcsWrapper {
         }
 
         const c_name: string = c.type;
+        // @ts-ignore 
         this.gcs[`add_constraint_${c_name}`](...add_constraint_args);
 
         // wasm-allocated objects must be manually deleted 
