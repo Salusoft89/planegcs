@@ -17,7 +17,7 @@
 		"email": "miroslav.sery@salusoft89.cz"
 	},
 	"repository": "github:thes01/planegcs-wrapper",
-	"license": "GPL-2.0-only",
+	"license": "LGPL-2.0-or-later",
 	"version": "0.1.0",
 	"private": false,
 	"main": "index.ts",
