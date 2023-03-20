@@ -53,3 +53,7 @@ export interface GcsSystem {
 {%- endfor %}
     delete: () => void;
 }
+
+export interface GcsSystemConstructor {
+    new (): GcsSystem;
+}

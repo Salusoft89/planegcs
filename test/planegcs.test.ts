@@ -18,9 +18,10 @@
 import { it, describe, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import PlanegcsWasm from '../dist/planegcs.js';
 import type { GcsSystem } from '../dist/gcs_system';
+import type { ModuleStatic } from '../dist/planegcs.js';
 
-let gcs_factory;
-let gcs: GcsSystem;
+let gcs_factory: ModuleStatic;
+let gcs: GcsSystem; 
 
 describe("planegcs", () => {
     beforeAll(async () => {
