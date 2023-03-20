@@ -3,9 +3,9 @@ export { SketchIndexBase, SketchIndex } from "./sketch/sketch_index";
 
 import ModuleFactory from "./dist/planegcs";
 import { GcsWrapper } from "./sketch/gcs_wrapper"; 
-import { SketchIndex, SketchIndexBase } from "./sketch/sketch_index";
+import type { SketchIndexBase } from "./sketch/sketch_index";
 
-export async function make_gcs_wrapper(sketch_index: SketchIndexBase = new SketchIndex()) { 
+export async function make_gcs_wrapper<SI extends SketchIndexBase>(sketch_index: SI) { 
     const module = await ModuleFactory();
     const gcs = new module.GcsSystem();
 

@@ -23,14 +23,14 @@ import { is_sketch_geometry } from "./sketch_object";
 import { Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, } from "../dist/gcs_system";
 import getParamOffset from "./geom_params";
 
-export class GcsWrapper { 
+export class GcsWrapper<SI extends SketchIndexBase> { 
     gcs: GcsSystem;
     param_index: Map<oid, number>;
-    sketch_index: SketchIndexBase;
+    sketch_index: SI;
     // 'mouse_x' -> 10, 'mouse_y' -> 100, ...
     sketch_param_index: Map<string, number>;
 
-    constructor(gcs: GcsSystem, sketch_index: SketchIndexBase, param_index = new Map()) {
+    constructor(gcs: GcsSystem, sketch_index: SI, param_index = new Map()) {
         this.gcs = gcs;
         this.sketch_index = sketch_index;
         this.param_index = param_index; 

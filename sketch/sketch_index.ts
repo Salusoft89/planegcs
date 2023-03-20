@@ -33,7 +33,6 @@ export abstract class SketchIndexBase {
         }
         return obj;
     }
-
     get_sketch_point(id: oid): SketchPoint {
         const obj = this.get_object_or_fail(id);
         if (obj.type !== 'point') {
@@ -65,7 +64,6 @@ export abstract class SketchIndexBase {
     get_constraints(): Constraint[] {
         return this.get_objects().filter(o => !is_sketch_geometry(o)) as Constraint[];
     }
-
     toString(): string {
         return this.get_objects().map(o => JSON.stringify(o)).join('\n');
     }
