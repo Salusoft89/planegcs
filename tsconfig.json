@@ -1,18 +1,30 @@
 {
-    "compilerOptions": {
-        "esModuleInterop": true,
-        "target": "es2021", // allow iterating over maps
-        "moduleResolution": "node",
+    "compilerOptions": { 
+        "esModuleInterop": true, 
+        "target": "ESNext", // allow iterating over maps
+        "moduleResolution": "node", 
 
         // fix for imported enums being undefined in vitest
-        "noResolve": false
+        "noResolve": false,
+
+        "allowJs": false,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": true,
+        "importsNotUsedAsValues": "error",
+		"isolatedModules": true,
+		"preserveValueImports": true,
+		"module": "esnext",
     },
     "exclude": [
         "**/CMakeFiles",
+        "coverage"
     ],
     // "extends": "ts-node/node16/tsconfig.json",
     "ts-node": {
         "transpileOnly": true,
         "files": true,
-    },
+    }
 }
