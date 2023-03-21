@@ -39,14 +39,14 @@ mv FreeCAD/src/FCGlobal.h headers
 rm -rf FreeCAD
 
 # apply patches
-ts-node patch_file.ts GCS.cpp "Base::Console().Log" "Console::Log"
-ts-node patch_file.ts GCS.cpp "<Base/Console.h>" "<Console.h>"
+npx tsx patch_file.ts GCS.cpp "Base::Console().Log" "Console::Log"
+npx tsx patch_file.ts GCS.cpp "<Base/Console.h>" "<Console.h>"
 # disable using std::async (not available in emscripten without use of web workers)
-ts-node patch_file.ts GCS.cpp \
+npx tsx patch_file.ts GCS.cpp \
      "auto fut = std::async(&System::identifyDependentParametersSparseQR,this,J,jacobianconstraintmap, pdiagnoselist, /*silent=*/true);" \
      "identifyDependentParametersSparseQR(J, jacobianconstraintmap, pdiagnoselist, true);"
-ts-node patch_file.ts GCS.cpp \
+npx tsx patch_file.ts GCS.cpp \
      "fut.wait();" \
-     "# fut.wait();"
+     "// fut.wait();"
 
-ts-node patch_file.ts headers/FCConfig.h "defined(linux)" "defined(unix)"
+npx tsx patch_file.ts headers/FCConfig.h "defined(linux)" "defined(unix)"
