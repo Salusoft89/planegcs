@@ -1,5 +1,6 @@
 export { GcsWrapper } from "./sketch/gcs_wrapper";
 export { SketchIndexBase, SketchIndex } from "./sketch/sketch_index";
+export { SolveStatus, DebugMode, Constraint_Alignment } from "./dist/gcs_system";
 
 import ModuleFactory from "./dist/planegcs";
 import { GcsWrapper } from "./sketch/gcs_wrapper"; 
