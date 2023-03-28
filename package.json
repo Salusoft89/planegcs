@@ -1,6 +1,6 @@
 {
 	"name": "planegcs",
-	"description": "A wasm build and a simple wrapper of the FreeCAD PlaneGCS (2D geometric solver)",
+	"description": "A wasm build and a simple wrapper of the FreeCAD PlaneGCS (2D geometric constraint solver)",
 	"keywords": [
 		"wasm",
 		"freecad",
@@ -11,12 +11,12 @@
 		"geometry",
 		"constraint"
 	],
-	"homepage": "https://github.com/thes01/planegcs-wrapper",
+	"homepage": "https://github.com/Salusoft89/planegcs",
 	"bugs": {
-		"url": "https://github.com/thes01/planegcs-wrapper/issues",
+		"url": "https://github.com/Salusoft89/planegcs/issues",
 		"email": "miroslav.sery@salusoft89.cz"
 	},
-	"repository": "github:thes01/planegcs-wrapper",
+	"repository": "github:Salusoft89/planegcs",
 	"license": "LGPL-2.0-or-later",
 	"version": "0.0.15",
 	"private": false,
