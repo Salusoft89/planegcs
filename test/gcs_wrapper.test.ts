@@ -20,10 +20,10 @@ import { GcsSystemMock } from "../dist/gcs_system_mock";
 vi.mock('../dist/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
-import { Constraint_Alignment, SolveStatus } from "../dist/gcs_system";
+import { Constraint_Alignment } from "../dist/gcs_system";
 import type { SketchCircle, SketchPoint } from '../sketch/sketch_object';
 
-let gcs_wrapper: GcsWrapper;
+let gcs_wrapper: GcsWrapper<SketchIndex>;
 let gcs: GcsSystemMock;
 
 // the prefix 'basic:' makes this test run before the wasm compilation
@@ -42,7 +42,7 @@ describe("basic: gcs_wrapper", () => {
 
         // simulate the behaviour of pushing params
         let arr_params: number[] = [];
-        let arr_fixed: boolean[] = [];
+        const arr_fixed: boolean[] = [];
         vi.spyOn(gcs, 'push_param').mockImplementation((val: number, fixed: boolean) => {
             arr_params.push(val);
             arr_fixed.push(fixed);
@@ -187,14 +187,18 @@ describe("basic: gcs_wrapper", () => {
 
             switch(new_object.type) {
                 case 'point':
-                    const point = item as SketchPoint;
-                    expect(new_object.x).toBe(point.x + 1)
-                    expect(new_object.y).toBe(point.y + 1)
-                    break;
+                    {
+                        const point = item as SketchPoint;
+                        expect(new_object.x).toBe(point.x + 1)
+                        expect(new_object.y).toBe(point.y + 1)
+                        break;
+                    }
                 case 'circle':
-                    const circle = item as SketchCircle;
-                    expect(new_object.radius).toBe(circle.radius + 1)
-                    break;
+                    {
+                        const circle = item as SketchCircle;
+                        expect(new_object.radius).toBe(circle.radius + 1)
+                        break;
+                    }
             }
         }
     });
