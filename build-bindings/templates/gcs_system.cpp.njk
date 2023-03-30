@@ -67,7 +67,7 @@ class GcsSystem : System
             return is_fixed[i];
         }
 
-        SolveStatus solve_system()
+        int solve_system()
         {
             vector<double *> solved_params;
             for (int i = 0; i < params.size(); ++i)
@@ -77,7 +77,7 @@ class GcsSystem : System
                     solved_params.push_back(params[i]);
                 }
             }
-            return static_cast<SolveStatus>(solve(solved_params));
+            return solve(solved_params);
         }
 
         vector<double> get_params()
@@ -334,6 +334,7 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("has_conflicting", &GcsSystem::has_conflicting)
         .function("has_redundant", &GcsSystem::has_redundant)
         .function("clear_by_id", &GcsSystem::clear_by_id)
+        .function("set_debug_mode", &GcsSystem::set_debug_mode)
         /* make_<geometry> functions */
         {%- for cls in geom_classes -%}
         {% if not cls.skip_make %}

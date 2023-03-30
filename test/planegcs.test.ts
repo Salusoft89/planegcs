@@ -17,7 +17,7 @@
 
 import { it, describe, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import PlanegcsWasm from '../dist/planegcs.js';
-import type { GcsSystem } from '../dist/gcs_system';
+import { DebugMode, SolveStatus, type GcsSystem } from '../dist/gcs_system';
 import type { ModuleStatic } from '../dist/planegcs.js';
 
 let gcs_factory: ModuleStatic;
@@ -99,4 +99,18 @@ describe("planegcs", () => {
         gcs.solve_system();
         expect(gcs.dof()).toBe(1);
     });
+
+    it("returns correct enum status", () => {
+        gcs.push_param(1, true);
+        gcs.push_param(2, true);
+
+        const status = gcs.solve_system();
+        expect(status).toEqual(SolveStatus.Success);
+    }); 
+
+    it("can change debugmode", () => {
+        gcs.set_debug_mode(DebugMode.NoDebug);
+        gcs.set_debug_mode(DebugMode.IterationLevel);
+        gcs.set_debug_mode(DebugMode.Minimal);
+    })
 });
