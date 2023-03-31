@@ -97,7 +97,7 @@ class GcsSystem : System
             return conflicting;
         }
 
-        void clear()
+        void clear_data()
         {
             for (int i = 0; i < params.size(); ++i)
             {
@@ -327,7 +327,7 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("get_is_fixed", &GcsSystem::get_is_fixed)
         .function("solve_system", &GcsSystem::solve_system)
         .function("get_conflicting", &GcsSystem::get_conflicting)
-        .function("clear", &GcsSystem::clear)
+        .function("clear_data", &GcsSystem::clear_data)
         /* functions adapted from GCS::System */
         .function("apply_solution", &GcsSystem::apply_solution)
         .function("dof", &GcsSystem::dof)
