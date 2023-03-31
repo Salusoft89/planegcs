@@ -15,6 +15,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { 
     GcsSystem,IntVector,DoubleVector,GcsGeometry,
     {% for cls in geom_classes -%}
@@ -23,17 +24,20 @@ import type {
     {% for enum in enums -%}
     {{ enum.name | replace('::', '_') }},
     {%- endfor %}
-} from "./planegcs";
+} from "./gcs_system";
 
 export class GcsSystemMock implements GcsSystem {
     {%- for func in fn_ts_bindings %}
     {{ func.fname }}({{ func.args }}): {{ func.return_type }} { 
-        // @ts-ignore 
-        return undefined; 
+        {%- if func.return_type != 'void' %}
+        // @ts-expect-error: return in mock can be undefined
+        return undefined;
+        {%- else %}
+        return;
+        {%- endif %}
     }
     {%- endfor %}
     delete(): void {
-        // @ts-ignore 
-        return undefined; 
+        return; 
     }
 }
