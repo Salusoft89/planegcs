@@ -30,4 +30,6 @@ npx tsx ./render_templates.ts \
 
 # this file would be normally redundant, but it is to make ts checker happy
 # while running a subset of tests (npm run test:basic)
-echo 'export default {};' > ../dist/planegcs.js
+if [ ! -f ../dist/planegcs.js ]; then
+    echo 'export default {};' > ../dist/planegcs.js
+fi
