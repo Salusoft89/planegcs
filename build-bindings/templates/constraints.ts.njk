@@ -56,4 +56,4 @@ export interface {{ item.constraint_name }} extends Id {
 {% endfor %}
 
 export type Constraint = {% for item in fn_constraints %}{{ item.constraint_name }}{%- if not loop.last %} | {% endif %}{% endfor %};
-export type ConstraintParam = {% for item in fn_constraints %}{{ item.constraint_name }}[keyof {{ item.constraint_name }}]{%- if not loop.last %} | {% endif %}{% endfor %};
+export type ConstraintParamType = {% for item in fn_constraints %}{{ item.constraint_name }}[keyof {{ item.constraint_name }}]{%- if not loop.last %} | {% endif %}{% endfor %};

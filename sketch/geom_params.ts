@@ -15,8 +15,6 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-// todo: change indexes, so radius/radmin is always at 0, start_angle at 1, end_angle at 2
-// (keep 0 index unused for parabola)
 const obj_params_offsets: Record<string, Record<string, number>> = {
     point: {
         x: 0,
@@ -40,7 +38,7 @@ const obj_params_offsets: Record<string, Record<string, number>> = {
     }
 }
 
-export default function getParamOffset(obj_type: string, param_name: string): number {
+export default function get_param_offset(obj_type: string, param_name: string): number {
     const obj_params = obj_params_offsets[obj_type];
     if (obj_params) {
         const offset = obj_params[param_name];

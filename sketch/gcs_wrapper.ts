@@ -15,13 +15,13 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import type { Constraint, ConstraintParam } from "../dist/constraints";
+import type { Constraint, ConstraintParamType } from "../dist/constraints";
 import { constraint_param_index } from "../dist/constraint_param_index";
 import type { SketchIndexBase } from "./sketch_index";
 import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
 import { is_sketch_geometry } from "./sketch_object";
 import { Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, } from "../dist/gcs_system";
-import getParamOffset from "./geom_params";
+import get_param_offset from "./geom_params";
 
 export class GcsWrapper<SI extends SketchIndexBase> { 
     gcs: GcsSystem;
@@ -271,8 +271,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
                 continue;
             }
 
-            // @ts-ignore
-            const val = c[parameter] as ConstraintParam;
+            const val = (c as any)[parameter] as ConstraintParamType;
             const is_fixed = (c.driving ?? true);
             
             if (type === 'object_param_or_number') { // or string
@@ -291,7 +290,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
                     add_constraint_args.push(val);
                 } else if (val !== undefined) {
                     const object_type = this.sketch_index.get_object_or_fail(val.o_id).type;
-                    const param_addr = this.get_obj_addr(val.o_id) + getParamOffset(object_type, val.param);
+                    const param_addr = this.get_obj_addr(val.o_id) + get_param_offset(object_type, val.param);
                     add_constraint_args.push(param_addr);
                 }
             } else if (type === 'object_id' && typeof val === 'number') {
@@ -309,8 +308,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
         }
 
         const c_name: string = c.type;
-        // @ts-ignore 
-        this.gcs[`add_constraint_${c_name}`](...add_constraint_args);
+        (this.gcs as any)[`add_constraint_${c_name}`](...add_constraint_args);
 
         // wasm-allocated objects must be manually deleted 
         for (const geom_shape of deletable) {
