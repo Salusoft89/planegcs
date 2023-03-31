@@ -17,7 +17,7 @@
 
 import { it, describe, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import PlanegcsWasm from '../dist/planegcs.js';
-import { DebugMode, SolveStatus, type GcsSystem } from '../dist/gcs_system';
+import { Algorithm, DebugMode, SolveStatus, type GcsSystem } from '../dist/gcs_system';
 import type { ModuleStatic } from '../dist/planegcs.js';
 
 let gcs_factory: ModuleStatic;
@@ -89,13 +89,13 @@ describe("planegcs", () => {
         const p2x_i = gcs.push_param(1, false);
         const p2y_i = gcs.push_param(3, false);
 
-        gcs.solve_system();
+        gcs.solve_system(Algorithm.DogLeg);
         expect(gcs.dof()).toBe(2);
 
         const line = gcs.make_line(p1x_i, p1y_i, p2x_i, p2y_i);
         gcs.add_constraint_vertical_l(line, 1, true);
         
-        gcs.solve_system();
+        gcs.solve_system(Algorithm.DogLeg);
         expect(gcs.dof()).toBe(1);
     });
 
@@ -103,7 +103,7 @@ describe("planegcs", () => {
         gcs.push_param(1, true);
         gcs.push_param(2, true);
 
-        const status = gcs.solve_system();
+        const status = gcs.solve_system(Algorithm.DogLeg);
         expect(status).toEqual(SolveStatus.Success);
     }); 
 
@@ -118,5 +118,5 @@ describe("planegcs", () => {
         gcs.clear_data();
 
         expect(gcs.params_size()).toBe(0);
-    })
+    });
 });

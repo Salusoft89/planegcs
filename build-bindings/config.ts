@@ -24,7 +24,8 @@ export const exported_enums = [
     },
     { enum_name: 'DebugMode', file: 'GCS.h' },
     { enum_name: 'Constraint::Alignment', file: 'Constraints.h'},
-    { enum_name: 'SolveStatus', file: 'GCS.h'}
+    { enum_name: 'SolveStatus', file: 'GCS.h'},
+    { enum_name: 'Algorithm', file: 'GCS.h'},
 ];
 
 const exported_geometry_classes = [
