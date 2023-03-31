@@ -24,6 +24,7 @@ export abstract class SketchIndexBase {
     abstract get_object(id: oid): Constraint|SketchGeometry|undefined;
     abstract set_object(obj: Constraint|SketchGeometry): void;
     abstract delete_object(id: oid): boolean;
+    abstract clear(): void;
     abstract has(id: oid): boolean;
 
     get_object_or_fail(id: oid): Constraint|SketchGeometry {
@@ -90,5 +91,9 @@ export class SketchIndex extends SketchIndexBase {
 
     get_objects(): (Constraint|SketchGeometry)[] {
         return Array.from(this.index.values());
+    }
+
+    clear(): void {
+        this.index.clear();
     }
 }

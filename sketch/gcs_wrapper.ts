@@ -37,8 +37,17 @@ export class GcsWrapper<SI extends SketchIndexBase> {
         this.sketch_param_index = new Map();
     }
 
-    destroyGcsModule() {
+    destroy_gcs_module() {
+        // only call before the deleting of this object
+        this.gcs.clear_data();
         this.gcs.delete();
+    }
+
+    clear_data() {
+        this.gcs.clear_data();
+        this.param_index.clear();
+        this.sketch_param_index.clear();
+        this.sketch_index.clear();
     }
  
     // ------ Sketch -> GCS ------- (when building up a sketch)

@@ -33,8 +33,7 @@ describe("planegcs", () => {
     });
 
     afterEach(() => {
-        // todo: when should we clear?
-        // gcs.clear();
+        gcs.clear_data();
         gcs.delete();
     });
     
@@ -112,5 +111,12 @@ describe("planegcs", () => {
         gcs.set_debug_mode(DebugMode.NoDebug);
         gcs.set_debug_mode(DebugMode.IterationLevel);
         gcs.set_debug_mode(DebugMode.Minimal);
+    });
+
+    it("can clear params", () => {
+        gcs.push_param(1, true);
+        gcs.clear_data();
+
+        expect(gcs.params_size()).toBe(0);
     })
 });
