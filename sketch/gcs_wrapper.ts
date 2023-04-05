@@ -88,7 +88,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
         this.sketch_index.set_object(o);
     }
 
-    solve(algorithm: Algorithm): SolveStatus {
+    solve(algorithm: Algorithm = Algorithm.DogLeg): SolveStatus {
         return this.gcs.solve_system(algorithm);
     }
 
