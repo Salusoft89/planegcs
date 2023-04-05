@@ -20,7 +20,7 @@ import { constraint_param_index } from "../dist/constraint_param_index";
 import type { SketchIndexBase } from "./sketch_index";
 import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
 import { is_sketch_geometry } from "./sketch_object";
-import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, } from "../dist/gcs_system";
+import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../dist/gcs_system";
 import get_param_offset from "./geom_params";
 
 export class GcsWrapper<SI extends SketchIndexBase> { 
@@ -29,6 +29,14 @@ export class GcsWrapper<SI extends SketchIndexBase> {
     sketch_index: SI;
     // 'mouse_x' -> 10, 'mouse_y' -> 100, ...
     sketch_param_index: Map<string, number>;
+
+    get debug_mode(): DebugMode {
+        return this.gcs.get_debug_mode();
+    }
+
+    set debug_mode(mode: DebugMode) {
+        this.gcs.set_debug_mode(mode);
+    }
 
     constructor(gcs: GcsSystem, sketch_index: SI, param_index = new Map()) {
         this.gcs = gcs;

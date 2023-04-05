@@ -17,7 +17,7 @@
 
 import { vi, it, describe, expect, beforeAll, beforeEach } from 'vitest';
 import PlanegcsWasm from '../dist/planegcs.js';
-import { Algorithm, SolveStatus } from '../dist/gcs_system.js';
+import { Algorithm, DebugMode, SolveStatus } from '../dist/gcs_system.js';
 import type { ModuleStatic } from '../dist/planegcs.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
 import { SketchIndex } from '../sketch/sketch_index.js';
@@ -71,7 +71,6 @@ describe("gcs_wrapper", () => {
             .mockImplementation((msg) => { 
                 console_output += msg;
             });
-
         const status = gcs_wrapper.solve(Algorithm.DogLeg);
         expect(status).toBe(SolveStatus.Failed);
         expect(console_output).toContain("Sketcher::RedundantSolving-DogLeg-");
@@ -81,4 +80,9 @@ describe("gcs_wrapper", () => {
 
         logSpy.mockRestore();
     });
+
+    it("should get and set debug mode", () => {
+        gcs_wrapper.debug_mode = DebugMode.IterationLevel;
+        expect(gcs_wrapper.debug_mode).toBe(DebugMode.IterationLevel);
+    })
 });
