@@ -48,5 +48,9 @@ npx tsx patch_file.ts GCS.cpp \
 npx tsx patch_file.ts GCS.cpp \
      "fut.wait();" \
      "// fut.wait();"
+# fix passing the algorithm
+npx tsx patch_file.ts GCS.cpp \
+     "initSolution();" \
+     "initSolution(alg);"
 
 npx tsx patch_file.ts headers/FCConfig.h "defined(linux)" "defined(unix)"

@@ -1654,7 +1654,7 @@ void System::resetToReference()
 int System::solve(VEC_pD &params, bool isFine, Algorithm alg, bool isRedundantsolving)
 {
     declareUnknowns(params);
-    initSolution();
+    initSolution(alg);
     return solve(isFine, alg, isRedundantsolving);
 }
 
