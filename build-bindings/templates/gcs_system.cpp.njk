@@ -21,6 +21,7 @@
 #include <iostream>
 #include <vector>
 #include "GCS.h"
+#include <emscripten.h>  
 
 using namespace GCS;
 using namespace std;
@@ -65,8 +66,10 @@ class GcsSystem : System
             return is_fixed[i];
         }
 
-        int solve_system(Algorithm algorithm)
+        // an integer is used here because Enum didn't work properly
+        int solve_system(int algorithm)
         {
+            Algorithm alg = static_cast<Algorithm>(algorithm);
             vector<double *> solved_params;
             for (int i = 0; i < params.size(); ++i)
             {
@@ -75,7 +78,18 @@ class GcsSystem : System
                     solved_params.push_back(params[i]);
                 }
             }
-            return solve(solved_params, true, algorithm);
+
+            if (this->debugMode == IterationLevel) {
+                if (alg == DogLeg) {
+                    EM_ASM({ console.log("Solving with DogLeg\n"); });
+                } else if (alg == LevenbergMarquardt) {
+                    EM_ASM({ console.log("Solving with LevenbergMarquardt\n"); });
+                } else if (alg == BFGS) {
+                    EM_ASM({ console.log("Solving with BFGS\n"); });
+                }
+            }
+            // the second parameter doesn't influence anything
+            return solve(solved_params, true, alg);
         }
 
         vector<double> get_params()
@@ -131,9 +145,10 @@ class GcsSystem : System
             clearByTag(id);
         }
 
-        void set_debug_mode(DebugMode debug_mode)
+        void set_debug_mode(int debug_mode)
         {
-            this->debugMode = debug_mode;
+            DebugMode debug_mode_enum = static_cast<DebugMode>(debug_mode);
+            this->debugMode = debug_mode_enum;
         }
 
         DebugMode get_debug_mode()
