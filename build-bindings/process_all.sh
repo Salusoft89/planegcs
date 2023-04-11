@@ -33,3 +33,5 @@ npx tsx ./render_templates.ts \
 if [ ! -f ../dist/planegcs.js ]; then
     echo 'export default {};' > ../dist/planegcs.js
 fi
+
+cp types/planegcs.d.ts ../dist/planegcs.d.ts
