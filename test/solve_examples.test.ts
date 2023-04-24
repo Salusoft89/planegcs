@@ -84,5 +84,23 @@ describe("gcs_wrapper", () => {
     it("should get and set debug mode", () => {
         gcs_wrapper.debug_mode = DebugMode.IterationLevel;
         expect(gcs_wrapper.debug_mode).toBe(DebugMode.IterationLevel);
-    })
+    });
+
+    it("should solve basic circle", () => {
+        const circle_radius_sketch: SketchObject[] = [
+            { id: 1, type: 'point', x: 10, y: 10, fixed: true },
+            { id: 2, type: 'circle', c_id: 1, radius: 1},
+            { id: 3, type: 'equal', param1: { o_id: 2, param: 'radius' }, param2: 100 }
+        ];
+
+        for (const obj of circle_radius_sketch) {
+            gcs_wrapper.push_object(obj);
+        }
+
+        gcs_wrapper.solve();
+        gcs_wrapper.apply_solution();
+
+        const circle = gcs_wrapper.sketch_index.get_sketch_circle(2);
+        expect(circle?.radius).toBe(100);
+    });
 });

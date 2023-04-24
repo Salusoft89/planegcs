@@ -401,9 +401,11 @@ export class GcsWrapper<SI extends SketchIndexBase> {
     }
 
     private pull_circle(c: SketchCircle) {
+        const addr = this.get_obj_addr(c.id);
+
         this.sketch_index.set_object({
             ...c,
-            radius: this.get_obj_addr(c.id)
+            radius: this.gcs.get_param(addr)
         });
     }
 
