@@ -1,5 +1,5 @@
 {
-	"name": "planegcs",
+	"name": "@salusoft89/planegcs",
 	"description": "A wasm build and a simple wrapper of the FreeCAD PlaneGCS (2D geometric constraint solver)",
 	"keywords": [
 		"wasm",
