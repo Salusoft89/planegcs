@@ -310,6 +310,8 @@ export class GcsWrapper<SI extends SketchIndexBase> {
                 // todo: add to some index (same as above)
                 const pos = this.push_params(c.id, [val], is_fixed); // ? is this correct (driving <=> fixed)? 
                 add_constraint_args.push(pos);
+            } else if (type === 'primitive' && typeof val === 'boolean') {
+                add_constraint_args.push(val);
             } else {
                 throw new Error(`unhandled parameter type: ${type}`);
             }

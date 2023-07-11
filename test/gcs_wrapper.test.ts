@@ -202,4 +202,28 @@ describe("basic: gcs_wrapper", () => {
             }
         }
     });
+
+    it("calls correctly the arc2arc perpendicular constraint with boolean parameters", () => {
+        gcs_wrapper.push_object({type: 'point', id: 1, x: 0, y: 0, fixed: false});
+        gcs_wrapper.push_object({type: 'point', id: 2, x: 1, y: 2, fixed: false});
+        gcs_wrapper.push_object({type: 'line', id: 3, p1_id: 1, p2_id: 2});
+        gcs_wrapper.push_object({type: 'point', id: 4, x: 10, y: 10, fixed: false});
+        gcs_wrapper.push_object({type: 'arc', id: 5, c_id: 1, start_id: 2, end_id: 4, start_angle: 0, end_angle: 0, radius: 1});
+
+        const line = { delete: vi.fn() };
+        const point = { delete: vi.fn() };
+        const arc = { delete: vi.fn() };
+        vi.spyOn(gcs, 'make_line').mockReturnValue(line);
+        vi.spyOn(gcs, 'make_point').mockReturnValue(point);
+        vi.spyOn(gcs, 'make_arc').mockReturnValue(arc);
+
+        gcs_wrapper.push_object({
+            type: 'perpendicular_arc2arc',
+            id: 6,
+            a1_id: 5,
+            a2_id: 5,
+            reverse1: false,
+            reverse2: true,
+        }); 
+    });
 });
