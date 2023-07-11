@@ -23,6 +23,7 @@
 #ifndef PLANEGCS_CONSTRAINTS_H
 #define PLANEGCS_CONSTRAINTS_H
 
+
 #include "Geo.h"
 
 // This enables debugging code intended to extract information to file bug reports against Eigen,

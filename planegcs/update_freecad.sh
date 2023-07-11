@@ -43,9 +43,9 @@ npx tsx patch_file.ts GCS.cpp "Base::Console().Log" "Console::Log"
 npx tsx patch_file.ts GCS.cpp "<Base/Console.h>" "<Console.h>"
 # disable using std::async (not available in emscripten without use of web workers)
 # todo: fix following two (don't work after indentation changes)
-npx tsx patch_file.ts GCS.cpp \
-     "auto fut = std::async(&System::identifyDependentParametersSparseQR,this,J,jacobianconstraintmap, pdiagnoselist, /*silent=*/true);" \
-     "identifyDependentParametersSparseQR(J, jacobianconstraintmap, pdiagnoselist, true);"
+# npx tsx patch_file.ts GCS.cpp \
+#      "auto fut = std::async(&System::identifyDependentParametersSparseQR,this,J,jacobianconstraintmap, pdiagnoselist, /*silent=*/true);" \
+#      "identifyDependentParametersSparseQR(J, jacobianconstraintmap, pdiagnoselist, true);"
 npx tsx patch_file.ts GCS.cpp \
      "fut.wait();" \
      "// fut.wait();"
@@ -54,10 +54,27 @@ npx tsx patch_file.ts GCS.cpp \
      "initSolution();" \
      "initSolution(alg);"
 
-# todo: fix this..?
 npx tsx patch_file.ts headers/FCConfig.h "defined(linux)" "defined(unix)"
 
-# todo: add #define BOOST_NO_CXX98_FUNCTION_BASE 
-# to GCS.cpp(https://github.com/boostorg/container_hash/issues/22)
+# add Boost flag to avoid using std::unary_function, which doesn't work with newer clang
+# https://github.com/boostorg/container_hash/issues/22
+npx tsx patch_file.ts GCS.cpp \
+     "#include <Console.h>" \
+     "#define BOOST_NO_CXX98_FUNCTION_BASE
+#include <Console.h>"
 
-# todo: replace class SketcherExport with class
+npx tsx patch_file.ts Constraints.h \
+     "#include \"../../SketcherGlobal.h\"" \
+     ""
+
+npx tsx patch_file.ts Constraints.h \
+     "class SketcherExport" \
+     "class"
+
+npx tsx patch_file.ts GCS.h \
+     "#include \"../../SketcherGlobal.h\"" \
+     ""
+
+npx tsx patch_file.ts GCS.h \
+     "class SketcherExport" \
+     "class"
