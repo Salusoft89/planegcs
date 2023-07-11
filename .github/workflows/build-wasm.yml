@@ -79,3 +79,28 @@ jobs:
         path: | 
           dist/planegcs.js
           dist/planegcs.wasm
+
+  publish_npm:
+    needs: build_wasm
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Download bindings
+        uses: actions/download-artifact@v3
+        with:
+          name: bindings
+      - name: Download WASM files
+        uses: actions/download-artifact@v3
+        with:
+          name: compiled-wasm
+      
+      - run: npm install
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
