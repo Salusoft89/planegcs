@@ -7,5 +7,8 @@
         "coverage.xml",
         "jacoco.xml",
         "coverage.cobertura.xml"
-    ]
+    ],
+    "files.associations": {
+        "orderingmethods": "cpp"
+    }
 }

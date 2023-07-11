@@ -42,6 +42,7 @@ rm -rf FreeCAD
 npx tsx patch_file.ts GCS.cpp "Base::Console().Log" "Console::Log"
 npx tsx patch_file.ts GCS.cpp "<Base/Console.h>" "<Console.h>"
 # disable using std::async (not available in emscripten without use of web workers)
+# todo: fix following two (don't work after indentation changes)
 npx tsx patch_file.ts GCS.cpp \
      "auto fut = std::async(&System::identifyDependentParametersSparseQR,this,J,jacobianconstraintmap, pdiagnoselist, /*silent=*/true);" \
      "identifyDependentParametersSparseQR(J, jacobianconstraintmap, pdiagnoselist, true);"
@@ -53,4 +54,10 @@ npx tsx patch_file.ts GCS.cpp \
      "initSolution();" \
      "initSolution(alg);"
 
+# todo: fix this..?
 npx tsx patch_file.ts headers/FCConfig.h "defined(linux)" "defined(unix)"
+
+# todo: add #define BOOST_NO_CXX98_FUNCTION_BASE 
+# to GCS.cpp(https://github.com/boostorg/container_hash/issues/22)
+
+# todo: replace class SketcherExport with class
