@@ -63,6 +63,8 @@ npx tsx patch_file.ts GCS.cpp \
      "#define BOOST_NO_CXX98_FUNCTION_BASE
 #include <Console.h>"
 
+# SketcherGlobal.h includes macro SketcherExport, which is not necessary for our purposes, so we remove it
+# (it only confuses the cpp parser)
 npx tsx patch_file.ts Constraints.h \
      "#include \"../../SketcherGlobal.h\"" \
      ""
