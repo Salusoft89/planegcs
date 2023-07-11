@@ -67,7 +67,7 @@ export interface SketchArcOfEllipse extends Id, IArc {
 }
 
 export type SketchGeometry = SketchPoint | SketchLine | SketchCircle | SketchArc | SketchEllipse | SketchArcOfEllipse;
-export type SketchObject = SketchGeometry | Constraint | SketchParam;
+export type SketchPrimitive = SketchGeometry | Constraint;
 
 export interface SketchParam {
 	type: 'param';
@@ -77,7 +77,7 @@ export interface SketchParam {
 	value: number;
 }
 
-export function is_sketch_geometry(o: SketchObject): o is SketchGeometry {
+export function is_sketch_geometry(o: SketchPrimitive | SketchParam): o is SketchGeometry {
 	return ['point', 'line', 'circle', 'arc', 'ellipse', 'arc_of_ellipse'].includes(o.type);
 }
 

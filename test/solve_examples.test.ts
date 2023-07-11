@@ -63,7 +63,7 @@ describe("gcs_wrapper", () => {
     it("should fail an overconstrained sketch with dogleg", () => {
         gcs_wrapper.push_sketch_param('fillet_radius', 157);
         for (const obj of sketch_fillet_overconstrained) {
-            gcs_wrapper.push_object(obj);
+            gcs_wrapper.push_primitive(obj);
         }
 
         let console_output = "";
@@ -94,7 +94,7 @@ describe("gcs_wrapper", () => {
         ];
 
         for (const obj of circle_radius_sketch) {
-            gcs_wrapper.push_object(obj);
+            gcs_wrapper.push_primitive(obj);
         }
 
         gcs_wrapper.solve();

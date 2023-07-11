@@ -18,7 +18,7 @@
 import type { Constraint, ConstraintParamType } from "../dist/constraints";
 import { constraint_param_index } from "../dist/constraint_param_index";
 import type { SketchIndexBase } from "./sketch_index";
-import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchObject, SketchPoint } from "./sketch_object";
+import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam } from "./sketch_object";
 import { is_sketch_geometry } from "./sketch_object";
 import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../dist/gcs_system";
 import get_param_offset from "./geom_params";
@@ -60,7 +60,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
  
     // ------ Sketch -> GCS ------- (when building up a sketch)
 
-    push_object(o: SketchObject) {
+    push_primitive(o: SketchPrimitive | SketchParam) {
         if (o.type === 'param') {
             this.push_sketch_param(o.name, o.value);
             return;
@@ -93,7 +93,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
             throw new Error(`object with id ${o.id} already exists`);
         }
 
-        this.sketch_index.set_object(o);
+        this.sketch_index.set_primitive(o);
     }
 
     solve(algorithm: Algorithm = Algorithm.DogLeg): SolveStatus {
@@ -102,8 +102,8 @@ export class GcsWrapper<SI extends SketchIndexBase> {
 
     apply_solution() {
         this.gcs.apply_solution();
-        for (const obj of this.sketch_index.get_objects()) {
-            this.pull_object(obj);
+        for (const obj of this.sketch_index.get_primitives()) {
+            this.pull_primitive(obj);
         }
     }
 
@@ -213,35 +213,35 @@ export class GcsWrapper<SI extends SketchIndexBase> {
         this.push_params(ae.id, [ae.start_angle, ae.end_angle, ae.radmin], false);
     }
 
-    sketch_object_to_gcs(o: SketchObject) : GcsGeometry {
+    sketch_primitive_to_gcs(o: SketchPrimitive) : GcsGeometry {
         if (o.type === 'point') {
-            const p_i = this.get_obj_addr(o.id);
+            const p_i = this.get_primitive_addr(o.id);
             return this.gcs.make_point(p_i, p_i + 1);
         } else if (o.type === 'line') {
-            const p1_i = this.get_obj_addr(o.p1_id);
-            const p2_i = this.get_obj_addr(o.p2_id);
+            const p1_i = this.get_primitive_addr(o.p1_id);
+            const p2_i = this.get_primitive_addr(o.p2_id);
             return this.gcs.make_line(p1_i, p1_i + 1, p2_i, p2_i + 1);
         } else if (o.type === 'circle') {
-            const cp_i = this.get_obj_addr(o.c_id);
-            const radius_i = this.get_obj_addr(o.id);
+            const cp_i = this.get_primitive_addr(o.c_id);
+            const radius_i = this.get_primitive_addr(o.id);
             return this.gcs.make_circle(cp_i, cp_i + 1, radius_i);
         } else if (o.type === 'arc') {
-            const c_i = this.get_obj_addr(o.c_id);
-            const start_i = this.get_obj_addr(o.start_id);
-            const end_i = this.get_obj_addr(o.end_id);
-            const a_i = this.get_obj_addr(o.id);
+            const c_i = this.get_primitive_addr(o.c_id);
+            const start_i = this.get_primitive_addr(o.start_id);
+            const end_i = this.get_primitive_addr(o.end_id);
+            const a_i = this.get_primitive_addr(o.id);
             return this.gcs.make_arc(c_i, c_i + 1, start_i, start_i + 1, end_i, end_i + 1, a_i, a_i + 1, a_i + 2);
         } else if (o.type === 'ellipse') {
-            const c_i = this.get_obj_addr(o.c_id);
-            const focus1_i = this.get_obj_addr(o.focus1_id);
-            const radmin_i = this.get_obj_addr(o.id);
+            const c_i = this.get_primitive_addr(o.c_id);
+            const focus1_i = this.get_primitive_addr(o.focus1_id);
+            const radmin_i = this.get_primitive_addr(o.id);
             return this.gcs.make_ellipse(c_i, c_i + 1, focus1_i, focus1_i + 1, radmin_i);
         } else if (o.type === 'arc_of_ellipse') {
-            const c_i = this.get_obj_addr(o.c_id);
-            const focus1_i = this.get_obj_addr(o.focus1_id);
-            const start_i = this.get_obj_addr(o.start_id);
-            const end_i = this.get_obj_addr(o.end_id);
-            const a_i = this.get_obj_addr(o.id);
+            const c_i = this.get_primitive_addr(o.c_id);
+            const focus1_i = this.get_primitive_addr(o.focus1_id);
+            const start_i = this.get_primitive_addr(o.start_id);
+            const end_i = this.get_primitive_addr(o.end_id);
+            const a_i = this.get_primitive_addr(o.id);
             return this.gcs.make_arc_of_ellipse(c_i, c_i + 1, focus1_i, focus1_i + 1, start_i, start_i + 1, end_i, end_i + 1, a_i, a_i + 1, a_i + 2);
         } else {
             throw new Error(`not-implemented object type: ${o.type}`);
@@ -297,13 +297,13 @@ export class GcsWrapper<SI extends SketchIndexBase> {
                 } else if (typeof val === 'boolean') {
                     add_constraint_args.push(val);
                 } else if (val !== undefined) {
-                    const object_type = this.sketch_index.get_object_or_fail(val.o_id).type;
-                    const param_addr = this.get_obj_addr(val.o_id) + get_param_offset(object_type, val.param);
+                    const object_type = this.sketch_index.get_primitive_or_fail(val.o_id).type;
+                    const param_addr = this.get_primitive_addr(val.o_id) + get_param_offset(object_type, val.param);
                     add_constraint_args.push(param_addr);
                 }
             } else if (type === 'object_id' && typeof val === 'number') {
-                const obj = this.sketch_index.get_object_or_fail(val);
-                const gcs_obj = this.sketch_object_to_gcs(obj);
+                const obj = this.sketch_index.get_primitive_or_fail(val);
+                const gcs_obj = this.sketch_primitive_to_gcs(obj);
                 add_constraint_args.push(gcs_obj);
                 deletable.push(gcs_obj);
             } else if (type === 'primitive_type' && typeof val === 'number') {
@@ -329,17 +329,17 @@ export class GcsWrapper<SI extends SketchIndexBase> {
     // id can be -1 for extra constraints
     delete_constraint_by_id(id: number): boolean {
         if (id !== -1) {
-            const item = this.sketch_index.get_object(id);
+            const item = this.sketch_index.get_primitive(id);
             if (item !== undefined && !is_sketch_geometry(item)) {
                 throw new Error(`object #${id} (${item.type}) is not a constraint (delete_constraint_by_id)`);
             }
         }
 
         this.gcs.clear_by_id(id);
-        return this.sketch_index.delete_object(id);
+        return this.sketch_index.delete_primitive(id);
     }
 
-    private get_obj_addr(id: oid): number {
+    private get_primitive_addr(id: oid): number {
         const addr = this.param_index.get(id);
         if (addr === undefined) {
             throw new Error(`sketch object ${id} not found in params`);
@@ -349,52 +349,48 @@ export class GcsWrapper<SI extends SketchIndexBase> {
 
     // ------- GCS -> Sketch ------- (when retrieving a solution)
 
-    private pull_object(o: SketchObject) {
-        if (o.type === 'param') {
-            return;
-        }
-
-        if (this.param_index.has(o.id)) {
-            if (o.type === 'point') {
-                this.pull_point(o);
-            } else if (o.type === 'line') {
-                this.pull_line(o);
-            } else if (o.type === 'arc') {
-                this.pull_arc(o);
-            } else if (o.type === 'circle') {
-                this.pull_circle(o);
-            } else if (o.type === 'ellipse') {
-                this.pull_ellipse(o);
-            } else if (o.type === 'arc_of_ellipse') {
-                this.pull_arc_of_ellipse(o);
+    private pull_primitive(p: SketchPrimitive) {
+        if (this.param_index.has(p.id)) {
+            if (p.type === 'point') {
+                this.pull_point(p);
+            } else if (p.type === 'line') {
+                this.pull_line(p);
+            } else if (p.type === 'arc') {
+                this.pull_arc(p);
+            } else if (p.type === 'circle') {
+                this.pull_circle(p);
+            } else if (p.type === 'ellipse') {
+                this.pull_ellipse(p);
+            } else if (p.type === 'arc_of_ellipse') {
+                this.pull_arc_of_ellipse(p);
             } else {
                 // console.log(`${o.type}`);
                 // todo: is this else branch necessary?
-                this.sketch_index.set_object(o);
+                this.sketch_index.set_primitive(p);
             }
         } else {
             // console.log(`object ${o.type} #${o.id} not found in params when retrieving solution`);
-            this.sketch_index.set_object(o);
+            this.sketch_index.set_primitive(p);
         }
     }
 
     private pull_point(p: SketchPoint) {
-        const point_addr = this.get_obj_addr(p.id);
+        const point_addr = this.get_primitive_addr(p.id);
         const point = {
             ...p,
             x: this.gcs.get_param(point_addr),
             y: this.gcs.get_param(point_addr + 1),
         }
-        this.sketch_index.set_object(point);
+        this.sketch_index.set_primitive(point);
     }
 
     private pull_line(l: SketchLine) {
-        this.sketch_index.set_object(l);
+        this.sketch_index.set_primitive(l);
     }
 
     private pull_arc(a: SketchArc) {
-        const addr = this.get_obj_addr(a.id);
-        this.sketch_index.set_object({
+        const addr = this.get_primitive_addr(a.id);
+        this.sketch_index.set_primitive({
             ...a,
             start_angle: this.gcs.get_param(addr),
             end_angle: this.gcs.get_param(addr + 1),
@@ -403,27 +399,27 @@ export class GcsWrapper<SI extends SketchIndexBase> {
     }
 
     private pull_circle(c: SketchCircle) {
-        const addr = this.get_obj_addr(c.id);
+        const addr = this.get_primitive_addr(c.id);
 
-        this.sketch_index.set_object({
+        this.sketch_index.set_primitive({
             ...c,
             radius: this.gcs.get_param(addr)
         });
     }
 
     private pull_ellipse(e: SketchEllipse) {
-        const addr = this.get_obj_addr(e.id);
+        const addr = this.get_primitive_addr(e.id);
 
-        this.sketch_index.set_object({
+        this.sketch_index.set_primitive({
             ...e,
             radmin: this.gcs.get_param(addr),
         });
     }
 
     private pull_arc_of_ellipse(ae: SketchArcOfEllipse) {
-        const addr = this.get_obj_addr(ae.id);
+        const addr = this.get_primitive_addr(ae.id);
 
-        this.sketch_index.set_object({
+        this.sketch_index.set_primitive({
             ...ae,
             start_angle: this.gcs.get_param(addr),
             end_angle: this.gcs.get_param(addr + 1),
