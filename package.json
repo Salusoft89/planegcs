@@ -18,7 +18,7 @@
 	},
 	"repository": "github:Salusoft89/planegcs",
 	"license": "LGPL-2.0-or-later",
-	"version": "0.0.20",
+	"version": "0.0.21",
 	"private": false,
 	"main": "index.ts",
 	"files": [
