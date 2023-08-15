@@ -16,9 +16,9 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import { vi, it, describe, expect, beforeAll, beforeEach } from 'vitest';
-import PlanegcsWasm from '../planegcs_distplanegcs.js';
-import { Algorithm, DebugMode, SolveStatus } from '../planegcs_distgcs_system.js';
-import type { ModuleStatic } from '../planegcs_distplanegcs.js';
+import PlanegcsWasm from '../planegcs_dist/planegcs.js';
+import { Algorithm, DebugMode, SolveStatus } from '../planegcs_dist/gcs_system.js';
+import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
 import type { SketchPrimitive } from '../sketch/sketch_primitive.js';
 

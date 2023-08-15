@@ -1,4 +1,4 @@
-import { GcsSystemConstructor } from "../planegcs_distgcs_system";
+import { GcsSystemConstructor } from "../planegcs_dist/gcs_system";
 
 export interface ModuleStatic {
     GcsSystem: GcsSystemConstructor;

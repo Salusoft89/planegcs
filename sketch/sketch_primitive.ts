@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import type { Constraint } from '../planegcs_distconstraints';
+import type { Constraint } from '../planegcs_dist/constraints';
 
 // object id type
 export type oid = number;

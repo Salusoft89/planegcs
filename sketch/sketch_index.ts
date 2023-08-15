@@ -17,7 +17,7 @@
 
 import type { SketchPoint, oid, SketchLine, SketchCircle, SketchArc, SketchPrimitive } from "./sketch_primitive";
 import { is_sketch_geometry } from "./sketch_primitive";
-import type { Constraint } from "../planegcs_distconstraints";
+import type { Constraint } from "../planegcs_dist/constraints";
 
 export abstract class SketchIndexBase {
     abstract get_primitives(): SketchPrimitive[];
