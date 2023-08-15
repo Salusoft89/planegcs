@@ -19,19 +19,19 @@
 
 set -e
 
-mkdir -p ../dist
+mkdir -p ../planegcs_dist
 
 npx tsx ./render_templates.ts \
      gcs_system.cpp.njk ../planegcs/bindings.cpp \
-     gcs_system.ts.njk ../dist/gcs_system.ts \
-     gcs_system_mock.ts.njk ../dist/gcs_system_mock.ts \
-     constraints.ts.njk ../dist/constraints.ts \
-     constraint_param_index.ts.njk ../dist/constraint_param_index.ts \
+     gcs_system.ts.njk ../planegcs_dist/gcs_system.ts \
+     gcs_system_mock.ts.njk ../planegcs_dist/gcs_system_mock.ts \
+     constraints.ts.njk ../planegcs_dist/constraints.ts \
+     constraint_param_index.ts.njk ../planegcs_dist/constraint_param_index.ts \
 
 # this file would be normally redundant, but it is to make ts checker happy
 # while running a subset of tests (npm run test:basic)
-if [ ! -f ../dist/planegcs.js ]; then
-    echo 'export default {};' > ../dist/planegcs.js
+if [ ! -f ../planegcs_dist/planegcs.js ]; then
+    echo 'export default {};' > ../planegcs_dist/planegcs.js
 fi
 
-cp types/planegcs.d.ts ../dist/planegcs.d.ts
+cp types/planegcs.d.ts ../planegcs_dist/planegcs.d.ts

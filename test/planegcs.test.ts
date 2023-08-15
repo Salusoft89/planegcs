@@ -16,9 +16,9 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import { it, describe, expect, beforeAll, beforeEach, afterEach } from 'vitest';
-import PlanegcsWasm from '../dist/planegcs.js';
-import { Algorithm, DebugMode, SolveStatus, type GcsSystem } from '../dist/gcs_system';
-import type { ModuleStatic } from '../dist/planegcs.js';
+import PlanegcsWasm from '../planegcs_distplanegcs.js';
+import { Algorithm, DebugMode, SolveStatus, type GcsSystem } from '../planegcs_distgcs_system';
+import type { ModuleStatic } from '../planegcs_distplanegcs.js';
 
 let gcs_factory: ModuleStatic;
 let gcs: GcsSystem; 

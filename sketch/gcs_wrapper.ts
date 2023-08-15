@@ -15,12 +15,12 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import type { Constraint, ConstraintParamType } from "../dist/constraints";
-import { constraint_param_index } from "../dist/constraint_param_index";
+import type { Constraint, ConstraintParamType } from "../planegcs_distconstraints";
+import { constraint_param_index } from "../planegcs_distconstraint_param_index";
 import { SketchIndex } from "./sketch_index";
 import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam } from "./sketch_primitive";
 import { is_sketch_geometry } from "./sketch_primitive";
-import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../dist/gcs_system";
+import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../planegcs_distgcs_system";
 import get_property_offset, { property_offsets } from "./geom_params";
 
 export class GcsWrapper { 

@@ -1,13 +1,13 @@
-export { Algorithm, SolveStatus, DebugMode, Constraint_Alignment } from "./dist/gcs_system";
-export { type ModuleStatic } from "./dist/planegcs";
+export { Algorithm, SolveStatus, DebugMode, Constraint_Alignment } from "./planegcs_distgcs_system";
+export { type ModuleStatic } from "./planegcs_distplanegcs";
 export { type SketchPrimitive, type SketchGeometry, type SketchParam,
          type SketchPoint, type SketchLine, type SketchCircle,
          type SketchArc, type SketchEllipse, type SketchArcOfEllipse,
         is_sketch_constraint, is_sketch_geometry, get_referenced_sketch_params } from "./sketch/sketch_primitive";
-export { type Constraint } from "./dist/constraints";
+export { type Constraint } from "./planegcs_distconstraints";
 export { SketchIndex } from "./sketch/sketch_index";
 
-import init_planegcs_module from "./dist/planegcs";
+import init_planegcs_module from "./planegcs_distplanegcs";
 export { init_planegcs_module };
 
 import { GcsWrapper } from "./sketch/gcs_wrapper"; 

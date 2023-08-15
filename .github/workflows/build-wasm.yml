@@ -25,7 +25,7 @@ jobs:
       with:
         name: bindings
         path: | 
-          dist
+          planegcs_dist
           planegcs/bindings.cpp
 
   build_wasm:
@@ -63,7 +63,7 @@ jobs:
         pushd planegcs
         emcmake cmake -DCMAKE_BUILD_TYPE=Release . && emmake make
         popd
-        mv planegcs/bin/* dist
+        mv planegcs/bin/* planegcs_dist
 
     - uses: actions/setup-node@v3
       with:
@@ -77,8 +77,8 @@ jobs:
       with:
         name: compiled-wasm
         path: | 
-          dist/planegcs.js
-          dist/planegcs.wasm
+          planegcs_dist/planegcs.js
+          planegcs_dist/planegcs.wasm
 
   publish_npm:
     needs: build_wasm
@@ -101,6 +101,7 @@ jobs:
           name: compiled-wasm
       
       - run: npm install
-      - run: npm publish
+      - run: npx tsc
+      - run: cd out && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

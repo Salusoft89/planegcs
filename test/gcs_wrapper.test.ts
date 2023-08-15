@@ -16,11 +16,11 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import { it, describe, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { GcsSystemMock } from "../dist/gcs_system_mock";
-vi.mock('../dist/gcs_system_mock');
+import { GcsSystemMock } from "../planegcs_distgcs_system_mock";
+vi.mock('../planegcs_distgcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
-import { Constraint_Alignment } from "../dist/gcs_system";
+import { Constraint_Alignment } from "../planegcs_distgcs_system";
 import type { SketchCircle, SketchPoint } from '../sketch/sketch_primitive';
 
 let gcs_wrapper: GcsWrapper;
