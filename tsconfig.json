@@ -18,7 +18,8 @@
     },
     "exclude": [
         "**/CMakeFiles",
-        "coverage"
+        "coverage",
+        "out"
     ],
 }
 

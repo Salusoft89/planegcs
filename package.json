@@ -20,11 +20,13 @@
 	"license": "LGPL-2.0-or-later",
 	"version": "0.0.23",
 	"private": false,
-	"main": "index.ts",
+	"main": "index",
+	"types": "index",
 	"files": [
 		"dist",
 		"sketch",
-		"index.ts"
+		"index.js",
+		"index.d.ts"
 	],
 	"type": "module",
 	"scripts": {
