@@ -17,13 +17,22 @@
 
 import { SketchGeometry } from "./sketch_primitive";
 
+// Object properties that can be referenced in the constraint primitives, such as:
+// {
+//    "type": "equal",
+//    "param1": "my_sketch_param_width",
+//    "param2": {
+//        "o_id": 2,
+//        "property": "radius"
+//    }
+// }
+
 export type SketchGeometryProperty = 'x' | 'y' | 'radius' | 'start_angle' | 'end_angle' | 'radmin';
-const property_offsets: Record<SketchGeometry['type'], Partial<Record<SketchGeometryProperty, number>>> = {
+export const property_offsets = {
     point: {
         x: 0,
         y: 1
     },
-    line: {}, // no properties on line
     circle: {
         radius: 0
     },
@@ -40,10 +49,11 @@ const property_offsets: Record<SketchGeometry['type'], Partial<Record<SketchGeom
         end_angle: 1,
         radmin: 2
     },
-}
+    line: {},
+} as const;
 
 export default function get_property_offset(primitive_type: SketchGeometry['type'], property_key: SketchGeometryProperty): number {
-    const primitive_offsets = property_offsets[primitive_type];
+    const primitive_offsets: Partial<Record<SketchGeometryProperty, number>> = property_offsets[primitive_type];
     if (primitive_offsets) {
         const offset = primitive_offsets[property_key];
         if (offset !== undefined) {

@@ -18,10 +18,10 @@
 import type { Constraint, ConstraintParamType } from "../dist/constraints";
 import { constraint_param_index } from "../dist/constraint_param_index";
 import type { SketchIndexBase } from "./sketch_index";
-import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam } from "./sketch_primitive";
+import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam, SketchGeometry } from "./sketch_primitive";
 import { is_sketch_geometry } from "./sketch_primitive";
 import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../dist/gcs_system";
-import get_property_offset from "./geom_params";
+import get_property_offset, { property_offsets } from "./geom_params";
 
 export class GcsWrapper<SI extends SketchIndexBase> { 
     gcs: GcsSystem;
@@ -213,38 +213,66 @@ export class GcsWrapper<SI extends SketchIndexBase> {
     }
 
     sketch_primitive_to_gcs(o: SketchPrimitive) : GcsGeometry {
-        if (o.type === 'point') {
-            const p_i = this.get_primitive_addr(o.id);
-            return this.gcs.make_point(p_i, p_i + 1);
-        } else if (o.type === 'line') {
-            const p1_i = this.get_primitive_addr(o.p1_id);
-            const p2_i = this.get_primitive_addr(o.p2_id);
-            return this.gcs.make_line(p1_i, p1_i + 1, p2_i, p2_i + 1);
-        } else if (o.type === 'circle') {
-            const cp_i = this.get_primitive_addr(o.c_id);
-            const radius_i = this.get_primitive_addr(o.id);
-            return this.gcs.make_circle(cp_i, cp_i + 1, radius_i);
-        } else if (o.type === 'arc') {
-            const c_i = this.get_primitive_addr(o.c_id);
-            const start_i = this.get_primitive_addr(o.start_id);
-            const end_i = this.get_primitive_addr(o.end_id);
-            const a_i = this.get_primitive_addr(o.id);
-            return this.gcs.make_arc(c_i, c_i + 1, start_i, start_i + 1, end_i, end_i + 1, a_i, a_i + 1, a_i + 2);
-        } else if (o.type === 'ellipse') {
-            const c_i = this.get_primitive_addr(o.c_id);
-            const focus1_i = this.get_primitive_addr(o.focus1_id);
-            const radmin_i = this.get_primitive_addr(o.id);
-            return this.gcs.make_ellipse(c_i, c_i + 1, focus1_i, focus1_i + 1, radmin_i);
-        } else if (o.type === 'arc_of_ellipse') {
-            const c_i = this.get_primitive_addr(o.c_id);
-            const focus1_i = this.get_primitive_addr(o.focus1_id);
-            const start_i = this.get_primitive_addr(o.start_id);
-            const end_i = this.get_primitive_addr(o.end_id);
-            const a_i = this.get_primitive_addr(o.id);
-            return this.gcs.make_arc_of_ellipse(c_i, c_i + 1, focus1_i, focus1_i + 1, start_i, start_i + 1, end_i, end_i + 1, a_i, a_i + 1, a_i + 2);
-        } else {
-            throw new Error(`not-implemented object type: ${o.type}`);
-        }
+        switch (o.type) {
+            case 'point': {
+                const p_i = this.get_primitive_addr(o.id);
+                return this.gcs.make_point(
+                    p_i + property_offsets.point.x, p_i + property_offsets.point.y
+                );
+            }
+            case 'line': {
+                const p1_i = this.get_primitive_addr(o.p1_id);
+                const p2_i = this.get_primitive_addr(o.p2_id);
+                return this.gcs.make_line(
+                    p1_i + property_offsets.point.x, p1_i + property_offsets.point.y,
+                    p2_i + property_offsets.point.x, p2_i + property_offsets.point.y
+                );
+            }
+            case 'circle': {
+                const cp_i = this.get_primitive_addr(o.c_id);
+                const circle_i = this.get_primitive_addr(o.id);
+                return this.gcs.make_circle(
+                    cp_i + property_offsets.point.x, cp_i + property_offsets.point.y,
+                    circle_i + property_offsets.circle.radius);
+            }
+            case 'arc': {
+                const c_i = this.get_primitive_addr(o.c_id);
+                const start_i = this.get_primitive_addr(o.start_id);
+                const end_i = this.get_primitive_addr(o.end_id);
+                const a_i = this.get_primitive_addr(o.id);
+                return this.gcs.make_arc(
+                    c_i + property_offsets.point.x, c_i + property_offsets.point.y, 
+                    start_i + property_offsets.point.x, start_i + property_offsets.point.y, 
+                    end_i + property_offsets.point.x, end_i + property_offsets.point.y, 
+                    a_i + property_offsets.arc.start_angle, a_i + property_offsets.arc.end_angle, a_i + property_offsets.arc.radius);
+            }
+            case 'ellipse': {
+                const c_i = this.get_primitive_addr(o.c_id);
+                const focus1_i = this.get_primitive_addr(o.focus1_id);
+                const radmin_i = this.get_primitive_addr(o.id);
+                return this.gcs.make_ellipse(
+                    c_i + property_offsets.point.x, c_i + property_offsets.point.y,
+                    focus1_i + property_offsets.point.x, focus1_i + property_offsets.point.y,
+                    radmin_i + property_offsets.ellipse.radmin
+                );
+            }
+            case 'arc_of_ellipse': {
+                const c_i = this.get_primitive_addr(o.c_id);
+                const focus1_i = this.get_primitive_addr(o.focus1_id);
+                const start_i = this.get_primitive_addr(o.start_id);
+                const end_i = this.get_primitive_addr(o.end_id);
+                const a_i = this.get_primitive_addr(o.id);
+                return this.gcs.make_arc_of_ellipse(
+                    c_i + property_offsets.point.x, c_i + property_offsets.point.y,
+                    focus1_i + property_offsets.point.x, focus1_i + property_offsets.point.y,
+                    start_i + property_offsets.point.x, start_i + property_offsets.point.y,
+                    end_i + property_offsets.point.x, end_i + property_offsets.point.y,
+                    a_i + property_offsets.arc_of_ellipse.start_angle, a_i + property_offsets.arc_of_ellipse.end_angle, a_i + property_offsets.arc_of_ellipse.radmin
+                );
+            }
+            default:
+                throw new Error(`not-implemented object type: ${o.type}`);
+            }
     }
 
     // is_extra => tag = -1
@@ -380,8 +408,8 @@ export class GcsWrapper<SI extends SketchIndexBase> {
         const point_addr = this.get_primitive_addr(p.id);
         const point = {
             ...p,
-            x: this.gcs.get_param(point_addr),
-            y: this.gcs.get_param(point_addr + 1),
+            x: this.gcs.get_param(point_addr + property_offsets.point.x),
+            y: this.gcs.get_param(point_addr + property_offsets.point.y),
         }
         this.sketch_index.set_primitive(point);
     }
@@ -394,9 +422,9 @@ export class GcsWrapper<SI extends SketchIndexBase> {
         const addr = this.get_primitive_addr(a.id);
         this.sketch_index.set_primitive({
             ...a,
-            start_angle: this.gcs.get_param(addr),
-            end_angle: this.gcs.get_param(addr + 1),
-            radius: this.gcs.get_param(addr + 2)
+            start_angle: this.gcs.get_param(addr + property_offsets.arc.start_angle),
+            end_angle: this.gcs.get_param(addr + property_offsets.arc.end_angle),
+            radius: this.gcs.get_param(addr + property_offsets.arc.radius)
         });
     }
 
@@ -405,7 +433,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
 
         this.sketch_index.set_primitive({
             ...c,
-            radius: this.gcs.get_param(addr)
+            radius: this.gcs.get_param(addr + property_offsets.circle.radius)
         });
     }
 
@@ -414,7 +442,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
 
         this.sketch_index.set_primitive({
             ...e,
-            radmin: this.gcs.get_param(addr),
+            radmin: this.gcs.get_param(addr + property_offsets.ellipse.radmin),
         });
     }
 
@@ -423,9 +451,9 @@ export class GcsWrapper<SI extends SketchIndexBase> {
 
         this.sketch_index.set_primitive({
             ...ae,
-            start_angle: this.gcs.get_param(addr),
-            end_angle: this.gcs.get_param(addr + 1),
-            radmin: this.gcs.get_param(addr + 2),
+            start_angle: this.gcs.get_param(addr + property_offsets.arc_of_ellipse.start_angle),
+            end_angle: this.gcs.get_param(addr + property_offsets.arc_of_ellipse.end_angle),
+            radmin: this.gcs.get_param(addr + property_offsets.arc_of_ellipse.radmin),
         });
     }
 }
