@@ -10,5 +10,8 @@
     ],
     "files.associations": {
         "orderingmethods": "cpp"
+    },
+    "files.exclude": {
+        "**/*.js": { "when": "$(basename).ts" }
     }
 }

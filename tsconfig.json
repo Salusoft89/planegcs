@@ -2,11 +2,10 @@
     "compilerOptions": { 
         "esModuleInterop": true, 
         "target": "ESNext", // allow iterating over maps
+		"module": "commonjs",
         "moduleResolution": "node", 
-
         // fix for imported enums being undefined in vitest
         "noResolve": false,
-
         "allowJs": false,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
@@ -14,10 +13,12 @@
 		"sourceMap": true,
 		"strict": true,
 		"isolatedModules": true,
-		"module": "esnext",
+        "declaration": true,
+        "outDir": "./out"
     },
     "exclude": [
         "**/CMakeFiles",
         "coverage"
     ],
 }
+
