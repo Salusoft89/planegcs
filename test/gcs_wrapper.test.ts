@@ -108,7 +108,7 @@ describe("basic: gcs_wrapper", () => {
         expect(gcs.push_param).toHaveBeenCalledTimes(2);
 
         const value_addr = gcs.params_size();
-        gcs_wrapper.push_primitive({type: 'equal', id: 2, param1: { o_id: 1, param: 'x' }, param2: 5});
+        gcs_wrapper.push_primitive({type: 'equal', id: 2, param1: { o_id: 1, prop: 'x' }, param2: 5});
         expect(gcs.push_param).toHaveBeenCalledTimes(3);
         expect(gcs.push_param).toHaveBeenLastCalledWith(5, true);
 
@@ -120,7 +120,7 @@ describe("basic: gcs_wrapper", () => {
         const o1_p1_addr = gcs.params_size();
         gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: false});
         const value_addr = gcs.params_size();
-        gcs_wrapper.push_primitive({type: 'equal', id: 2, param1: { o_id: 1, param: 'x' }, param2: 5, driving: false, internalalignment: Constraint_Alignment.InternalAlignment});
+        gcs_wrapper.push_primitive({type: 'equal', id: 2, param1: { o_id: 1, prop: 'x' }, param2: 5, driving: false, internalalignment: Constraint_Alignment.InternalAlignment});
 
         const tag = 2; 
         expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, false, 1);

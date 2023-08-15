@@ -27,7 +27,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
     gcs: GcsSystem;
     param_index: Map<oid, number>;
     sketch_index: SI;
-    sketch_param_index: Map<string, number>;
+    sketch_param_index: Map<string, number>; // param key -> index in gcs params
 
     get debug_mode(): DebugMode {
         return this.gcs.get_debug_mode();
@@ -328,7 +328,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
                     if (!is_sketch_geometry(ref_primitive)) {
                         throw new Error(`Primitive #${val.o_id} (${ref_primitive.type}) is not supported to be referenced from a constraint.`);
                     }
-                    const param_addr = this.get_primitive_addr(val.o_id) + get_property_offset(ref_primitive.type, val.param);
+                    const param_addr = this.get_primitive_addr(val.o_id) + get_property_offset(ref_primitive.type, val.prop);
                     add_constraint_args.push(param_addr);
                 }
             } else if (type === 'object_id' && typeof val === 'number') {
