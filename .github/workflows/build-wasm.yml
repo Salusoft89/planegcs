@@ -101,7 +101,6 @@ jobs:
           name: compiled-wasm
       
       - run: npm install
-      - run: npx tsc
-      - run: cd out && npm publish
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

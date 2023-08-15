@@ -1,8 +1,8 @@
 {
     "compilerOptions": { 
         "esModuleInterop": true, 
-        "target": "ESNext", // allow iterating over maps
-		"module": "commonjs",
+        "target": "ES2015",
+		"module": "ESNext",
         "moduleResolution": "node", 
         // fix for imported enums being undefined in vitest
         "noResolve": false,
@@ -14,15 +14,18 @@
 		"strict": true,
 		"isolatedModules": true,
         "declaration": true,
-        "outDir": "./out"
+        "outDir": "dist"
     },
     "include": [
-        "**/*",
-        "./package.json"
+        "build-bindings",
+        "planegcs_dist",
+        "sketch",
+        "test",
+        "index.ts"
     ],
     "exclude": [
         "**/CMakeFiles",
         "coverage",
-        "out"
+        "dist/**/*"
     ],
 }

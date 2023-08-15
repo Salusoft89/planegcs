@@ -18,28 +18,32 @@
 	},
 	"repository": "github:Salusoft89/planegcs",
 	"license": "LGPL-2.0-or-later",
-	"version": "0.0.25",
+	"version": "0.0.26",
 	"private": false,
-	"main": "index",
-	"types": "index",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"files": [
-		"planegcs_dist",
-		"sketch",
-		"index.js",
-		"index.d.ts"
+		"dist/planegcs_dist",
+		"dist/sketch",
+		"dist/index.*"
 	],
 	"type": "module",
 	"scripts": {
-		"gcs:update": "cd ./planegcs && ./update_freecad.sh",
-		"gcs:bindings": "cd build-bindings && ./process_all.sh",
+		"update-freecad": "cd ./planegcs && ./update_freecad.sh",
+
+		"build:bindings": "cd build-bindings && ./process_all.sh",
+		"build:docker": "docker build -t gcs_builder .",
 		"build:emsc:debug": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Debug && emmake make -j $(nproc)' && cp planegcs/bin/* planegcs_dist",
 		"build:emsc": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Release && emmake make -j $(nproc) && ls -lh bin' && cp planegcs/bin/* planegcs_dist",
-		"build:docker": "docker build -t gcs_builder .",
-		"build": "npm run build:docker && npm run gcs:bindings && npm run build:emsc",
-		"build:debug": "npm run build:docker && npm run gcs:bindings && npm run build:emsc:debug",
+
+		"build:all": "npm run build:docker && npm run build:bindings && npm run build:emsc",
+		"build:all-debug": "npm run build:docker && npm run build:bindings && npm run build:emsc:debug",
+
 		"test": "vitest run --coverage",
 		"test:basic": "vitest run -t 'basic:' --coverage",
-		"test:watch": "vitest --coverage"
+		"test:watch": "vitest --coverage",
+
+		"prepack": "./prepack.sh"
 	},
 	"devDependencies": {
 		"@types/node": "^18.14.6",
