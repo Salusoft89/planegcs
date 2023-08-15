@@ -60,10 +60,12 @@ describe("basic: gcs_wrapper", () => {
     });
 
     it("calls gcs when pushing a param", () => {
-        const param_i = 0;
-        gcs_wrapper.push_primitive({type: 'param', name: 'my_param', value: 10});
+        gcs_wrapper.push_sketch_param('my_param', 10);
         expect(gcs.push_param).toHaveBeenCalledWith(10, true);
-        expect(gcs_wrapper.sketch_param_index.get('my_param')).to.equal(param_i);
+        gcs_wrapper.push_sketch_param('my_other_param', 0);
+        expect(gcs.push_param).toHaveBeenCalledWith(0, true);
+        expect(gcs_wrapper.get_sketch_param_value('my_param')).to.equal(10);
+        expect(gcs_wrapper.get_sketch_param_value('my_other_param')).to.equal(0);
     });
 
     it("calls gcs when pushing a point", () => {

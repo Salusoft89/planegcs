@@ -27,7 +27,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
     gcs: GcsSystem;
     param_index: Map<oid, number>;
     sketch_index: SI;
-    sketch_param_index: Map<string, number>; // param key -> index in gcs params
+    private sketch_param_index: Map<string, number>; // param key -> index in gcs params
 
     get debug_mode(): DebugMode {
         return this.gcs.get_debug_mode();
@@ -59,12 +59,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
  
     // ------ Sketch -> GCS ------- (when building up a sketch)
 
-    push_primitive(o: SketchPrimitive | SketchParam) {
-        if (o.type === 'param') {
-            this.push_sketch_param(o.name, o.value);
-            return;
-        }
-
+    push_primitive(o: SketchPrimitive) {
         switch (o.type) {
             case 'point':
                 this.push_point(o);
@@ -93,6 +88,16 @@ export class GcsWrapper<SI extends SketchIndexBase> {
         }
 
         this.sketch_index.set_primitive(o);
+    }
+
+    push_primitives_and_params(objects: (SketchPrimitive | SketchParam)[]) {
+        for (const o of objects) {
+            if (o.type === 'param') {
+                this.push_sketch_param(o.name, o.value);
+            } else {
+                this.push_primitive(o);
+            }
+        }
     }
 
     solve(algorithm: Algorithm = Algorithm.DogLeg): SolveStatus {
@@ -139,6 +144,19 @@ export class GcsWrapper<SI extends SketchIndexBase> {
             throw new Error(`sketch param ${name} not found`);
         }
         this.gcs.set_param(pos, value, true);
+    }
+
+    get_sketch_param_value(name: string): number | undefined {
+        const pos = this.sketch_param_index.get(name);
+        return pos === undefined ? undefined : this.gcs.get_param(pos);
+    }
+
+    get_sketch_param_values(): Map<string, number> {
+        const result = new Map<string, number>();
+        for (const [name, pos] of this.sketch_param_index) {
+            result.set(name, this.gcs.get_param(pos));
+        }
+        return result;
     }
 
     private push_params(id: oid, values: number[], fixed = false): number {
@@ -212,7 +230,7 @@ export class GcsWrapper<SI extends SketchIndexBase> {
         this.push_params(ae.id, [ae.start_angle, ae.end_angle, ae.radmin], false);
     }
 
-    sketch_primitive_to_gcs(o: SketchPrimitive) : GcsGeometry {
+    private sketch_primitive_to_gcs(o: SketchPrimitive) : GcsGeometry {
         switch (o.type) {
             case 'point': {
                 const p_i = this.get_primitive_addr(o.id);
