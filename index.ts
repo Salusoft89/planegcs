@@ -1,16 +1,14 @@
 export { GcsWrapper } from "./sketch/gcs_wrapper";
-export { SketchIndexBase, SketchIndex } from "./sketch/sketch_index";
 export { Algorithm, SolveStatus, DebugMode, Constraint_Alignment } from "./dist/gcs_system";
 
 import ModuleFactory from "./dist/planegcs";
 import { GcsWrapper } from "./sketch/gcs_wrapper"; 
-import type { SketchIndexBase } from "./sketch/sketch_index";
 
-export async function make_gcs_wrapper<SI extends SketchIndexBase>(sketch_index: SI, wasm_path?: string) { 
+export async function make_gcs_wrapper(wasm_path?: string) { 
     const module = await ModuleFactory(
         wasm_path ? { locateFile: () => wasm_path } : undefined
     );
     const gcs = new module.GcsSystem();
 
-    return new GcsWrapper(gcs, sketch_index);
+    return new GcsWrapper(gcs);
 }

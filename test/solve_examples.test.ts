@@ -20,11 +20,10 @@ import PlanegcsWasm from '../dist/planegcs.js';
 import { Algorithm, DebugMode, SolveStatus } from '../dist/gcs_system.js';
 import type { ModuleStatic } from '../dist/planegcs.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
-import { SketchIndex } from '../sketch/sketch_index.js';
 import type { SketchPrimitive } from '../sketch/sketch_primitive.js';
 
 let gcs_factory: ModuleStatic;
-let gcs_wrapper: GcsWrapper<SketchIndex>;
+let gcs_wrapper: GcsWrapper;
 
 const sketch_fillet_overconstrained: SketchPrimitive[] = [
     { id: 1, type: 'point', x: 10, y: 10, fixed: false },
@@ -56,7 +55,7 @@ describe("gcs_wrapper", () => {
     
     beforeEach(() => {
         const gcs = new gcs_factory.GcsSystem();
-        gcs_wrapper = new GcsWrapper(gcs, new SketchIndex());
+        gcs_wrapper = new GcsWrapper(gcs);
     });
 
 

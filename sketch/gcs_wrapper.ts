@@ -17,17 +17,17 @@
 
 import type { Constraint, ConstraintParamType } from "../dist/constraints";
 import { constraint_param_index } from "../dist/constraint_param_index";
-import type { SketchIndexBase } from "./sketch_index";
-import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam, SketchGeometry } from "./sketch_primitive";
+import { SketchIndex } from "./sketch_index";
+import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam } from "./sketch_primitive";
 import { is_sketch_geometry } from "./sketch_primitive";
 import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../dist/gcs_system";
 import get_property_offset, { property_offsets } from "./geom_params";
 
-export class GcsWrapper<SI extends SketchIndexBase> { 
+export class GcsWrapper { 
     gcs: GcsSystem;
-    param_index: Map<oid, number>;
-    sketch_index: SI;
-    private sketch_param_index: Map<string, number>; // param key -> index in gcs params
+    param_index: Map<oid, number> = new Map();
+    sketch_index = new SketchIndex();
+    private sketch_param_index: Map<string, number> = new Map(); // param key -> index in gcs params
 
     get debug_mode(): DebugMode {
         return this.gcs.get_debug_mode();
@@ -37,11 +37,8 @@ export class GcsWrapper<SI extends SketchIndexBase> {
         this.gcs.set_debug_mode(mode);
     }
 
-    constructor(gcs: GcsSystem, sketch_index: SI, param_index = new Map()) {
+    constructor(gcs: GcsSystem) {
         this.gcs = gcs;
-        this.sketch_index = sketch_index;
-        this.param_index = param_index; 
-        this.sketch_param_index = new Map();
     }
 
     destroy_gcs_module() {

@@ -23,7 +23,7 @@ import { GcsWrapper } from "../sketch/gcs_wrapper";
 import { Constraint_Alignment } from "../dist/gcs_system";
 import type { SketchCircle, SketchPoint } from '../sketch/sketch_primitive';
 
-let gcs_wrapper: GcsWrapper<SketchIndex>;
+let gcs_wrapper: GcsWrapper;
 let gcs: GcsSystemMock;
 
 // the prefix 'basic:' makes this test run before the wasm compilation
@@ -31,7 +31,7 @@ let gcs: GcsSystemMock;
 describe("basic: gcs_wrapper", () => {
     beforeAll(() => {
         gcs = new GcsSystemMock();
-        gcs_wrapper = new GcsWrapper(gcs, new SketchIndex());
+        gcs_wrapper = new GcsWrapper(gcs);
     });
 
     beforeEach(() => {
