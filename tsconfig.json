@@ -16,10 +16,13 @@
         "declaration": true,
         "outDir": "./out"
     },
+    "include": [
+        "**/*",
+        "./package.json"
+    ],
     "exclude": [
         "**/CMakeFiles",
         "coverage",
         "out"
     ],
 }
-
