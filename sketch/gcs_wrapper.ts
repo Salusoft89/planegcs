@@ -21,13 +21,12 @@ import type { SketchIndexBase } from "./sketch_index";
 import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam } from "./sketch_primitive";
 import { is_sketch_geometry } from "./sketch_primitive";
 import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../dist/gcs_system";
-import get_param_offset from "./geom_params";
+import get_property_offset from "./geom_params";
 
 export class GcsWrapper<SI extends SketchIndexBase> { 
     gcs: GcsSystem;
     param_index: Map<oid, number>;
     sketch_index: SI;
-    // 'mouse_x' -> 10, 'mouse_y' -> 100, ...
     sketch_param_index: Map<string, number>;
 
     get debug_mode(): DebugMode {
@@ -297,8 +296,11 @@ export class GcsWrapper<SI extends SketchIndexBase> {
                 } else if (typeof val === 'boolean') {
                     add_constraint_args.push(val);
                 } else if (val !== undefined) {
-                    const object_type = this.sketch_index.get_primitive_or_fail(val.o_id).type;
-                    const param_addr = this.get_primitive_addr(val.o_id) + get_param_offset(object_type, val.param);
+                    const ref_primitive = this.sketch_index.get_primitive_or_fail(val.o_id);
+                    if (!is_sketch_geometry(ref_primitive)) {
+                        throw new Error(`Primitive #${val.o_id} (${ref_primitive.type}) is not supported to be referenced from a constraint.`);
+                    }
+                    const param_addr = this.get_primitive_addr(val.o_id) + get_property_offset(ref_primitive.type, val.param);
                     add_constraint_args.push(param_addr);
                 }
             } else if (type === 'object_id' && typeof val === 'number') {

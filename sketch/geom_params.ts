@@ -15,11 +15,15 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-const obj_params_offsets: Record<string, Record<string, number>> = {
+import { SketchGeometry } from "./sketch_primitive";
+
+export type SketchGeometryProperty = 'x' | 'y' | 'radius' | 'start_angle' | 'end_angle' | 'radmin';
+const property_offsets: Record<SketchGeometry['type'], Partial<Record<SketchGeometryProperty, number>>> = {
     point: {
         x: 0,
         y: 1
     },
+    line: {}, // no properties on line
     circle: {
         radius: 0
     },
@@ -35,16 +39,16 @@ const obj_params_offsets: Record<string, Record<string, number>> = {
         start_angle: 0,
         end_angle: 1,
         radmin: 2
-    }
+    },
 }
 
-export default function get_param_offset(obj_type: string, param_name: string): number {
-    const obj_params = obj_params_offsets[obj_type];
-    if (obj_params) {
-        const offset = obj_params[param_name];
+export default function get_property_offset(primitive_type: SketchGeometry['type'], property_key: SketchGeometryProperty): number {
+    const primitive_offsets = property_offsets[primitive_type];
+    if (primitive_offsets) {
+        const offset = primitive_offsets[property_key];
         if (offset !== undefined) {
             return offset;
         }
     }
-    throw new Error(`Unknown parameter ${param_name} for object type ${obj_type}`);
+    throw new Error(`Unknown property ${property_key} for primitive <${primitive_type}>`);
 }
