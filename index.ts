@@ -1,4 +1,5 @@
-export { Algorithm, SolveStatus, DebugMode, Constraint_Alignment } from "./planegcs_dist/gcs_system";
+export { Algorithm, SolveStatus, DebugMode, Constraint_Alignment, InternalAlignmentType,
+        type GcsSystem, type GcsSystemConstructor } from "./planegcs_dist/gcs_system";
 export { type ModuleStatic } from "./planegcs_dist/planegcs";
 export { type SketchPrimitive, type SketchGeometry, type SketchParam,
          type SketchPoint, type SketchLine, type SketchCircle,
