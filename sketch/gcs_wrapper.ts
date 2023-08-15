@@ -18,8 +18,8 @@
 import type { Constraint, ConstraintParamType } from "../dist/constraints";
 import { constraint_param_index } from "../dist/constraint_param_index";
 import type { SketchIndexBase } from "./sketch_index";
-import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam } from "./sketch_object";
-import { is_sketch_geometry } from "./sketch_object";
+import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam } from "./sketch_primitive";
+import { is_sketch_geometry } from "./sketch_primitive";
 import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../dist/gcs_system";
 import get_param_offset from "./geom_params";
 

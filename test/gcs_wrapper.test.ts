@@ -21,7 +21,7 @@ vi.mock('../dist/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
 import { Constraint_Alignment } from "../dist/gcs_system";
-import type { SketchCircle, SketchPoint } from '../sketch/sketch_object';
+import type { SketchCircle, SketchPoint } from '../sketch/sketch_primitive';
 
 let gcs_wrapper: GcsWrapper<SketchIndex>;
 let gcs: GcsSystemMock;
@@ -173,30 +173,30 @@ describe("basic: gcs_wrapper", () => {
         gcs_wrapper.push_primitive({type: 'line', id: 3, p1_id: 1, p2_id: 2});
         gcs_wrapper.push_primitive({type: 'circle', id: 4, c_id: 1, radius: 3});
 
-        const old_objects = gcs_wrapper.sketch_index.get_primitives();
-        expect(old_objects).toHaveLength(4);
+        const old_primitivs = gcs_wrapper.sketch_index.get_primitives();
+        expect(old_primitivs).toHaveLength(4);
 
         // does +1 to each parameter
         gcs_wrapper.apply_solution(); 
 
-        for (const item of old_objects) {
-            const new_object = gcs_wrapper.sketch_index.get_primitive_or_fail(item.id);
-            if (new_object.type !== item.type) {
-                expect(new_object.type).toEqual(item.type);
+        for (const item of old_primitivs) {
+            const new_primitive = gcs_wrapper.sketch_index.get_primitive_or_fail(item.id);
+            if (new_primitive.type !== item.type) {
+                expect(new_primitive.type).toEqual(item.type);
             }
 
-            switch(new_object.type) {
+            switch(new_primitive.type) {
                 case 'point':
                     {
                         const point = item as SketchPoint;
-                        expect(new_object.x).toBe(point.x + 1)
-                        expect(new_object.y).toBe(point.y + 1)
+                        expect(new_primitive.x).toBe(point.x + 1)
+                        expect(new_primitive.y).toBe(point.y + 1)
                         break;
                     }
                 case 'circle':
                     {
                         const circle = item as SketchCircle;
-                        expect(new_object.radius).toBe(circle.radius + 1)
+                        expect(new_primitive.radius).toBe(circle.radius + 1)
                         break;
                     }
             }

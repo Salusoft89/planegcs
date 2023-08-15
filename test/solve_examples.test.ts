@@ -21,7 +21,7 @@ import { Algorithm, DebugMode, SolveStatus } from '../dist/gcs_system.js';
 import type { ModuleStatic } from '../dist/planegcs.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
 import { SketchIndex } from '../sketch/sketch_index.js';
-import type { SketchObject } from '../sketch/sketch_object.js';
+import type { SketchObject } from '../sketch/sketch_primitive.js';
 
 let gcs_factory: ModuleStatic;
 let gcs_wrapper: GcsWrapper<SketchIndex>;

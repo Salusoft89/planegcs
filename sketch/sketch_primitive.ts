@@ -72,8 +72,6 @@ export type SketchPrimitive = SketchGeometry | Constraint;
 export interface SketchParam {
 	type: 'param';
 	name: string;
-	// min_value: number|null;
-	// max_value: number|null;
 	value: number;
 }
 
