@@ -16,7 +16,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import type { SketchPoint, oid, SketchLine, SketchCircle, SketchArc, SketchPrimitive } from "./sketch_primitive";
-import { is_sketch_geometry } from "./sketch_primitive";
+import { is_sketch_geometry } from "./sketch_primitive.js";
 import type { Constraint } from "../planegcs_dist/constraints";
 
 export abstract class SketchIndexBase {

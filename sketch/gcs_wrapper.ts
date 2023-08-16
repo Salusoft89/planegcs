@@ -16,12 +16,12 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import type { Constraint, ConstraintParamType } from "../planegcs_dist/constraints";
-import { constraint_param_index } from "../planegcs_dist/constraint_param_index";
-import { SketchIndex } from "./sketch_index";
+import { constraint_param_index } from "../planegcs_dist/constraint_param_index.js";
+import { SketchIndex } from "./sketch_index.js";
 import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam } from "./sketch_primitive";
-import { is_sketch_geometry } from "./sketch_primitive";
-import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../planegcs_dist/gcs_system";
-import get_property_offset, { property_offsets } from "./geom_params";
+import { is_sketch_geometry } from "./sketch_primitive.js";
+import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../planegcs_dist/gcs_system.js";
+import get_property_offset, { property_offsets } from "./geom_params.js";
 
 export class GcsWrapper { 
     gcs: GcsSystem;
