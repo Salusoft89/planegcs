@@ -115,7 +115,7 @@ describe("basic: gcs_wrapper", () => {
         expect(gcs.push_param).toHaveBeenLastCalledWith(5, true);
 
         const tag = 2;
-        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, true, 0);
+        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, true, 0, 1);
     });
 
     it("calls add_constraint_equal with driving parameter and internal constraint when provided", () => {
@@ -125,7 +125,7 @@ describe("basic: gcs_wrapper", () => {
         gcs_wrapper.push_primitive({type: 'equal', id: 2, param1: { o_id: 1, prop: 'x' }, param2: 5, driving: false, internalalignment: Constraint_Alignment.InternalAlignment});
 
         const tag = 2; 
-        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, false, 1);
+        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, false, 1, 1);
     });
 
     it("calls add_constraint_angle_via_point when adding a constraint (with shuffled arguments)", () => {

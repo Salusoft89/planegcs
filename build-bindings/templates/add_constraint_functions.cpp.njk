@@ -1,5 +1,8 @@
 {% for constraint in fn_constraints %}
-        void {{constraint.fname_lower}}({{ constraint.definition_params }}) {
-            {{ constraint.fname }}({{ constraint.call_params }});
+        void {{constraint.fname_lower}}({{ constraint.definition_params }}, double scale) {
+            int i = {{ constraint.fname }}({{ constraint.call_params }});
+            if (scale != 1) {
+                rescaleConstraint(i, scale);
+            }
         }
 {% endfor %}

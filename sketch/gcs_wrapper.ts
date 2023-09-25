@@ -290,8 +290,7 @@ export class GcsWrapper {
             }
     }
 
-    // is_extra => tag = -1
-    push_constraint(c: Constraint, is_extra = false) {
+    push_constraint(c: Constraint) {
         const add_constraint_args: (string|number|boolean|GcsGeometry)[] = [];
         const deletable: GcsGeometry[] = [];
 
@@ -308,7 +307,7 @@ export class GcsWrapper {
 
             // parameters with default values
             if (parameter === 'tagId') {
-                add_constraint_args.push(is_extra ? -1 : c.id);
+                add_constraint_args.push(c.temporary === true ? -1 : c.id);
                 continue;
             }
             if (parameter === 'driving') {
@@ -358,12 +357,12 @@ export class GcsWrapper {
             } else if (type === 'primitive_type' && typeof val === 'boolean') {
                 add_constraint_args.push(val);
             } else {
-                throw new Error(`unhandled parameter type: ${type}`);
+                throw new Error(`unhandled parameter ${parameter} type: ${type}`);
             }
         }
 
         const c_name: string = c.type;
-        (this.gcs as any)[`add_constraint_${c_name}`](...add_constraint_args);
+        (this.gcs as any)[`add_constraint_${c_name}`](...add_constraint_args, c.scale ?? 1);
 
         // wasm-allocated objects must be manually deleted 
         for (const geom_shape of deletable) {

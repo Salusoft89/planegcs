@@ -54,7 +54,7 @@ describe("planegcs", () => {
         const p2y_i = gcs.push_param(4, true);
 
         const line = gcs.make_line(p1x_i, p1y_i, p2x_i, p2y_i);
-        gcs.add_constraint_vertical_l(line, 1, true);
+        gcs.add_constraint_vertical_l(line, 1, true, 1);
     });
 
     it("constraint with a curve can be called with a line object", () => {
@@ -69,7 +69,7 @@ describe("planegcs", () => {
         const line2 = gcs.make_line(p2x_i, p2y_i, p1x_i, p1y_i);
         const point = gcs.make_point(p1x_i, p1y_i);
 
-        gcs.add_constraint_angle_via_point(line1, line2, point, angle_i, 2, true);
+        gcs.add_constraint_angle_via_point(line1, line2, point, angle_i, 2, true, 1);
     });
 
     it("constraint with a line cannot be called with a point object", () => {
@@ -79,7 +79,7 @@ describe("planegcs", () => {
         const point = gcs.make_point(p1x_i, p1y_i);
 
         expect(() => {
-            gcs.add_constraint_vertical_l(point, 1, true);
+            gcs.add_constraint_vertical_l(point, 1, true, 1);
         }).toThrow();
     });
 
@@ -93,7 +93,7 @@ describe("planegcs", () => {
         expect(gcs.dof()).toBe(2);
 
         const line = gcs.make_line(p1x_i, p1y_i, p2x_i, p2y_i);
-        gcs.add_constraint_vertical_l(line, 1, true);
+        gcs.add_constraint_vertical_l(line, 1, true, 1);
         
         gcs.solve_system(Algorithm.DogLeg);
         expect(gcs.dof()).toBe(1);

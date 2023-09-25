@@ -54,6 +54,8 @@ export interface {{ item.constraint_name }} extends Id {
     {{ param.identifier | replace('&', '') + optional }}_id: oid; // {{ param.type }}
     {%- endif %}
 {%- endfor %}
+    temporary?: boolean;
+    scale?: number;
 }
 {% endfor %}
 
