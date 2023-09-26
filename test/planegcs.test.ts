@@ -19,6 +19,7 @@ import { it, describe, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import PlanegcsWasm from '../planegcs_dist/planegcs.js';
 import { Algorithm, DebugMode, SolveStatus, type GcsSystem } from '../planegcs_dist/gcs_system';
 import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
+import { arr_to_intvec } from '../sketch/emsc_vectors.js';
 
 let gcs_factory: ModuleStatic;
 let gcs: GcsSystem; 
@@ -98,6 +99,37 @@ describe("planegcs", () => {
         gcs.solve_system(Algorithm.DogLeg);
         expect(gcs.dof()).toBe(1);
     });
+
+    it("can add B-spline", () => {
+        // for visualisation, see https://nurbscalculator.in/
+        const weight_is = [1, 1, 1, 1].map(w => gcs.push_param(w, true));
+
+        // knot values
+        const knot_is = [
+            0, 0, 0, 0, 1, 1, 1, 1
+        ].map(knot_val => gcs.push_param(knot_val, true));
+
+        const control_point_is = [
+            -4, -4,
+            -2, 4,
+            2, -4,
+            4, 4
+        ].map(val => gcs.push_param(val, true));
+
+        const degree = 3;
+        const periodic = false;
+
+        const multiplicities = [4, 1, 1, 4];
+
+        const b_spline = gcs.make_bspline(0, 1, 6, 7,
+            arr_to_intvec(gcs_factory, control_point_is),
+            arr_to_intvec(gcs_factory, weight_is),
+            arr_to_intvec(gcs_factory, knot_is),
+            arr_to_intvec(gcs_factory, multiplicities),
+            degree, periodic);
+
+        // todo: test if b-spline is properly defined
+    })
 
     it("returns correct enum status", () => {
         gcs.push_param(1, true);

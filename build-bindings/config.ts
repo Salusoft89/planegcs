@@ -74,8 +74,7 @@ const exported_geometry_classes = [
     },
     {
         name: "BSpline",
-        base: "Curve",
-        skip_make: true
+        base: "Curve"
     }
 ]
 

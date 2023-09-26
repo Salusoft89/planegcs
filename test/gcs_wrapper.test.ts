@@ -128,6 +128,17 @@ describe("basic: gcs_wrapper", () => {
         expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, false, 1, 1);
     });
 
+    it("calls add_constraint_equal with temporary tag -1 and different scale", () => {
+        const o1_p1_addr = gcs.params_size();
+        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: false});
+        const value_addr = gcs.params_size();
+        const scale = 0.01;
+        gcs_wrapper.push_primitive({type: 'equal', id: 2, param1: { o_id: 1, prop: 'x' }, param2: 5, temporary: true, scale});
+
+        const TEMPORARY_TAG = -1;
+        expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, TEMPORARY_TAG, true, 0, scale);
+    });
+
     it("calls add_constraint_angle_via_point when adding a constraint (with shuffled arguments)", () => {
         gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: false});
         gcs_wrapper.push_primitive({type: 'point', id: 2, x: 1, y: 2, fixed: false});

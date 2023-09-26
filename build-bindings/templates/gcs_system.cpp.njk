@@ -293,12 +293,32 @@ class GcsSystem : System
             return a;   
         }
         
-        BSpline make_bspline()
+        BSpline make_bspline(
+            int startx_i, int starty_i, int endx_i, int endy_i, vector<int> poles_xy_i,
+            vector<int> weights_i, vector<int> knots_i, vector<int> mult, int degree, bool periodic
+        )
         {
-            BSpline b;
+            BSpline bs;
+            bs.start = make_point(startx_i, starty_i);
+            bs.end = make_point(endx_i, endy_i);
+            bs.degree = degree;
+            bs.periodic = periodic;
+            bs.mult = mult;
 
-            {# todo: implement make_bspline #}
-            throw 1;
+            for (int i = 0; i < poles_xy_i.size(); i += 2) {
+                Point p = make_point(poles_xy_i[i], poles_xy_i[i + 1]);
+                bs.poles.push_back(p);
+            }
+
+            for (int i = 0; i < weights_i.size(); i++) {
+                bs.weights.push_back(param_or_fail(weights_i[i]));
+            }
+
+            for (int i = 0; i < knots_i.size(); i++) {
+                bs.knots.push_back(param_or_fail(knots_i[i]));
+            }
+            
+            return bs;
         }{% include "templates/add_constraint_functions.cpp.njk" %}
 
     private:
