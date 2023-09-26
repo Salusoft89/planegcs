@@ -57,8 +57,6 @@ console.log(gcs_wrapper.sketch_index.get_primitives());
 # Developing
 
 Install [Docker](https://docs.docker.com/get-docker/) and [Node.js](https://nodejs.org/en).
-- note: NodeJS v16 is required, newer versions currently don't work because of the tree-sitter dependency
-- you may use [nvm](https://github.com/nvm-sh/nvm) to install NodeJS v16 along other versions of Node
 
 Build command: `npm run build:all`, which consists of these steps:
    - `npm run build:docker` - pulls/builds the docker image for building C++ files from FreeCAD
