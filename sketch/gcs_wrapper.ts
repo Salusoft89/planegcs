@@ -18,6 +18,7 @@
 import type { Constraint, ConstraintParamType } from "../planegcs_dist/constraints";
 import { constraint_param_index } from "../planegcs_dist/constraint_param_index.js";
 import { SketchIndex } from "./sketch_index.js";
+import { emsc_vec_to_arr } from "./emsc_vectors.js";
 import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam } from "./sketch_primitive";
 import { is_sketch_geometry } from "./sketch_primitive.js";
 import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../planegcs_dist/gcs_system.js";
@@ -109,23 +110,11 @@ export class GcsWrapper {
     }
 
     get_gcs_params(): number[] {
-        const params = this.gcs.get_params();
-        const result: number[] = [];
-        for (let i = 0; i < params.size(); ++i) {
-            result.push(params.get(i));
-        }
-        params.delete();
-        return result;
+        return emsc_vec_to_arr(this.gcs.get_params());
     }
 
     get_gcs_conflicts(): number[] {
-        const conflicts = this.gcs.get_conflicting();
-        const result: number[] = [];
-        for (let i = 0; i < conflicts.size(); ++i) {
-            result.push(conflicts.get(i));
-        }
-        conflicts.delete();
-        return result;
+        return emsc_vec_to_arr(this.gcs.get_conflicting());
     }
 
     push_sketch_param(name: string, value: number): number {

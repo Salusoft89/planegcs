@@ -20,11 +20,13 @@ export interface DoubleVector {
     get: (i: number) => number;
     size: () => number;
     delete: () => void;
+    push_back: (val: number) => void;
 }
 export interface IntVector {
     get: (i: number) => number;
     size: () => number;
     delete: () => void;
+    push_back: (val: number) => void;
 }
 
 {%- for cls in geom_classes -%}
@@ -56,4 +58,12 @@ export interface GcsSystem {
 
 export interface GcsSystemConstructor {
     new (): GcsSystem;
+}
+
+export interface DoubleVectorConstructor {
+    new (): DoubleVector;
+}
+
+export interface IntVectorConstructor {
+    new (): IntVector;
 }
