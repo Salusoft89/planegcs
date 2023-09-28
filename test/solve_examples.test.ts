@@ -74,7 +74,7 @@ describe("gcs_wrapper", () => {
         expect(status).toBe(SolveStatus.Failed);
         expect(console_output).toContain("Sketcher::RedundantSolving-DogLeg-");
 
-        const conflicts = gcs_wrapper.get_gcs_conflicts();
+        const conflicts = gcs_wrapper.get_gcs_conflicting_constraints();
         expect(conflicts).not.toHaveLength(0);
 
         logSpy.mockRestore();
