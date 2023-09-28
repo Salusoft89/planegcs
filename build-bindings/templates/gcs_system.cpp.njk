@@ -102,13 +102,6 @@ class GcsSystem : System
             return p;
         }
 
-        vector<int> get_conflicting()
-        {
-            vector<int> conflicting;
-            getConflicting(conflicting);
-            return conflicting;
-        }
-
         void clear_data()
         {
             for (int i = 0; i < params.size(); ++i)
@@ -138,6 +131,32 @@ class GcsSystem : System
         bool has_redundant()
         {
             return hasRedundant();
+        }
+
+        bool has_partially_redundant()
+        {
+            return hasPartiallyRedundant();
+        }
+
+        vector<int> get_conflicting()
+        {
+            vector<int> conflicting;
+            getConflicting(conflicting);
+            return conflicting;
+        }
+
+        vector<int> get_redundant()
+        {
+            vector<int> redundant;
+            getRedundant(redundant);
+            return redundant;
+        }
+
+        vector<int> get_partially_redundant()
+        {
+            vector<int> partially_redundant;
+            getPartiallyRedundant(partially_redundant);
+            return partially_redundant;
         }
 
         void clear_by_id(int id)
@@ -364,13 +383,16 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("push_param", &GcsSystem::push_param)
         .function("get_is_fixed", &GcsSystem::get_is_fixed)
         .function("solve_system", &GcsSystem::solve_system)
-        .function("get_conflicting", &GcsSystem::get_conflicting)
         .function("clear_data", &GcsSystem::clear_data)
         /* functions adapted from GCS::System */
         .function("apply_solution", &GcsSystem::apply_solution)
         .function("dof", &GcsSystem::dof)
+        .function("get_conflicting", &GcsSystem::get_conflicting)
+        .function("get_redundant", &GcsSystem::get_redundant)
+        .function("get_partially_redundant", &GcsSystem::get_partially_redundant)
         .function("has_conflicting", &GcsSystem::has_conflicting)
         .function("has_redundant", &GcsSystem::has_redundant)
+        .function("has_partially_redundant", &GcsSystem::has_partially_redundant)
         .function("clear_by_id", &GcsSystem::clear_by_id)
         .function("set_debug_mode", &GcsSystem::set_debug_mode)
         .function("get_debug_mode", &GcsSystem::get_debug_mode)

@@ -19,7 +19,7 @@ import { it, describe, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import PlanegcsWasm from '../planegcs_dist/planegcs.js';
 import { Algorithm, DebugMode, SolveStatus, type GcsSystem } from '../planegcs_dist/gcs_system';
 import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
-import { arr_to_intvec } from '../sketch/emsc_vectors.js';
+import { arr_to_intvec, emsc_vec_to_arr } from '../sketch/emsc_vectors.js';
 
 let gcs_factory: ModuleStatic;
 let gcs: GcsSystem; 
@@ -99,6 +99,29 @@ describe("planegcs", () => {
         gcs.solve_system(Algorithm.DogLeg);
         expect(gcs.dof()).toBe(1);
     });
+
+    it("detects redundant constraints", () => {
+        const p1x_i = gcs.push_param(1, true);
+        const p1y_i = gcs.push_param(2, true);
+        const p2x_i = gcs.push_param(1, false);
+        const p2y_i = gcs.push_param(3, false);
+
+        const line = gcs.make_line(p1x_i, p1y_i, p2x_i, p2y_i);
+        gcs.add_constraint_vertical_l(line, 1, true, 1);
+
+        const diff = gcs.push_param(0, true);
+        // a constraint with the same effect as the previous vertical => redundant
+        gcs.add_constraint_difference(p1x_i, p2x_i, diff, 2, true, 1);
+        gcs.solve_system(Algorithm.DogLeg);
+
+        expect(gcs.has_redundant()).toBeTruthy();
+        const redundant = emsc_vec_to_arr(gcs.get_redundant());
+        expect(redundant).toEqual([2]);
+    });
+
+    // it("detects partially redundant constraints", () => {
+        // todo: endpoints of a vetical line symmetric over a horizontal line
+    // });
 
     it("can add B-spline", () => {
         // for visualisation, see https://nurbscalculator.in/

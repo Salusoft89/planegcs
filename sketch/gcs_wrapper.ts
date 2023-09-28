@@ -113,8 +113,28 @@ export class GcsWrapper {
         return emsc_vec_to_arr(this.gcs.get_params());
     }
 
-    get_gcs_conflicts(): number[] {
+    get_gcs_conflicting_constraints(): number[] {
         return emsc_vec_to_arr(this.gcs.get_conflicting());
+    }
+
+    get_gcs_redundant_constraints(): number[] {
+        return emsc_vec_to_arr(this.gcs.get_redundant());
+    }
+
+    get_gcs_partially_redundant_constraints(): number[] {
+        return emsc_vec_to_arr(this.gcs.get_partially_redundant());
+    }
+
+    has_gcs_conflicting_constraints(): boolean {
+        return this.gcs.has_conflicting();
+    }
+
+    has_gcs_redundant_constraints(): boolean {
+        return this.gcs.has_redundant();
+    }
+
+    has_gcs_partially_redundant_constraints(): boolean {
+        return this.gcs.has_partially_redundant();
     }
 
     push_sketch_param(name: string, value: number): number {
