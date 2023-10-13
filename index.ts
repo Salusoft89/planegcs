@@ -4,9 +4,9 @@ export { type ModuleStatic } from "./planegcs_dist/planegcs.js";
 export { type SketchPrimitive, type SketchGeometry, type SketchParam,
          type SketchPoint, type SketchLine, type SketchCircle,
          type SketchArc, type SketchEllipse, type SketchArcOfEllipse,
-        is_sketch_constraint, is_sketch_geometry, get_referenced_sketch_params } from "./sketch/sketch_primitive.js";
-export { type Constraint } from "./planegcs_dist/constraints.js";
+        is_sketch_constraint, is_sketch_geometry, get_referenced_sketch_params, get_constrained_primitive_ids } from "./sketch/sketch_primitive.js";
 export { SketchIndex } from "./sketch/sketch_index.js";
+export * from "./planegcs_dist/constraints.js";
 
 import init_planegcs_module from "./planegcs_dist/planegcs.js";
 export { init_planegcs_module };
