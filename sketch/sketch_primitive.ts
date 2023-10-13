@@ -102,4 +102,28 @@ export function get_referenced_sketch_params(p: SketchPrimitive): string[] {
 	return params;
 }
 
+export function get_constrained_primitive_ids(p: SketchPrimitive): number[] {
+	if (!is_sketch_constraint(p)) {
+		return [];
+	}
+	const constrained_primitive_ids: number[] = [];
+
+	for (const [key, val] of Object.entries(p)) {
+		if (key.endsWith('_id') && typeof val === 'number') {
+			constrained_primitive_ids.push(val);
+		} else if (
+			// some constraints have the o_id inside the object
+			// see e.g. difference constraint in horizontal/vertical distance tool
+			typeof val === 'object' &&
+			val !== null &&
+			'o_id' in val &&
+			typeof val['o_id'] === 'number'
+		) {
+			constrained_primitive_ids.push(val.o_id);
+		}
+	}
+
+	return constrained_primitive_ids;
+}
+
 // todo: add SketchHyperbola and SketchArcOfHyperbola

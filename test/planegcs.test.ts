@@ -121,6 +121,7 @@ describe("planegcs", () => {
 
     // it("detects partially redundant constraints", () => {
         // todo: endpoints of a vetical line symmetric over a horizontal line
+        // https://www.reddit.com/r/FreeCAD/comments/z250kg/is_there_a_better_set_of_constraints_i_can_use_to/
     // });
 
     it("can add B-spline", () => {
