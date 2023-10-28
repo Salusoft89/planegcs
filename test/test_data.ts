@@ -1,4 +1,4 @@
-import { SketchPrimitive } from "../dist";
+import { SketchPrimitive } from "../sketch/sketch_primitive.js";
 
 export const test_params: Map<string, number> = new Map([
     [
