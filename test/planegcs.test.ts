@@ -20,6 +20,8 @@ import PlanegcsWasm from '../planegcs_dist/planegcs.js';
 import { Algorithm, DebugMode, SolveStatus, type GcsSystem } from '../planegcs_dist/gcs_system';
 import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
 import { arr_to_intvec, emsc_vec_to_arr } from '../sketch/emsc_vectors.js';
+import { GcsWrapper } from '../sketch/gcs_wrapper.js';
+import { test_params, test_sketch } from './test_data.js';
 
 let gcs_factory: ModuleStatic;
 let gcs: GcsSystem; 
@@ -174,5 +176,19 @@ describe("planegcs", () => {
         gcs.clear_data();
 
         expect(gcs.params_size()).toBe(0);
+    });
+
+    it('can handle big sketch with temp constraints', () => {
+        const gcs_wrapper = new GcsWrapper(gcs);
+
+        for (const [param, value] of test_params.entries()) {
+            gcs_wrapper.push_sketch_param(param, value);
+        }
+
+        for (const primitive of test_sketch) {
+            gcs_wrapper.push_primitive(primitive)
+        }
+
+        gcs_wrapper.solve();
     });
 });
