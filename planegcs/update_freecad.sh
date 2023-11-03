@@ -46,9 +46,9 @@ npx tsx patch_file.ts GCS.cpp "<Base/Console.h>" "<Console.h>"
 # npx tsx patch_file.ts GCS.cpp \
 #      "auto fut = std::async(&System::identifyDependentParametersSparseQR,this,J,jacobianconstraintmap, pdiagnoselist, /*silent=*/true);" \
 #      "identifyDependentParametersSparseQR(J, jacobianconstraintmap, pdiagnoselist, true);"
-npx tsx patch_file.ts GCS.cpp \
-     "fut.wait();" \
-     "// fut.wait();"
+# npx tsx patch_file.ts GCS.cpp \
+#      "fut.wait();" \
+#      "// fut.wait();"
 # fix passing the algorithm
 npx tsx patch_file.ts GCS.cpp \
      "initSolution();" \

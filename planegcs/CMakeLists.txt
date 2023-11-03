@@ -41,17 +41,19 @@ target_link_libraries(planegcs LibsModule)
 
 # note: exceptions are by default enabled in -O0, but disabled in -O1 and above
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(BUILD_TYPE_FLAGS "-O3 -s WASM_BIGINT=0 -s ASSERTIONS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ELIMINATE_DUPLICATE_FUNCTIONS=1")
+    set(BUILD_TYPE_FLAGS "-O3 -s WASM_BIGINT=0 -s ASSERTIONS=0")
 else()
     set(BUILD_TYPE_FLAGS "-g -O0 -fwasm-exceptions -s ASSERTIONS=1")
 endif()
 
+#: multithreading tutorial: https://ppuzio.medium.com/multithreading-in-the-browser-with-emscripten-and-boost-asio-1e4d8484e155
+
 # note: STACK_SIZE fixes memory issue with sketches of > 100 items and (interestingly) temporary constraints
 # maybe there could be some optimization in planegcs?
-set_target_properties(planegcs PROPERTIES LINK_FLAGS "${BUILD_TYPE_FLAGS} -lembind --closure 1 -s EXPORT_ES6=1 -s MODULARIZE=1 -s MALLOC=emmalloc -s NO_FILESYSTEM=1 -s STACK_SIZE=5MB")
+set_target_properties(planegcs PROPERTIES LINK_FLAGS "${BUILD_TYPE_FLAGS} -lembind --closure 1 -s EXPORT_ES6=1 -s MODULARIZE=1 -s STACK_SIZE=5MB -pthread -s PTHREAD_POOL_SIZE=32")
 
 # turn off deprecated warnings coming from Boost
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wno-deprecated")
 
 # todo: possible further flags?
 # -s ENVIRONMENT=web
