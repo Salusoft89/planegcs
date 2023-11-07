@@ -26,7 +26,7 @@ import get_property_offset, { property_offsets } from "./geom_params.js";
 
 export class GcsWrapper { 
     gcs: GcsSystem;
-    param_index: Map<oid, number> = new Map();
+    p_param_index: Map<oid, number> = new Map();
     sketch_index = new SketchIndex();
     private sketch_param_index: Map<string, number> = new Map(); // param key -> index in gcs params
 
@@ -50,7 +50,7 @@ export class GcsWrapper {
 
     clear_data() {
         this.gcs.clear_data();
-        this.param_index.clear();
+        this.p_param_index.clear();
         this.sketch_param_index.clear();
         this.sketch_index.clear();
     }
@@ -171,12 +171,12 @@ export class GcsWrapper {
             this.gcs.push_param(value, fixed);
         }
 
-        this.param_index.set(id, pos);
+        this.p_param_index.set(id, pos);
         return pos;
     }
 
     private push_point(p: SketchPoint) {
-        if (this.param_index.has(p.id)) {
+        if (this.p_param_index.has(p.id)) {
             return;
         }
 
@@ -393,9 +393,9 @@ export class GcsWrapper {
     }
 
     private get_primitive_addr(id: oid): number {
-        const addr = this.param_index.get(id);
+        const addr = this.p_param_index.get(id);
         if (addr === undefined) {
-            throw new Error(`sketch object ${id} not found in params`);
+            throw new Error(`sketch object ${id} not found in p-params index`);
         }
         return addr;
     }
@@ -403,7 +403,7 @@ export class GcsWrapper {
     // ------- GCS -> Sketch ------- (when retrieving a solution)
 
     private pull_primitive(p: SketchPrimitive) {
-        if (this.param_index.has(p.id)) {
+        if (this.p_param_index.has(p.id)) {
             if (p.type === 'point') {
                 this.pull_point(p);
             } else if (p.type === 'line') {
