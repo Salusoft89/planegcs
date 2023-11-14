@@ -126,4 +126,19 @@ export function get_constrained_primitive_ids(p: SketchPrimitive): number[] {
 	return constrained_primitive_ids;
 }
 
+export function get_primitive_with_replaced_ids(p: SketchPrimitive, old_id: number, new_id: number): SketchPrimitive {
+	const copy = JSON.parse(JSON.stringify(p));
+	for (const [key, val] of Object.entries(copy)) {
+		if (key.endsWith('_id') && typeof val === 'number' && val === old_id) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			(p as any)[key] = new_id;
+		} else if (typeof val === 'object' && val !== null && 'o_id' in val && typeof val['o_id'] === 'number') {
+			if (val.o_id === old_id) {
+				val.o_id = new_id;
+			}
+		}
+	}
+	return copy;
+}
+
 // todo: add SketchHyperbola and SketchArcOfHyperbola
