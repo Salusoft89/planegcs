@@ -66,8 +66,20 @@ class GcsSystem : System
             return is_fixed[i];
         }
 
-        void set_iteration_multiplier(bool enabled) {
-            sketchSizeMultiplier = enabled;
+        void set_max_iterations(int n) {
+            maxIter = n;
+        }
+
+        int get_max_iterations() {
+            return maxIter;
+        }
+
+        void set_covergence_threshold(double threshold) {
+            convergence = threshold;
+        }
+
+        double get_convergence_threshold() {
+            return convergence;
         }
 
         // an integer is used here because Enum didn't work properly
@@ -398,7 +410,10 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("has_redundant", &GcsSystem::has_redundant)
         .function("has_partially_redundant", &GcsSystem::has_partially_redundant)
         .function("clear_by_id", &GcsSystem::clear_by_id)
-        .function("set_iteration_multiplier", &GcsSystem::set_iteration_multiplier)
+        .function("set_max_iterations", &GcsSystem::set_max_iterations)
+        .function("get_max_iterations", &GcsSystem::get_max_iterations)
+        .function("set_covergence_threshold", &GcsSystem::set_covergence_threshold)
+        .function("get_convergence_threshold", &GcsSystem::get_convergence_threshold)
         .function("set_debug_mode", &GcsSystem::set_debug_mode)
         .function("get_debug_mode", &GcsSystem::get_debug_mode)
         /* make_<geometry> functions */

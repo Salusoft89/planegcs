@@ -109,8 +109,20 @@ export class GcsWrapper {
         }
     }
 
-    set_iteration_multiplier(enable: boolean) {
-        this.gcs.set_iteration_multiplier(enable);
+    set_convergence_threshold(threshold: number) {
+        this.gcs.set_covergence_threshold(threshold);
+    }
+
+    get_convergence_threshold(): number {
+        return this.gcs.get_convergence_threshold();
+    }
+
+    set_max_iterations(n: number) {
+        this.gcs.set_max_iterations(n);
+    }
+
+    get_max_iterations(): number {
+        return this.gcs.get_max_iterations();
     }
 
     get_gcs_params(): number[] {
