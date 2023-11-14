@@ -32,6 +32,6 @@ describe('file', () => {
             { type: 'Point', identifier: '&x' },
             { type: 'double', identifier: '*y' },
             { type: 'int', identifier: 'f' },
-        ])).toEqual('x, params[y_param_i], f');
+        ])).toEqual('x, p_params[y_param_i], f');
     });
 });

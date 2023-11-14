@@ -119,7 +119,7 @@ export function params_to_call_string(params: ParamType[]) {
     for (const param of params) {
         if (param.type === 'double' && param.identifier.startsWith('*')) {
             const id = double_pointer_param_to_param_i(param.identifier);
-            arr.push(`params[${id}]`);
+            arr.push(`p_params[${id}]`);
         } else {
             arr.push(`${param.identifier.replace('&', '')}`);
         }

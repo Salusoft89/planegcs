@@ -29,34 +29,34 @@ using namespace std;
 class GcsSystem : System
 {
     public:
-        vector<double *> params;
+        vector<double *> p_params;
         vector<bool> is_fixed;
 
         GcsSystem() : System() {
-            params = vector<double *>();
+            p_params = vector<double *>();
             is_fixed = vector<bool>();
         }
 
         int params_size()
         {
-            return params.size();
+            return p_params.size();
         }
 
-        double get_param(int i)
+        double get_p_param(int i)
         {
-            return *params[i];
+            return *p_params[i];
         }
 
-        void set_param(int i, double value, bool fixed)
+        void set_p_param(int i, double value, bool fixed)
         {
-            *params[i] = value;
+            *p_params[i] = value;
             is_fixed[i] = fixed;
         }
 
-        int push_param(double value, bool fixed)
+        int push_p_param(double value, bool fixed)
         {
-            int index = params.size();
-            params.push_back(new double(value));
+            int index = p_params.size();
+            p_params.push_back(new double(value));
             is_fixed.push_back(fixed);
             return index;
         }
@@ -74,12 +74,12 @@ class GcsSystem : System
         int solve_system(int algorithm)
         {
             Algorithm alg = static_cast<Algorithm>(algorithm);
-            vector<double *> solved_params;
-            for (int i = 0; i < params.size(); ++i)
+            vector<double *> solved_p_params;
+            for (int i = 0; i < p_params.size(); ++i)
             {
                 if (!is_fixed[i])
                 {
-                    solved_params.push_back(params[i]);
+                    solved_p_params.push_back(p_params[i]);
                 }
             }
 
@@ -93,26 +93,26 @@ class GcsSystem : System
                 }
             }
             // the second parameter doesn't influence anything
-            return solve(solved_params, true, alg);
+            return solve(solved_p_params, true, alg);
         }
 
-        vector<double> get_params()
+        vector<double> get_p_params()
         {
             vector<double> p;
-            for (int i = 0; i < params.size(); ++i)
+            for (int i = 0; i < p_params.size(); ++i)
             {
-                p.push_back(*params[i]);
+                p.push_back(*p_params[i]);
             }
             return p;
         }
 
         void clear_data()
         {
-            for (int i = 0; i < params.size(); ++i)
+            for (int i = 0; i < p_params.size(); ++i)
             {
-                delete params[i];
+                delete p_params[i];
             }
-            params.clear();
+            p_params.clear();
             is_fixed.clear();
             clear();
         }
@@ -183,8 +183,8 @@ class GcsSystem : System
         Point make_point(int px_i, int py_i)
         {
             Point p;
-            p.x = param_or_fail(px_i);
-            p.y = param_or_fail(py_i);
+            p.x = p_param_or_fail(px_i);
+            p.y = p_param_or_fail(py_i);
             return p;
         }
 
@@ -206,7 +206,7 @@ class GcsSystem : System
 
             Circle c;
             c.center = cp;
-            c.rad = param_or_fail(rad_i);
+            c.rad = p_param_or_fail(rad_i);
 
             return c;
         }
@@ -218,7 +218,7 @@ class GcsSystem : System
             Ellipse e;
             e.center = make_point(cx_i, cy_i);
             e.focus1 = make_point(focus1x_i, focus1y_i);
-            e.radmin = param_or_fail(radmin_i);
+            e.radmin = p_param_or_fail(radmin_i);
 
             return e;
         }
@@ -230,7 +230,7 @@ class GcsSystem : System
             Hyperbola h;
             h.center = make_point(cx_i, cy_i);
             h.focus1 = make_point(focus1x_i, focus1y_i);
-            h.radmin = param_or_fail(radmin_i);
+            h.radmin = p_param_or_fail(radmin_i);
 
             return h;
         }
@@ -257,10 +257,10 @@ class GcsSystem : System
             Arc a;
             a.center = c;
             a.start = start;
-            a.startAngle = param_or_fail(startangle_i);
-            a.endAngle = param_or_fail(endangle_i);
+            a.startAngle = p_param_or_fail(startangle_i);
+            a.endAngle = p_param_or_fail(endangle_i);
             a.end = end;
-            a.rad = param_or_fail(rad_i);
+            a.rad = p_param_or_fail(rad_i);
 
             return a;
         }
@@ -274,10 +274,10 @@ class GcsSystem : System
             ArcOfEllipse a;
             a.center = make_point(cx_i, cy_i);
             a.start = make_point(startx_i, starty_i);
-            a.startAngle = param_or_fail(startangle_i);
+            a.startAngle = p_param_or_fail(startangle_i);
             a.end = make_point(endx_i, endy_i); 
-            a.endAngle = param_or_fail(endangle_i);
-            a.radmin = param_or_fail(radmin_i);
+            a.endAngle = p_param_or_fail(endangle_i);
+            a.radmin = p_param_or_fail(radmin_i);
             a.focus1 = make_point(focus1x_i, focus1y_i);
 
             return a;   
@@ -290,9 +290,9 @@ class GcsSystem : System
         {
             ArcOfParabola a;
             a.start = make_point(startx_i, starty_i);
-            a.startAngle = param_or_fail(startangle_i);
+            a.startAngle = p_param_or_fail(startangle_i);
             a.end = make_point(endx_i, endy_i);
-            a.endAngle = param_or_fail(endangle_i);
+            a.endAngle = p_param_or_fail(endangle_i);
             a.focus1 = make_point(focusx_i, focusy_i);
             a.vertex = make_point(vertexx_i, vertexy_i);
 
@@ -307,10 +307,10 @@ class GcsSystem : System
             ArcOfHyperbola a;
             a.center = make_point(cx_i, cy_i);
             a.start = make_point(startx_i, starty_i);
-            a.startAngle = param_or_fail(startangle_i);
+            a.startAngle = p_param_or_fail(startangle_i);
             a.end = make_point(endx_i, endy_i); 
-            a.endAngle = param_or_fail(endangle_i);
-            a.radmin = param_or_fail(radmin_i);
+            a.endAngle = p_param_or_fail(endangle_i);
+            a.radmin = p_param_or_fail(radmin_i);
             a.focus1 = make_point(focus1x_i, focus1y_i);
 
             return a;   
@@ -334,22 +334,22 @@ class GcsSystem : System
             }
 
             for (int i = 0; i < weights_i.size(); i++) {
-                bs.weights.push_back(param_or_fail(weights_i[i]));
+                bs.weights.push_back(p_param_or_fail(weights_i[i]));
             }
 
             for (int i = 0; i < knots_i.size(); i++) {
-                bs.knots.push_back(param_or_fail(knots_i[i]));
+                bs.knots.push_back(p_param_or_fail(knots_i[i]));
             }
             
             return bs;
         }{% include "templates/add_constraint_functions.cpp.njk" %}
 
     private:
-        double* param_or_fail(int i) {
-            if (params.size() <= i) {
+        double* p_param_or_fail(int i) {
+            if (p_params.size() <= i) {
                 throw std::runtime_error("parameter index outside range");
             }
-            return params[i];
+            return p_params[i];
         }
 };
 
@@ -381,10 +381,10 @@ EMSCRIPTEN_BINDINGS(module) {
     emscripten::class_<GcsSystem>("GcsSystem")
         .constructor<>()
         .function("params_size", &GcsSystem::params_size)
-        .function("get_param", &GcsSystem::get_param)
-        .function("get_params", &GcsSystem::get_params)
-        .function("set_param", &GcsSystem::set_param)
-        .function("push_param", &GcsSystem::push_param)
+        .function("get_p_param", &GcsSystem::get_p_param)
+        .function("get_p_params", &GcsSystem::get_p_params)
+        .function("set_p_param", &GcsSystem::set_p_param)
+        .function("push_p_param", &GcsSystem::push_p_param)
         .function("get_is_fixed", &GcsSystem::get_is_fixed)
         .function("solve_system", &GcsSystem::solve_system)
         .function("clear_data", &GcsSystem::clear_data)

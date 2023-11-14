@@ -37,13 +37,13 @@ describe("basic: gcs_wrapper", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.resetAllMocks();
-        gcs_wrapper.param_index = new Map();
+        gcs_wrapper.p_param_index = new Map();
         gcs_wrapper.sketch_index = new SketchIndex();
 
         // simulate the behaviour of pushing params
         let arr_params: number[] = [];
         const arr_fixed: boolean[] = [];
-        vi.spyOn(gcs, 'push_param').mockImplementation((val: number, fixed: boolean) => {
+        vi.spyOn(gcs, 'push_p_param').mockImplementation((val: number, fixed: boolean) => {
             arr_params.push(val);
             arr_fixed.push(fixed);
             return arr_params.length;
@@ -51,7 +51,7 @@ describe("basic: gcs_wrapper", () => {
         vi.spyOn(gcs, 'params_size').mockImplementation(() => {
             return arr_params.length;
         })
-        vi.spyOn(gcs, 'get_param').mockImplementation((i: number) => {
+        vi.spyOn(gcs, 'get_p_param').mockImplementation((i: number) => {
             return arr_params[i];
         });
         vi.spyOn(gcs, 'apply_solution').mockImplementation(() => {
@@ -61,34 +61,34 @@ describe("basic: gcs_wrapper", () => {
 
     it("calls gcs when pushing a param", () => {
         gcs_wrapper.push_sketch_param('my_param', 10);
-        expect(gcs.push_param).toHaveBeenCalledWith(10, true);
+        expect(gcs.push_p_param).toHaveBeenCalledWith(10, true);
         gcs_wrapper.push_sketch_param('my_other_param', 0);
-        expect(gcs.push_param).toHaveBeenCalledWith(0, true);
+        expect(gcs.push_p_param).toHaveBeenCalledWith(0, true);
         expect(gcs_wrapper.get_sketch_param_value('my_param')).to.equal(10);
         expect(gcs_wrapper.get_sketch_param_value('my_other_param')).to.equal(0);
     });
 
     it("calls gcs when pushing a point", () => {
         gcs_wrapper.push_primitive({type: 'point', id: 1, x: 3, y: 4, fixed: true});
-        expect(gcs.push_param).toHaveBeenNthCalledWith(1, 3, true)
-        expect(gcs.push_param).toHaveBeenNthCalledWith(2, 4, true)
-        expect(gcs.push_param).toHaveBeenCalledTimes(2);
+        expect(gcs.push_p_param).toHaveBeenNthCalledWith(1, 3, true)
+        expect(gcs.push_p_param).toHaveBeenNthCalledWith(2, 4, true)
+        expect(gcs.push_p_param).toHaveBeenCalledTimes(2);
     });
 
     it("calls gcs when pushing a line", () => {
         gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: true});
         gcs_wrapper.push_primitive({type: 'point', id: 2, x: 0, y: 0, fixed: true});
         gcs_wrapper.push_primitive({type: 'line', id: 3, p1_id: 1, p2_id: 2});
-        expect(gcs.push_param).toHaveBeenCalledTimes(4);
+        expect(gcs.push_p_param).toHaveBeenCalledTimes(4);
     });
 
     it("calls gcs when pushing a circle", () => {
         gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: true});
         gcs_wrapper.push_primitive({type: 'circle', id: 2, c_id: 1, radius: 3});
-        expect(gcs.push_param).toHaveBeenNthCalledWith(1, 0, true)
-        expect(gcs.push_param).toHaveBeenNthCalledWith(2, 0, true)
-        expect(gcs.push_param).toHaveBeenNthCalledWith(3, 3, false)
-        expect(gcs.push_param).toHaveBeenCalledTimes(3);
+        expect(gcs.push_p_param).toHaveBeenNthCalledWith(1, 0, true)
+        expect(gcs.push_p_param).toHaveBeenNthCalledWith(2, 0, true)
+        expect(gcs.push_p_param).toHaveBeenNthCalledWith(3, 3, false)
+        expect(gcs.push_p_param).toHaveBeenCalledTimes(3);
     });
 
     it("calls gcs when pushing an arc", () => {
@@ -101,18 +101,18 @@ describe("basic: gcs_wrapper", () => {
 
         gcs_wrapper.push_primitive({type: 'arc', id: 4, c_id: 1, start_id: 2, end_id: 3, start_angle: 0, end_angle: 0, radius: 1});
 
-        expect(gcs.push_param).toHaveBeenCalledTimes(3 * 2 + 3);
+        expect(gcs.push_p_param).toHaveBeenCalledTimes(3 * 2 + 3);
     });
 
     it("calls add_constraint_equal method when adding an equal constraint", () => {
         const o1_p1_addr = gcs.params_size();
         gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: false});
-        expect(gcs.push_param).toHaveBeenCalledTimes(2);
+        expect(gcs.push_p_param).toHaveBeenCalledTimes(2);
 
         const value_addr = gcs.params_size();
         gcs_wrapper.push_primitive({type: 'equal', id: 2, param1: { o_id: 1, prop: 'x' }, param2: 5});
-        expect(gcs.push_param).toHaveBeenCalledTimes(3);
-        expect(gcs.push_param).toHaveBeenLastCalledWith(5, true);
+        expect(gcs.push_p_param).toHaveBeenCalledTimes(3);
+        expect(gcs.push_p_param).toHaveBeenLastCalledWith(5, true);
 
         const tag = 2;
         expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, true, 0, 1);

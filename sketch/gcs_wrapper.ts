@@ -114,7 +114,7 @@ export class GcsWrapper {
     }
 
     get_gcs_params(): number[] {
-        return emsc_vec_to_arr(this.gcs.get_params());
+        return emsc_vec_to_arr(this.gcs.get_p_params());
     }
 
     get_gcs_conflicting_constraints(): number[] {
@@ -143,7 +143,7 @@ export class GcsWrapper {
 
     push_sketch_param(name: string, value: number): number {
         const pos = this.gcs.params_size();
-        this.gcs.push_param(value, true);
+        this.gcs.push_p_param(value, true);
         this.sketch_param_index.set(name, pos);
         return pos;
     }
@@ -153,26 +153,26 @@ export class GcsWrapper {
         if (pos === undefined) {
             throw new Error(`sketch param ${name} not found`);
         }
-        this.gcs.set_param(pos, value, true);
+        this.gcs.set_p_param(pos, value, true);
     }
 
     get_sketch_param_value(name: string): number | undefined {
         const pos = this.sketch_param_index.get(name);
-        return pos === undefined ? undefined : this.gcs.get_param(pos);
+        return pos === undefined ? undefined : this.gcs.get_p_param(pos);
     }
 
     get_sketch_param_values(): Map<string, number> {
         const result = new Map<string, number>();
         for (const [name, pos] of this.sketch_param_index) {
-            result.set(name, this.gcs.get_param(pos));
+            result.set(name, this.gcs.get_p_param(pos));
         }
         return result;
     }
 
-    private push_params(id: oid, values: number[], fixed = false): number {
+    private push_p_params(id: oid, values: number[], fixed = false): number {
         const pos = this.gcs.params_size();
         for (const value of values) {
-            this.gcs.push_param(value, fixed);
+            this.gcs.push_p_param(value, fixed);
         }
 
         this.p_param_index.set(id, pos);
@@ -184,7 +184,7 @@ export class GcsWrapper {
             return;
         }
 
-        this.push_params(p.id, [p.x, p.y], p.fixed);
+        this.push_p_params(p.id, [p.x, p.y], p.fixed);
     }
 
     private push_line(l: SketchLine) {
@@ -198,7 +198,7 @@ export class GcsWrapper {
         const p = this.sketch_index.get_sketch_point(c.c_id);
         this.push_point(p);
 
-        this.push_params(c.id, [c.radius], false);
+        this.push_p_params(c.id, [c.radius], false);
     }
 
     private push_arc(a: SketchArc) {
@@ -211,7 +211,7 @@ export class GcsWrapper {
         const end = this.sketch_index.get_sketch_point(a.end_id);
         this.push_point(end);
 
-        this.push_params(a.id, [a.start_angle, a.end_angle, a.radius], false);
+        this.push_p_params(a.id, [a.start_angle, a.end_angle, a.radius], false);
     }
 
     private push_ellipse(e: SketchEllipse) {
@@ -221,7 +221,7 @@ export class GcsWrapper {
         const focus1 = this.sketch_index.get_sketch_point(e.focus1_id);
         this.push_point(focus1);
 
-        this.push_params(e.id, [e.radmin], false);
+        this.push_p_params(e.id, [e.radmin], false);
     }
 
     private push_arc_of_ellipse(ae: SketchArcOfEllipse) {
@@ -237,7 +237,7 @@ export class GcsWrapper {
         const end = this.sketch_index.get_sketch_point(ae.end_id);
         this.push_point(end);
 
-        this.push_params(ae.id, [ae.start_angle, ae.end_angle, ae.radmin], false);
+        this.push_p_params(ae.id, [ae.start_angle, ae.end_angle, ae.radmin], false);
     }
 
     private sketch_primitive_to_gcs(o: SketchPrimitive) : GcsGeometry {
@@ -339,7 +339,7 @@ export class GcsWrapper {
             if (type === 'object_param_or_number') { // or string
                 if (typeof val === 'number') {
                     // todo: add to some index (probably after adding named indexes)
-                    const pos = this.push_params(c.id, [val], is_fixed);
+                    const pos = this.push_p_params(c.id, [val], is_fixed);
                     add_constraint_args.push(pos);
                 } else if (typeof val === 'string') {
                     // this is a sketch param
@@ -365,7 +365,7 @@ export class GcsWrapper {
                 deletable.push(gcs_obj);
             } else if (type === 'primitive_type' && typeof val === 'number') {
                 // todo: add to some index (same as above)
-                const pos = this.push_params(c.id, [val], is_fixed); // ? is this correct (driving <=> fixed)? 
+                const pos = this.push_p_params(c.id, [val], is_fixed); // ? is this correct (driving <=> fixed)? 
                 add_constraint_args.push(pos);
             } else if (type === 'primitive_type' && typeof val === 'boolean') {
                 add_constraint_args.push(val);
@@ -435,8 +435,8 @@ export class GcsWrapper {
         const point_addr = this.get_primitive_addr(p.id);
         const point = {
             ...p,
-            x: this.gcs.get_param(point_addr + property_offsets.point.x),
-            y: this.gcs.get_param(point_addr + property_offsets.point.y),
+            x: this.gcs.get_p_param(point_addr + property_offsets.point.x),
+            y: this.gcs.get_p_param(point_addr + property_offsets.point.y),
         }
         this.sketch_index.set_primitive(point);
     }
@@ -449,9 +449,9 @@ export class GcsWrapper {
         const addr = this.get_primitive_addr(a.id);
         this.sketch_index.set_primitive({
             ...a,
-            start_angle: this.gcs.get_param(addr + property_offsets.arc.start_angle),
-            end_angle: this.gcs.get_param(addr + property_offsets.arc.end_angle),
-            radius: this.gcs.get_param(addr + property_offsets.arc.radius)
+            start_angle: this.gcs.get_p_param(addr + property_offsets.arc.start_angle),
+            end_angle: this.gcs.get_p_param(addr + property_offsets.arc.end_angle),
+            radius: this.gcs.get_p_param(addr + property_offsets.arc.radius)
         });
     }
 
@@ -460,7 +460,7 @@ export class GcsWrapper {
 
         this.sketch_index.set_primitive({
             ...c,
-            radius: this.gcs.get_param(addr + property_offsets.circle.radius)
+            radius: this.gcs.get_p_param(addr + property_offsets.circle.radius)
         });
     }
 
@@ -469,7 +469,7 @@ export class GcsWrapper {
 
         this.sketch_index.set_primitive({
             ...e,
-            radmin: this.gcs.get_param(addr + property_offsets.ellipse.radmin),
+            radmin: this.gcs.get_p_param(addr + property_offsets.ellipse.radmin),
         });
     }
 
@@ -478,9 +478,9 @@ export class GcsWrapper {
 
         this.sketch_index.set_primitive({
             ...ae,
-            start_angle: this.gcs.get_param(addr + property_offsets.arc_of_ellipse.start_angle),
-            end_angle: this.gcs.get_param(addr + property_offsets.arc_of_ellipse.end_angle),
-            radmin: this.gcs.get_param(addr + property_offsets.arc_of_ellipse.radmin),
+            start_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_ellipse.start_angle),
+            end_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_ellipse.end_angle),
+            radmin: this.gcs.get_p_param(addr + property_offsets.arc_of_ellipse.radmin),
         });
     }
 }

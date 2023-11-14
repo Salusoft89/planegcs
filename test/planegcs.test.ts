@@ -45,28 +45,28 @@ describe("planegcs", () => {
     });
 
     it("parameter can be updated", () => {
-        const addr = gcs.push_param(1, true);
-        gcs.set_param(addr, 2, true);
-        expect(gcs.get_param(addr)).toBe(2);
+        const addr = gcs.push_p_param(1, true);
+        gcs.set_p_param(addr, 2, true);
+        expect(gcs.get_p_param(addr)).toBe(2);
     });
 
     it("constraint with a line can be called with a line object", async () => {
-        const p1x_i = gcs.push_param(1, true);
-        const p1y_i = gcs.push_param(2, true);
-        const p2x_i = gcs.push_param(3, true);
-        const p2y_i = gcs.push_param(4, true);
+        const p1x_i = gcs.push_p_param(1, true);
+        const p1y_i = gcs.push_p_param(2, true);
+        const p2x_i = gcs.push_p_param(3, true);
+        const p2y_i = gcs.push_p_param(4, true);
 
         const line = gcs.make_line(p1x_i, p1y_i, p2x_i, p2y_i);
         gcs.add_constraint_vertical_l(line, 1, true, 1);
     });
 
     it("constraint with a curve can be called with a line object", () => {
-        const p1x_i = gcs.push_param(1, true);
-        const p1y_i = gcs.push_param(2, true);
-        const p2x_i = gcs.push_param(3, true);
-        const p2y_i = gcs.push_param(4, true);
+        const p1x_i = gcs.push_p_param(1, true);
+        const p1y_i = gcs.push_p_param(2, true);
+        const p2x_i = gcs.push_p_param(3, true);
+        const p2y_i = gcs.push_p_param(4, true);
 
-        const angle_i = gcs.push_param(Math.PI / 2, false);
+        const angle_i = gcs.push_p_param(Math.PI / 2, false);
 
         const line1 = gcs.make_line(p1x_i, p1y_i, p2x_i, p2y_i);
         const line2 = gcs.make_line(p2x_i, p2y_i, p1x_i, p1y_i);
@@ -76,8 +76,8 @@ describe("planegcs", () => {
     });
 
     it("constraint with a line cannot be called with a point object", () => {
-        const p1x_i = gcs.push_param(1, true);
-        const p1y_i = gcs.push_param(2, true);
+        const p1x_i = gcs.push_p_param(1, true);
+        const p1y_i = gcs.push_p_param(2, true);
 
         const point = gcs.make_point(p1x_i, p1y_i);
 
@@ -87,10 +87,10 @@ describe("planegcs", () => {
     });
 
     it("dof decreases with added constraint", () => {
-        const p1x_i = gcs.push_param(1, true);
-        const p1y_i = gcs.push_param(2, true);
-        const p2x_i = gcs.push_param(1, false);
-        const p2y_i = gcs.push_param(3, false);
+        const p1x_i = gcs.push_p_param(1, true);
+        const p1y_i = gcs.push_p_param(2, true);
+        const p2x_i = gcs.push_p_param(1, false);
+        const p2y_i = gcs.push_p_param(3, false);
 
         gcs.solve_system(Algorithm.DogLeg);
         expect(gcs.dof()).toBe(2);
@@ -103,15 +103,15 @@ describe("planegcs", () => {
     });
 
     it("detects redundant constraints", () => {
-        const p1x_i = gcs.push_param(1, true);
-        const p1y_i = gcs.push_param(2, true);
-        const p2x_i = gcs.push_param(1, false);
-        const p2y_i = gcs.push_param(3, false);
+        const p1x_i = gcs.push_p_param(1, true);
+        const p1y_i = gcs.push_p_param(2, true);
+        const p2x_i = gcs.push_p_param(1, false);
+        const p2y_i = gcs.push_p_param(3, false);
 
         const line = gcs.make_line(p1x_i, p1y_i, p2x_i, p2y_i);
         gcs.add_constraint_vertical_l(line, 1, true, 1);
 
-        const diff = gcs.push_param(0, true);
+        const diff = gcs.push_p_param(0, true);
         // a constraint with the same effect as the previous vertical => redundant
         gcs.add_constraint_difference(p1x_i, p2x_i, diff, 2, true, 1);
         gcs.solve_system(Algorithm.DogLeg);
@@ -128,19 +128,19 @@ describe("planegcs", () => {
 
     it("can add B-spline", () => {
         // for visualisation, see https://nurbscalculator.in/
-        const weight_is = [1, 1, 1, 1].map(w => gcs.push_param(w, true));
+        const weight_is = [1, 1, 1, 1].map(w => gcs.push_p_param(w, true));
 
         // knot values
         const knot_is = [
             0, 0, 0, 0, 1, 1, 1, 1
-        ].map(knot_val => gcs.push_param(knot_val, true));
+        ].map(knot_val => gcs.push_p_param(knot_val, true));
 
         const control_point_is = [
             -4, -4,
             -2, 4,
             2, -4,
             4, 4
-        ].map(val => gcs.push_param(val, true));
+        ].map(val => gcs.push_p_param(val, true));
 
         const degree = 3;
         const periodic = false;
@@ -158,8 +158,8 @@ describe("planegcs", () => {
     })
 
     it("returns correct enum status", () => {
-        gcs.push_param(1, true);
-        gcs.push_param(2, true);
+        gcs.push_p_param(1, true);
+        gcs.push_p_param(2, true);
 
         const status = gcs.solve_system(Algorithm.DogLeg);
         expect(status).toEqual(SolveStatus.Success);
@@ -167,12 +167,15 @@ describe("planegcs", () => {
 
     it("can change debugmode", () => {
         gcs.set_debug_mode(DebugMode.NoDebug);
+        expect(gcs.get_debug_mode()).toBe(DebugMode.NoDebug);
         gcs.set_debug_mode(DebugMode.IterationLevel);
+        expect(gcs.get_debug_mode()).toBe(DebugMode.IterationLevel);
         gcs.set_debug_mode(DebugMode.Minimal);
+        expect(gcs.get_debug_mode()).toBe(DebugMode.Minimal);
     });
 
     it("can clear params", () => {
-        gcs.push_param(1, true);
+        gcs.push_p_param(1, true);
         gcs.clear_data();
 
         expect(gcs.params_size()).toBe(0);
@@ -189,6 +192,6 @@ describe("planegcs", () => {
             gcs_wrapper.push_primitive(primitive)
         }
 
-        gcs_wrapper.solve();
+        expect(gcs_wrapper.solve()).toBe(SolveStatus.Success);
     });
 });
