@@ -109,6 +109,10 @@ export class GcsWrapper {
         }
     }
 
+    set_iteration_multiplier(enable: boolean) {
+        this.gcs.set_iteration_multiplier(enable);
+    }
+
     get_gcs_params(): number[] {
         return emsc_vec_to_arr(this.gcs.get_params());
     }

@@ -66,6 +66,10 @@ class GcsSystem : System
             return is_fixed[i];
         }
 
+        void set_iteration_multiplier(bool enabled) {
+            sketchSizeMultiplier = enabled;
+        }
+
         // an integer is used here because Enum didn't work properly
         int solve_system(int algorithm)
         {
@@ -394,6 +398,7 @@ EMSCRIPTEN_BINDINGS(module) {
         .function("has_redundant", &GcsSystem::has_redundant)
         .function("has_partially_redundant", &GcsSystem::has_partially_redundant)
         .function("clear_by_id", &GcsSystem::clear_by_id)
+        .function("set_iteration_multiplier", &GcsSystem::set_iteration_multiplier)
         .function("set_debug_mode", &GcsSystem::set_debug_mode)
         .function("get_debug_mode", &GcsSystem::get_debug_mode)
         /* make_<geometry> functions */
