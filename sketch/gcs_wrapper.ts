@@ -29,6 +29,7 @@ export class GcsWrapper {
     p_param_index: Map<oid, number> = new Map();
     sketch_index = new SketchIndex();
     private sketch_param_index: Map<string, number> = new Map(); // param key -> index in gcs params
+    private enable_equal_optimization = false;
 
     get debug_mode(): DebugMode {
         return this.gcs.get_debug_mode();
@@ -36,6 +37,14 @@ export class GcsWrapper {
 
     set debug_mode(mode: DebugMode) {
         this.gcs.set_debug_mode(mode);
+    }
+
+    get equal_optimization(): boolean {
+        return this.enable_equal_optimization;
+    }
+
+    set equal_optimization(val: boolean) {
+        this.enable_equal_optimization = val;
     }
 
     constructor(gcs: GcsSystem) {
@@ -388,6 +397,18 @@ export class GcsWrapper {
 
         const c_name: string = c.type;
         (this.gcs as any)[`add_constraint_${c_name}`](...add_constraint_args, c.scale ?? 1);
+
+        // if something is set to be equal, then optimize this process by setting the parameter to the value directly
+        if (this.enable_equal_optimization && c_name === 'equal') {
+            const [param_1_addr, param_2_addr] = [add_constraint_args[0], add_constraint_args[1]];
+            if (typeof param_1_addr === 'number' && typeof param_2_addr === 'number') {
+                if (this.gcs.get_is_fixed(param_1_addr) && !this.gcs.get_is_fixed(param_2_addr)) {
+                    this.gcs.set_p_param(param_2_addr, this.gcs.get_p_param(param_1_addr), false);
+                } else if (this.gcs.get_is_fixed(param_2_addr) && !this.gcs.get_is_fixed(param_1_addr)) {
+                    this.gcs.set_p_param(param_1_addr, this.gcs.get_p_param(param_2_addr), false);
+                }
+            }
+        }
 
         // wasm-allocated objects must be manually deleted 
         for (const geom_shape of deletable) {

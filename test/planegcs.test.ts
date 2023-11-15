@@ -194,4 +194,14 @@ describe("planegcs", () => {
 
         expect(gcs_wrapper.solve()).toBe(SolveStatus.Success);
     });
+
+    it('can set and get max iterations', () => {
+        gcs.set_max_iterations(200);
+        expect(gcs.get_max_iterations()).toBe(200);
+    });
+
+    it('can set and get convergence threshold', () => {
+        gcs.set_covergence_threshold(0.001);
+        expect(gcs.get_convergence_threshold()).toBe(0.001);
+    });
 });
