@@ -66,7 +66,33 @@ export interface SketchArcOfEllipse extends Id, IArc {
 	radmin: number;
 }
 
-export type SketchGeometry = SketchPoint | SketchLine | SketchCircle | SketchArc | SketchEllipse | SketchArcOfEllipse;
+export interface SketchParabola extends Id {
+	type: 'parabola';
+	vertex_id: oid;
+	focus1_id: oid;
+}
+
+export interface SketchArcOfParabola extends Id, IArc {
+	type: 'arc_of_parabola';
+	vertex_id: oid;
+	focus1_id: oid;
+}
+
+export interface SketchHyperbola extends Id {
+	type: 'hyperbola';
+	c_id: oid;
+	focus1_id: oid;
+	radmin: number;
+}
+
+export interface SketchArcOfHyperbola extends Id, IArc {
+	type: 'arc_of_hyperbola';
+	c_id: oid;
+	focus1_id: oid;
+	radmin: number;
+}
+
+export type SketchGeometry = SketchPoint | SketchLine | SketchCircle | SketchArc | SketchEllipse | SketchArcOfEllipse | SketchParabola | SketchArcOfParabola | SketchHyperbola | SketchArcOfHyperbola;
 export type SketchPrimitive = SketchGeometry | Constraint;
 
 export interface SketchParam {
@@ -75,11 +101,13 @@ export interface SketchParam {
 	value: number;
 }
 
+const GEOMETRY_TYPES: SketchPrimitive['type'][] = ['point', 'line', 'circle', 'arc', 'ellipse', 'arc_of_ellipse', 'hyperbola', 'arc_of_hyperbola', 'parabola', 'arc_of_parabola'];
+
 export function is_sketch_geometry(primitive: SketchPrimitive | SketchParam | undefined): primitive is SketchGeometry {
-	if (primitive === undefined) {
+	if (primitive === undefined || primitive.type === 'param') {
 		return false;
 	}
-	return ['point', 'line', 'circle', 'arc', 'ellipse', 'arc_of_ellipse'].includes(primitive.type);
+	return GEOMETRY_TYPES.includes(primitive.type);
 }
 
 export function is_sketch_constraint(primitive: SketchPrimitive | SketchParam | undefined): primitive is Constraint {
@@ -140,5 +168,3 @@ export function get_primitive_with_replaced_ids(p: SketchPrimitive, old_id: numb
 	}
 	return copy;
 }
-
-// todo: add SketchHyperbola and SketchArcOfHyperbola

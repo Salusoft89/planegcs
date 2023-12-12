@@ -49,6 +49,20 @@ export const property_offsets = {
         end_angle: 1,
         radmin: 2
     },
+    parabola: {
+    },
+    arc_of_parabola: {
+        start_angle: 0,
+        end_angle: 1,
+    },
+    hyperbola: {
+        radmin: 0,
+    },
+    arc_of_hyperbola: {
+        start_angle: 0,
+        end_angle: 1,
+        radmin: 2
+    },
     line: {},
 } as const;
 

@@ -19,7 +19,7 @@ import type { Constraint, ConstraintParamType } from "../planegcs_dist/constrain
 import { constraint_param_index } from "../planegcs_dist/constraint_param_index.js";
 import { SketchIndex } from "./sketch_index.js";
 import { emsc_vec_to_arr } from "./emsc_vectors.js";
-import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam } from "./sketch_primitive";
+import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam, SketchHyperbola, SketchArcOfHyperbola, SketchParabola, SketchArcOfParabola } from "./sketch_primitive";
 import { is_sketch_geometry } from "./sketch_primitive.js";
 import { Algorithm, Constraint_Alignment, SolveStatus, type GcsGeometry, type GcsSystem, DebugMode, } from "../planegcs_dist/gcs_system.js";
 import get_property_offset, { property_offsets } from "./geom_params.js";
@@ -85,6 +85,18 @@ export class GcsWrapper {
                 break;
             case 'arc_of_ellipse':
                 this.push_arc_of_ellipse(o);
+                break;
+            case 'hyperbola':
+                this.push_hyperbola(o);
+                break;
+            case 'arc_of_hyperbola':
+                this.push_arc_of_hyperbola(o);
+                break;
+            case 'parabola':
+                this.push_parabola(o);
+                break;
+            case 'arc_of_parabola':
+                this.push_arc_of_parabola(o);
                 break;
             default:
                 this.push_constraint(o);
@@ -245,6 +257,56 @@ export class GcsWrapper {
         this.push_p_params(e.id, [e.radmin], false);
     }
 
+    private push_hyperbola(h: SketchHyperbola) {
+        const center = this.sketch_index.get_sketch_point(h.c_id);
+        this.push_point(center);
+
+        const focus1 = this.sketch_index.get_sketch_point(h.focus1_id);
+        this.push_point(focus1);
+
+        this.push_p_params(h.id, [h.radmin], false);
+    }
+
+    private push_arc_of_hyperbola(ah: SketchArcOfHyperbola) {
+        const center = this.sketch_index.get_sketch_point(ah.c_id);
+        this.push_point(center);
+
+        const focus1 = this.sketch_index.get_sketch_point(ah.focus1_id);
+        this.push_point(focus1);
+
+        const start = this.sketch_index.get_sketch_point(ah.start_id);
+        this.push_point(start);
+
+        const end = this.sketch_index.get_sketch_point(ah.end_id);
+        this.push_point(end);
+
+        this.push_p_params(ah.id, [ah.start_angle, ah.end_angle, ah.radmin], false);
+    }
+
+    private push_parabola(p: SketchParabola) {
+        const vertex = this.sketch_index.get_sketch_point(p.vertex_id);
+        this.push_point(vertex);
+
+        const focus1 = this.sketch_index.get_sketch_point(p.focus1_id);
+        this.push_point(focus1);
+    }
+
+    private push_arc_of_parabola(ap: SketchArcOfParabola) {
+        const vertex = this.sketch_index.get_sketch_point(ap.vertex_id);
+        this.push_point(vertex);
+
+        const focus1 = this.sketch_index.get_sketch_point(ap.focus1_id);
+        this.push_point(focus1);
+
+        const start = this.sketch_index.get_sketch_point(ap.start_id);
+        this.push_point(start);
+
+        const end = this.sketch_index.get_sketch_point(ap.end_id);
+        this.push_point(end);
+
+        this.push_p_params(ap.id, [ap.start_angle, ap.end_angle], false);
+    }
+
     private push_arc_of_ellipse(ae: SketchArcOfEllipse) {
         const center = this.sketch_index.get_sketch_point(ae.c_id);
         this.push_point(center);
@@ -317,6 +379,52 @@ export class GcsWrapper {
                     start_i + property_offsets.point.x, start_i + property_offsets.point.y,
                     end_i + property_offsets.point.x, end_i + property_offsets.point.y,
                     a_i + property_offsets.arc_of_ellipse.start_angle, a_i + property_offsets.arc_of_ellipse.end_angle, a_i + property_offsets.arc_of_ellipse.radmin
+                );
+            }
+            case 'hyperbola': {
+                const c_i = this.get_primitive_addr(o.c_id);
+                const focus1_i = this.get_primitive_addr(o.focus1_id);
+                const radmin_i = this.get_primitive_addr(o.id + property_offsets.hyperbola.radmin);
+                return this.gcs.make_hyperbola(
+                    c_i + property_offsets.point.x, c_i + property_offsets.point.y,
+                    focus1_i + property_offsets.point.x, focus1_i + property_offsets.point.y,
+                    radmin_i + property_offsets.hyperbola.radmin
+                );
+            }
+            case 'arc_of_hyperbola': {
+                const c_i = this.get_primitive_addr(o.c_id);
+                const focus1_i = this.get_primitive_addr(o.focus1_id);
+                const start_i = this.get_primitive_addr(o.start_id);
+                const end_i = this.get_primitive_addr(o.end_id);
+                const a_i = this.get_primitive_addr(o.id);
+                return this.gcs.make_arc_of_hyperbola(
+                    c_i + property_offsets.point.x, c_i + property_offsets.point.y,
+                    focus1_i + property_offsets.point.x, focus1_i + property_offsets.point.y,
+                    start_i + property_offsets.point.x, start_i + property_offsets.point.y,
+                    end_i + property_offsets.point.x, end_i + property_offsets.point.y,
+                    a_i + property_offsets.arc_of_hyperbola.start_angle, a_i + property_offsets.arc_of_hyperbola.end_angle, a_i + property_offsets.arc_of_hyperbola.radmin
+                );
+            }
+            case 'parabola': {
+                const vertex_i = this.get_primitive_addr(o.vertex_id);
+                const focus1_i = this.get_primitive_addr(o.focus1_id);
+                return this.gcs.make_parabola(
+                    vertex_i + property_offsets.point.x, vertex_i + property_offsets.point.y,
+                    focus1_i + property_offsets.point.x, focus1_i + property_offsets.point.y
+                );
+            }
+            case 'arc_of_parabola': {
+                const vertex_i = this.get_primitive_addr(o.vertex_id);
+                const focus1_i = this.get_primitive_addr(o.focus1_id);
+                const start_i = this.get_primitive_addr(o.start_id);
+                const end_i = this.get_primitive_addr(o.end_id);
+                const a_i = this.get_primitive_addr(o.id);
+                return this.gcs.make_arc_of_parabola(
+                    vertex_i + property_offsets.point.x, vertex_i + property_offsets.point.y,
+                    focus1_i + property_offsets.point.x, focus1_i + property_offsets.point.y,
+                    start_i + property_offsets.point.x, start_i + property_offsets.point.y,
+                    end_i + property_offsets.point.x, end_i + property_offsets.point.y,
+                    a_i + property_offsets.arc_of_parabola.start_angle, a_i + property_offsets.arc_of_parabola.end_angle
                 );
             }
             default:
@@ -453,6 +561,14 @@ export class GcsWrapper {
                 this.pull_ellipse(p);
             } else if (p.type === 'arc_of_ellipse') {
                 this.pull_arc_of_ellipse(p);
+            } else if (p.type === 'hyperbola') {
+                this.pull_hyperbola(p);
+            } else if (p.type === 'arc_of_hyperbola') {
+                this.pull_arc_of_hyperbola(p);
+            } else if (p.type === 'parabola') {
+                this.pull_parabola(p);
+            } else if (p.type === 'arc_of_parabola') {
+                this.pull_arc_of_parabola(p);
             } else {
                 // console.log(`${o.type}`);
                 // todo: is this else branch necessary?
@@ -514,6 +630,40 @@ export class GcsWrapper {
             start_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_ellipse.start_angle),
             end_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_ellipse.end_angle),
             radmin: this.gcs.get_p_param(addr + property_offsets.arc_of_ellipse.radmin),
+        });
+    }
+
+    private pull_hyperbola(h: SketchHyperbola) {
+        const addr = this.get_primitive_addr(h.id);
+
+        this.sketch_index.set_primitive({
+            ...h,
+            radmin: this.gcs.get_p_param(addr + property_offsets.hyperbola.radmin),
+        });
+    }
+
+    private pull_arc_of_hyperbola(ah: SketchArcOfHyperbola) {
+        const addr = this.get_primitive_addr(ah.id);
+
+        this.sketch_index.set_primitive({
+            ...ah,
+            start_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_hyperbola.start_angle),
+            end_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_hyperbola.end_angle),
+            radmin: this.gcs.get_p_param(addr + property_offsets.arc_of_hyperbola.radmin),
+        });
+    }
+
+    private pull_parabola(p: SketchParabola) {
+        this.sketch_index.set_primitive(p);
+    }
+
+    private pull_arc_of_parabola(ap: SketchArcOfParabola) {
+        const addr = this.get_primitive_addr(ap.id);
+
+        this.sketch_index.set_primitive({
+            ...ap,
+            start_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_parabola.start_angle),
+            end_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_parabola.end_angle),
         });
     }
 }

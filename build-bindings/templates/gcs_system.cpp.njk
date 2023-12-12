@@ -296,8 +296,8 @@ class GcsSystem : System
         }
 
         ArcOfParabola make_arc_of_parabola(
-            int startx_i, int starty_i, int endx_i, int endy_i,
-            int startangle_i, int endangle_i, int focusx_i, int focusy_i, int vertexx_i, int vertexy_i
+            int vertexx_i, int vertexy_i, int focusx_i, int focusy_i, int startx_i, int starty_i, int endx_i, int endy_i,
+            int startangle_i, int endangle_i 
         )
         {
             ArcOfParabola a;
@@ -312,8 +312,8 @@ class GcsSystem : System
         }
 
         ArcOfHyperbola make_arc_of_hyperbola(
-            int cx_i, int cy_i, int startx_i, int starty_i, int endx_i, int endy_i,
-            int startangle_i, int endangle_i, int radmin_i, int focus1x_i, int focus1y_i
+            int cx_i, int cy_i, int focus1x_i, int focus1y_i, int startx_i, int starty_i, int endx_i, int endy_i,
+            int startangle_i, int endangle_i, int radmin_i
         )
         {
             ArcOfHyperbola a;
