@@ -1,6 +1,8 @@
 # About planegcs
 
-Planegcs is a 2D geometric constraint solver from [FreeCAD](https://github.com/FreeCAD/FreeCAD/tree/main/src/Mod/Sketcher/App/planegcs). This repository is a port of the C++ code to WebAssembly, so that it can be used in the browser or node environments. The solving is based on numeric optimization methods, such as Levenberg-Marquardt, BFGS, DogLeg or SQP. Apart from the WebAssembly module and the wrapper class, this library contains complete TypeScript annotations.
+Planegcs is a 2D geometric constraint solver from [FreeCAD](https://github.com/FreeCAD/FreeCAD/tree/main/src/Mod/Sketcher/App/planegcs). This repository is a port of the C++ code to WebAssembly, so that it can be used in the browser or node environments. The solving is based on numeric optimization methods, such as `DogLeg`, `Levenberg-Marquardt`, `BFGS` or `SQP`. Apart from the WebAssembly module and the wrapper class, this library contains complete TypeScript annotations.
+
+This repository includes two PDF documents created by members of the FreeCAD community in the `doc` folder: Sketcher Lecture (by Christoph Blaue), which is a user-level description of FreeCAD's Sketcher, and Solver manual (by Abdullah Tahiri), which is a lower-level description of the planegcs solver.
 
 # Example usage
 
@@ -129,7 +131,7 @@ Defined similarly to an ellipse/elliptical arc. See the type definitions in `ske
 
 ## B-Spline
 
-TODO: add documentation for B-spline
+TBD
 
 # Constaints
 
