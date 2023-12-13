@@ -9,9 +9,9 @@ This repository includes two PDF documents created by members of the FreeCAD com
 - [x] Point, Line, Circle, Arc, Ellipse, Elliptical arc, Hyperbola, Parabola, Hyperbolical arc, Parabolical arc
 - [x] All constraints from planegcs (see `planegcs_dist/constraints.ts`)
 - [x] Reference sketch parametries or geometry properties in the constraints
-- [x] Driving and temporary constraints
-- [ ] Multithreading execution of QR decomposition 
-- [ ] B-Splines
+- [x] Non-driving and temporary constraints
+- [ ] B-Spline (WIP)
+- [ ] Multithreading execution of QR decomposition (GcsSystem.cpp:4811,4883)
 - [ ] Support for constraints referencing other constraints
 - [ ] Higher-level data model
 
