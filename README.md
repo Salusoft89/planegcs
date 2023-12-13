@@ -10,10 +10,10 @@ This repository includes two PDF documents created by members of the FreeCAD com
 - [x] All constraints from planegcs (see `planegcs_dist/constraints.ts`)
 - [x] Reference sketch parametries or geometry properties in the constraints
 - [x] Driving and temporary constraints
-- [] Multithreading execution of QR decomposition 
-- [] B-Splines
-- [] Support for constraints referencing other constraints
-- [] Higher-level data model
+- [ ] Multithreading execution of QR decomposition 
+- [ ] B-Splines
+- [ ] Support for constraints referencing other constraints
+- [ ] Higher-level data model
 
 # Example usage
 
