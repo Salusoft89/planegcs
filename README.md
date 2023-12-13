@@ -4,6 +4,17 @@ Planegcs is a 2D geometric constraint solver from [FreeCAD](https://github.com/F
 
 This repository includes two PDF documents created by members of the FreeCAD community in the `doc` folder: Sketcher Lecture (by Christoph Blaue), which is a user-level description of FreeCAD's Sketcher, and Solver manual (by Abdullah Tahiri), which is a lower-level description of the planegcs solver.
 
+## Features
+
+- [x] Point, Line, Circle, Arc, Ellipse, Elliptical arc, Hyperbola, Parabola, Hyperbolical arc, Parabolical arc
+- [x] All constraints from planegcs (see `planegcs_dist/constraints.ts`)
+- [x] Reference sketch parametries or geometry properties in the constraints
+- [x] Driving and temporary constraints
+- [] Multithreading execution of QR decomposition 
+- [] B-Splines
+- [] Support for constraints referencing other constraints
+- [] Higher-level data model
+
 # Example usage
 
 The geometries and constraints are represented by JSON objects, which are called (sketch) primitives. A list of primitives is an input for the solver. The primitives might reference each other by their ids.
@@ -131,7 +142,7 @@ Defined similarly to an ellipse/elliptical arc. See the type definitions in `ske
 
 ## B-Spline
 
-TBD
+B-Spline from planegcs is currently not yet fully supported. (WIP)
 
 # Constaints
 
