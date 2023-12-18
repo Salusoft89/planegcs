@@ -137,12 +137,18 @@ export function for_each_referenced_id(p: SketchPrimitive, f: (id: number) => nu
 
 	for (const [key, val] of Object.entries(p)) {
 		if (key.endsWith('_id') && typeof val === 'number') {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			(p as any)[key] = f(val) ?? val;
+			const new_val = f(val);
+			if (new_val !== undefined) {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				(p as any)[key] = f(val);
+			}
 		} else if (typeof val === 'object' && val !== null && 'o_id' in val && typeof val['o_id'] === 'number') {
+			const new_o_id = f(val.o_id);
 			// some constraints have the o_id inside the object
 			// see e.g. difference constraint in horizontal/vertical distance tool
-			val.o_id = f(val.o_id) ?? val.o_id;
+			if (new_o_id !== undefined) {
+				val.o_id = f(val.o_id);
+			}
 		}
 	}
 }
