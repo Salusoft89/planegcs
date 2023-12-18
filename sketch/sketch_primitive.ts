@@ -130,41 +130,25 @@ export function get_referenced_sketch_params(p: SketchPrimitive): string[] {
 	return params;
 }
 
-export function get_constrained_primitive_ids(p: SketchPrimitive): number[] {
+export function for_each_referenced_id(p: SketchPrimitive, f: (id: number) => number | undefined) {
 	if (!is_sketch_constraint(p)) {
-		return [];
+		return;
 	}
-	const constrained_primitive_ids: number[] = [];
 
 	for (const [key, val] of Object.entries(p)) {
 		if (key.endsWith('_id') && typeof val === 'number') {
-			constrained_primitive_ids.push(val);
-		} else if (
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			(p as any)[key] = f(val) ?? val;
+		} else if (typeof val === 'object' && val !== null && 'o_id' in val && typeof val['o_id'] === 'number') {
 			// some constraints have the o_id inside the object
 			// see e.g. difference constraint in horizontal/vertical distance tool
-			typeof val === 'object' &&
-			val !== null &&
-			'o_id' in val &&
-			typeof val['o_id'] === 'number'
-		) {
-			constrained_primitive_ids.push(val.o_id);
+			val.o_id = f(val.o_id) ?? val.o_id;
 		}
 	}
-
-	return constrained_primitive_ids;
 }
 
-export function get_primitive_with_replaced_ids(p: SketchPrimitive, old_id: number, new_id: number): SketchPrimitive {
-	const copy = JSON.parse(JSON.stringify(p));
-	for (const [key, val] of Object.entries(copy)) {
-		if (key.endsWith('_id') && typeof val === 'number' && val === old_id) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			(p as any)[key] = new_id;
-		} else if (typeof val === 'object' && val !== null && 'o_id' in val && typeof val['o_id'] === 'number') {
-			if (val.o_id === old_id) {
-				val.o_id = new_id;
-			}
-		}
-	}
-	return copy;
+export function get_constrained_primitive_ids(p: SketchPrimitive): number[] {
+	const ids: number[] = [];
+	for_each_referenced_id(p, ids.push);
+	return ids;
 }
