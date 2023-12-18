@@ -149,6 +149,6 @@ export function for_each_referenced_id(p: SketchPrimitive, f: (id: number) => nu
 
 export function get_constrained_primitive_ids(p: SketchPrimitive): number[] {
 	const ids: number[] = [];
-	for_each_referenced_id(p, ids.push);
+	for_each_referenced_id(p, (id) => ids.push(id));
 	return ids;
 }
