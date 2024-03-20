@@ -10,10 +10,10 @@ This repository includes two PDF documents created by members of the FreeCAD com
 - [x] All constraints from planegcs (see `planegcs_dist/constraints.ts`)
 - [x] Reference sketch parametries or geometry properties in the constraints
 - [x] Non-driving and temporary constraints
-- [ ] B-Spline (WIP)
+- [ ] Higher-level data model (WIP)
+- [ ] B-Spline
 - [ ] Multithreading execution of QR decomposition (GcsSystem.cpp:4811,4883)
 - [ ] Support for constraints referencing other constraints
-- [ ] Higher-level data model
 
 # Example usage
 
@@ -22,10 +22,10 @@ The geometries and constraints are represented by JSON objects, which are called
 ```js
 
 const primitives = [ 
-    { id: 1, type: 'point', x: 10, y: 10, fixed: false },
-    { id: 2, type: 'point', x: 20, y: 20, fixed: false },
+    { id: '1', type: 'point', x: 10, y: 10, fixed: false },
+    { id: '2', type: 'point', x: 20, y: 20, fixed: false },
  
-    { id: 3, type: 'p2p_coincident', p1_id: 1, p2_id: 2 },
+    { id: '3', type: 'p2p_coincident', p1_id: '1', p2_id: '2' },
  ];
 
 gcs_wrapper.push_primitives_and_params(primitives);
@@ -35,9 +35,9 @@ gcs_wrapper.apply_solution();
 console.log(gcs_wrapper.sketch_index.get_primitives());
 // outputs
 // [
-//    { id: 1, type: 'point', x: 10, y: 10, fixed: false },
-//    { id: 2, type: 'point', x: 10, y: 10, fixed: false },                <<< x and y changed
-//    { id: 3, type: 'p2p_coincident', p1_id: 1, p2_id: 2 },
+//    { id: '1', type: 'point', x: 10, y: 10, fixed: false },
+//    { id: '2', type: 'point', x: 10, y: 10, fixed: false },                <<< x and y changed
+//    { id: '3', type: 'p2p_coincident', p1_id: '1', p2_id: '2' },
 // ]
 
 ```
@@ -79,18 +79,18 @@ This library supports all geometries that are implemented in the original solver
 ## Point, Line, Circle
    
 ```ts
-{ id: 1, type: 'point', x: 10, y: 10, fixed: false },
-{ id: 2, type: 'point', x: 0, y: 0, fixed: false }
+{ id: '1', type: 'point', x: 10, y: 10, fixed: false },
+{ id: '2', type: 'point', x: 0, y: 0, fixed: false }
 ```
 When `fixed` is set to true, then the point's coordinates are not changed during solving.
 
 ```ts
-{ id: 3, type: 'line', p1_id: 1, p2_id: 2 }
+{ id: '3', type: 'line', p1_id: '1', p2_id: '2' }
 ```
 A line is defined by two points, which must have lower ids.
 
 ```ts
-{ id: 4, type: 'circle', c_id: CENTER_POINT_ID, radius: 100 }
+{ id: '4', type: 'circle', c_id: CENTER_POINT_ID, radius: 100 }
 ```
 
 ## Arc
@@ -98,11 +98,11 @@ A line is defined by two points, which must have lower ids.
 An arc requires three points to be defined (center, start, end) and a subsequent planegcs-specific constraint `arc_rules` that keeps the endpoints (start_id, end_id) aligned with the start_angle and end_angle.
 
 ```ts
-{ id: 5, type: 'arc', c_id: CENTER_POINT_ID, radius: 100,
+{ id: '5', type: 'arc', c_id: CENTER_POINT_ID, radius: 100,
  start_angle: 0, end_angle: Math.PI / 2,
  start_id: START_POINT_ID, end_id: END_POINT_ID }
 
-{ id: 6, type: 'arc_rules', a_id: 5  }
+{ id: '6', type: 'arc_rules', a_id: '5'  }
 ```
 
 ## Ellipse
@@ -110,7 +110,7 @@ An arc requires three points to be defined (center, start, end) and a subsequent
 An ellipse is represented in planegcs by its minor radius (length of the semi-minor axis) and F1 (one of its focal points):
 
 ```ts
-{ id: 7, type: 'ellipse', c_id: CENTER_POINT_ID, focus1_id: F1_POINT_ID, radmin: 100 }
+{ id: '7', type: 'ellipse', c_id: CENTER_POINT_ID, focus1_id: F1_POINT_ID, radmin: 100 }
 ```
 
 ![ellipse](https://upload.wikimedia.org/wikipedia/commons/9/96/Ellipse-def0.svg)
@@ -118,8 +118,8 @@ An ellipse is represented in planegcs by its minor radius (length of the semi-mi
 The ellipse can be further constrained using planegcs-internal constraints for the major and minor diameters:
 
 ```ts
-{ id: 8, type: 'internal_alignment_ellipse_major_diameter', e_id: 7, p1_id: ..., p2_id: ...}
-{ id: 9, type: 'internal_alignment_ellipse_minor_diameter', e_id: 7, p1_id: ..., p2_id: ...}
+{ id: '8', type: 'internal_alignment_ellipse_major_diameter', e_id: '7', p1_id: ..., p2_id: ...}
+{ id: '9', type: 'internal_alignment_ellipse_minor_diameter', e_id: '7', p1_id: ..., p2_id: ...}
 ```
 
 ## Elliptical arc
@@ -127,11 +127,11 @@ The ellipse can be further constrained using planegcs-internal constraints for t
 The elliptical arc again requires another constraint to keep the start/end points aligned:
 
 ```ts
-{ id: 10, type: 'arc_of_ellipse', c_id: CENTER_POINT_ID, focus1_id: F1_POINT_ID,
+{ id: '10', type: 'arc_of_ellipse', c_id: CENTER_POINT_ID, focus1_id: F1_POINT_ID,
   radmin: 100, start_angle: 0, end_angle: Math.PI / 2,
   start_id: START_POINT_ID, end_id: END_POINT_ID }
 
-{ id: 11, type: 'arc_of_ellipse_rules', a_id: 10 }
+{ id: '11', type: 'arc_of_ellipse_rules', a_id: '10' }
 ```
 
 Same as for the ellipse, it can be constrained by the major/minor diameter alignment constraints.
@@ -152,25 +152,25 @@ The values of the constraints can be set direclty as a number, reference a sketc
 
 1. Parameter value as a number:
 ```ts
-{ id: 3, type: 'p2p_distance', p1_id: 1, p2_id: 2, distance: 100 }
+{ id: '3', type: 'p2p_distance', p1_id: '1', p2_id: '2', distance: 100 }
 ```
 
 2. Parameter value as a reference to a sketch parameter:
 ```ts
-{ id: 3, type: 'p2p_angle', p1_id: 1, p2_id: 2, angle: 'my_distance' }
+{ id: '3', type: 'p2p_angle', p1_id: '1', p2_id: '2', angle: 'my_distance' }
 ```
 
-3. Parameter value as a reference to a propert of a geometry with ID o_id
+3. Parameter value as a reference to a property of a geometry with ID o_id
 ```ts
 { 
-   id: 3, 
+   id: '3', 
    type: 'difference',
    param1: {
-      o_id: 1,
+      o_id: '1',
       prop: 'x',
    },
    param2: {
-      o_id: 2,
+      o_id: '2',
       prop: 'y',
    },
    difference: 100,
@@ -180,11 +180,11 @@ Currently, the object referenced with o_id can be only a geometry, referencing c
 
 ## Driving, Temporary flags and Scale
 
-Each constraint has following (optional properties):
+Each constraint has following (optional) properties:
 
 - `driving` (default true) - if set to false, then the constraint doesn't influence the geometries during solving, but instead can be used for measurements
 
-- `temporary` (default false) - if set to true, then the constraint is only enforced so much that it doesn't conflict with other constraints. This is useful for constraints for mouse dragging in a Sketcher user interface. Temporary constraints don't reduce DOF.
+- `temporary` (default false) - if set to true, then the constraint is only enforced so much that it doesn't conflict with other constraints. This is useful for constraints for mouse dragging in a Sketcher user interface. Temporary constraints don't reduce DOF. The presence of temporary constraints changes the algorithm used for solving in planegcs, regardless of the configured algorithm.
 
 - `scale` (default 1) - sets the scale for an error of a constraint. Scale lower than 1 makes the constraint less prioritized by the solver and vice versa.
 
