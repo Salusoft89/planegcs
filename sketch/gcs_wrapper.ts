@@ -441,6 +441,11 @@ export class GcsWrapper {
             throw new Error(`unknown constraint type: ${c.type}`);
         }
 
+        let numeric_tag_id = -1;
+        if (!c.temporary) {
+            numeric_tag_id = this.sketch_index.counter + 1;
+        }
+
         for (const parameter of Object.keys(constraint_params)) {
             const type = constraint_params[parameter];
             if (type === undefined) {
@@ -449,7 +454,7 @@ export class GcsWrapper {
 
             // parameters with default values
             if (parameter === 'tagId') {
-                add_constraint_args.push(c.temporary === true ? -1 : c.id);
+                add_constraint_args.push(numeric_tag_id);
                 continue;
             }
             if (parameter === 'driving') {
@@ -487,7 +492,7 @@ export class GcsWrapper {
                     const param_addr = this.get_primitive_addr(val.o_id) + get_property_offset(ref_primitive.type, val.prop);
                     add_constraint_args.push(param_addr);
                 }
-            } else if (type === 'object_id' && typeof val === 'number') {
+            } else if (type === 'object_id' && typeof val === 'string') {
                 const obj = this.sketch_index.get_primitive_or_fail(val);
                 const gcs_obj = this.sketch_primitive_to_gcs(obj);
                 add_constraint_args.push(gcs_obj);
@@ -524,18 +529,17 @@ export class GcsWrapper {
         }
     }
 
-    // id can be -1 for extra constraints
-    delete_constraint_by_id(id: number): boolean {
-        if (id !== -1) {
-            const item = this.sketch_index.get_primitive(id);
-            if (item !== undefined && !is_sketch_geometry(item)) {
-                throw new Error(`object #${id} (${item.type}) is not a constraint (delete_constraint_by_id)`);
-            }
-        }
+    // delete_constraint_by_id(id: oid): boolean {
+    //     if (id !== '-1') {
+    //         const item = this.sketch_index.get_primitive(id);
+    //         if (item !== undefined && !is_sketch_geometry(item)) {
+    //             throw new Error(`object #${id} (${item.type}) is not a constraint (delete_constraint_by_id)`);
+    //         }
+    //     }
 
-        this.gcs.clear_by_id(id);
-        return this.sketch_index.delete_primitive(id);
-    }
+    //     this.gcs.clear_by_id(id);
+    //     return this.sketch_index.delete_primitive(id);
+    // }
 
     private get_primitive_addr(id: oid): number {
         const addr = this.p_param_index.get(id);

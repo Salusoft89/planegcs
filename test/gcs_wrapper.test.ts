@@ -69,22 +69,22 @@ describe("basic: gcs_wrapper", () => {
     });
 
     it("calls gcs when pushing a point", () => {
-        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 3, y: 4, fixed: true});
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 3, y: 4, fixed: true});
         expect(gcs.push_p_param).toHaveBeenNthCalledWith(1, 3, true)
         expect(gcs.push_p_param).toHaveBeenNthCalledWith(2, 4, true)
         expect(gcs.push_p_param).toHaveBeenCalledTimes(2);
     });
 
     it("calls gcs when pushing a line", () => {
-        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: true});
-        gcs_wrapper.push_primitive({type: 'point', id: 2, x: 0, y: 0, fixed: true});
-        gcs_wrapper.push_primitive({type: 'line', id: 3, p1_id: 1, p2_id: 2});
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 0, y: 0, fixed: true});
+        gcs_wrapper.push_primitive({type: 'point', id: '2', x: 0, y: 0, fixed: true});
+        gcs_wrapper.push_primitive({type: 'line', id: '3', p1_id: '1', p2_id: '2'});
         expect(gcs.push_p_param).toHaveBeenCalledTimes(4);
     });
 
     it("calls gcs when pushing a circle", () => {
-        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: true});
-        gcs_wrapper.push_primitive({type: 'circle', id: 2, c_id: 1, radius: 3});
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 0, y: 0, fixed: true});
+        gcs_wrapper.push_primitive({type: 'circle', id: '2', c_id: '1', radius: 3});
         expect(gcs.push_p_param).toHaveBeenNthCalledWith(1, 0, true)
         expect(gcs.push_p_param).toHaveBeenNthCalledWith(2, 0, true)
         expect(gcs.push_p_param).toHaveBeenNthCalledWith(3, 3, false)
@@ -92,25 +92,25 @@ describe("basic: gcs_wrapper", () => {
     });
 
     it("calls gcs when pushing an arc", () => {
-        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: true});
-        gcs_wrapper.push_primitive({type: 'point', id: 2, x: 1, y: 2, fixed: true});
-        gcs_wrapper.push_primitive({type: 'point', id: 3, x: 10, y: 10, fixed: true});
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 0, y: 0, fixed: true});
+        gcs_wrapper.push_primitive({type: 'point', id: '2', x: 1, y: 2, fixed: true});
+        gcs_wrapper.push_primitive({type: 'point', id: '3', x: 10, y: 10, fixed: true});
 
         const arc = { delete: vi.fn() };
         vi.spyOn(gcs, 'make_arc').mockReturnValueOnce(arc);
 
-        gcs_wrapper.push_primitive({type: 'arc', id: 4, c_id: 1, start_id: 2, end_id: 3, start_angle: 0, end_angle: 0, radius: 1});
+        gcs_wrapper.push_primitive({type: 'arc', id: '4', c_id: '1', start_id: '2', end_id: '3', start_angle: 0, end_angle: 0, radius: 1});
 
         expect(gcs.push_p_param).toHaveBeenCalledTimes(3 * 2 + 3);
     });
 
     it("calls add_constraint_equal method when adding an equal constraint", () => {
         const o1_p1_addr = gcs.params_size();
-        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: false});
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 0, y: 0, fixed: false});
         expect(gcs.push_p_param).toHaveBeenCalledTimes(2);
 
         const value_addr = gcs.params_size();
-        gcs_wrapper.push_primitive({type: 'equal', id: 2, param1: { o_id: 1, prop: 'x' }, param2: 5});
+        gcs_wrapper.push_primitive({type: 'equal', id: '2', param1: { o_id: '1', prop: 'x' }, param2: 5});
         expect(gcs.push_p_param).toHaveBeenCalledTimes(3);
         expect(gcs.push_p_param).toHaveBeenLastCalledWith(5, true);
 
@@ -120,9 +120,9 @@ describe("basic: gcs_wrapper", () => {
 
     it("calls add_constraint_equal with driving parameter and internal constraint when provided", () => {
         const o1_p1_addr = gcs.params_size();
-        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: false});
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 0, y: 0, fixed: false});
         const value_addr = gcs.params_size();
-        gcs_wrapper.push_primitive({type: 'equal', id: 2, param1: { o_id: 1, prop: 'x' }, param2: 5, driving: false, internalalignment: Constraint_Alignment.InternalAlignment});
+        gcs_wrapper.push_primitive({type: 'equal', id: '2', param1: { o_id: '1', prop: 'x' }, param2: 5, driving: false, internalalignment: Constraint_Alignment.InternalAlignment});
 
         const tag = 2; 
         expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, tag, false, 1, 1);
@@ -130,21 +130,21 @@ describe("basic: gcs_wrapper", () => {
 
     it("calls add_constraint_equal with temporary tag -1 and different scale", () => {
         const o1_p1_addr = gcs.params_size();
-        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: false});
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 0, y: 0, fixed: false});
         const value_addr = gcs.params_size();
         const scale = 0.01;
-        gcs_wrapper.push_primitive({type: 'equal', id: 2, param1: { o_id: 1, prop: 'x' }, param2: 5, temporary: true, scale});
+        gcs_wrapper.push_primitive({type: 'equal', id: '2', param1: { o_id: '1', prop: 'x' }, param2: 5, temporary: true, scale});
 
         const TEMPORARY_TAG = -1;
         expect(gcs.add_constraint_equal).toHaveBeenCalledWith(o1_p1_addr, value_addr, TEMPORARY_TAG, true, 0, scale);
     });
 
     it("calls add_constraint_angle_via_point when adding a constraint (with shuffled arguments)", () => {
-        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: false});
-        gcs_wrapper.push_primitive({type: 'point', id: 2, x: 1, y: 2, fixed: false});
-        gcs_wrapper.push_primitive({type: 'line', id: 3, p1_id: 1, p2_id: 2});
-        gcs_wrapper.push_primitive({type: 'point', id: 4, x: 10, y: 10, fixed: false});
-        gcs_wrapper.push_primitive({type: 'arc', id: 5, c_id: 1, start_id: 2, end_id: 4, start_angle: 0, end_angle: 0, radius: 1});
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 0, y: 0, fixed: false});
+        gcs_wrapper.push_primitive({type: 'point', id: '2', x: 1, y: 2, fixed: false});
+        gcs_wrapper.push_primitive({type: 'line', id: '3', p1_id: '1', p2_id: '2'});
+        gcs_wrapper.push_primitive({type: 'point', id: '4', x: 10, y: 10, fixed: false});
+        gcs_wrapper.push_primitive({type: 'arc', id: '5', c_id: '1', start_id: '2', end_id: '4', start_angle: 0, end_angle: 0, radius: 1});
         
         const line = { delete: vi.fn() };
         const point = { delete: vi.fn() };
@@ -155,11 +155,11 @@ describe("basic: gcs_wrapper", () => {
         vi.spyOn(gcs, 'make_arc').mockReturnValueOnce(arc);
 
         gcs_wrapper.push_primitive({
-            id: 6,
-            crv1_id: 3, // Line
+            id: '6',
+            crv1_id: '3', // Line
             angle: Math.PI / 2,
-            crv2_id: 5, // Arc
-            p_id: 4,
+            crv2_id: '5', // Arc
+            p_id: '4',
             type: 'angle_via_point'
         });
 
@@ -181,10 +181,10 @@ describe("basic: gcs_wrapper", () => {
     });
 
     it('updates the solved_sketch_index after calling solve', () => {
-        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: false});
-        gcs_wrapper.push_primitive({type: 'point', id: 2, x: 1, y: 2, fixed: false});
-        gcs_wrapper.push_primitive({type: 'line', id: 3, p1_id: 1, p2_id: 2});
-        gcs_wrapper.push_primitive({type: 'circle', id: 4, c_id: 1, radius: 3});
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 0, y: 0, fixed: false});
+        gcs_wrapper.push_primitive({type: 'point', id: '2', x: 1, y: 2, fixed: false});
+        gcs_wrapper.push_primitive({type: 'line', id: '3', p1_id: '1', p2_id: '2'});
+        gcs_wrapper.push_primitive({type: 'circle', id: '4', c_id: '1', radius: 3});
 
         const old_primitivs = gcs_wrapper.sketch_index.get_primitives();
         expect(old_primitivs).toHaveLength(4);
@@ -217,11 +217,11 @@ describe("basic: gcs_wrapper", () => {
     });
 
     it("calls correctly the arc2arc perpendicular constraint with boolean parameters", () => {
-        gcs_wrapper.push_primitive({type: 'point', id: 1, x: 0, y: 0, fixed: false});
-        gcs_wrapper.push_primitive({type: 'point', id: 2, x: 1, y: 2, fixed: false});
-        gcs_wrapper.push_primitive({type: 'line', id: 3, p1_id: 1, p2_id: 2});
-        gcs_wrapper.push_primitive({type: 'point', id: 4, x: 10, y: 10, fixed: false});
-        gcs_wrapper.push_primitive({type: 'arc', id: 5, c_id: 1, start_id: 2, end_id: 4, start_angle: 0, end_angle: 0, radius: 1});
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 0, y: 0, fixed: false});
+        gcs_wrapper.push_primitive({type: 'point', id: '2', x: 1, y: 2, fixed: false});
+        gcs_wrapper.push_primitive({type: 'line', id: '3', p1_id: '1', p2_id: '2'});
+        gcs_wrapper.push_primitive({type: 'point', id: '4', x: 10, y: 10, fixed: false});
+        gcs_wrapper.push_primitive({type: 'arc', id: '5', c_id: '1', start_id: '2', end_id: '4', start_angle: 0, end_angle: 0, radius: 1});
 
         const line = { delete: vi.fn() };
         const point = { delete: vi.fn() };
@@ -232,9 +232,9 @@ describe("basic: gcs_wrapper", () => {
 
         gcs_wrapper.push_primitive({
             type: 'perpendicular_arc2arc',
-            id: 6,
-            a1_id: 5,
-            a2_id: 5,
+            id: '6',
+            a1_id: '5',
+            a2_id: '5',
             reverse1: false,
             reverse2: true,
         }); 

@@ -18,7 +18,7 @@
 import type { Constraint } from '../planegcs_dist/constraints';
 
 // object id type
-export type oid = number;
+export type oid = string;
 
 interface Id {
 	id: oid;
@@ -120,7 +120,7 @@ export function is_sketch_constraint(primitive: SketchPrimitive | SketchParam | 
 export function get_referenced_sketch_params(p: SketchPrimitive): string[] {
 	const params: string[] = [];
 	for (const [key, val] of Object.entries(p)) {
-		if (key === 'type') {
+		if (key === 'type' || key === 'id' || key.endsWith('_id')) {
 			continue;
 		}
 		if (typeof val === 'string') {
@@ -130,19 +130,19 @@ export function get_referenced_sketch_params(p: SketchPrimitive): string[] {
 	return params;
 }
 
-export function for_each_referenced_id(p: SketchPrimitive, f: (id: number) => number | undefined) {
+export function for_each_referenced_id(p: SketchPrimitive, f: (id: oid) => oid | undefined) {
 	if (!is_sketch_constraint(p)) {
 		return;
 	}
 
 	for (const [key, val] of Object.entries(p)) {
-		if (key.endsWith('_id') && typeof val === 'number') {
+		if (key.endsWith('_id') && typeof val === 'string') {
 			const new_val = f(val);
 			if (new_val !== undefined) {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				(p as any)[key] = f(val);
 			}
-		} else if (typeof val === 'object' && val !== null && 'o_id' in val && typeof val['o_id'] === 'number') {
+		} else if (typeof val === 'object' && val !== null && 'o_id' in val && typeof val['o_id'] === 'string') {
 			const new_o_id = f(val.o_id);
 			// some constraints have the o_id inside the object
 			// see e.g. difference constraint in horizontal/vertical distance tool
@@ -153,8 +153,8 @@ export function for_each_referenced_id(p: SketchPrimitive, f: (id: number) => nu
 	}
 }
 
-export function get_constrained_primitive_ids(p: SketchPrimitive): number[] {
-	const ids: number[] = [];
+export function get_constrained_primitive_ids(p: SketchPrimitive): oid[] {
+	const ids: string[] = [];
 	for_each_referenced_id(p, (id) => { ids.push(id); return undefined; });
 	return ids;
 }

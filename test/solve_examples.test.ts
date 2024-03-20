@@ -26,25 +26,25 @@ let gcs_factory: ModuleStatic;
 let gcs_wrapper: GcsWrapper;
 
 const sketch_fillet_overconstrained: SketchPrimitive[] = [
-    { id: 1, type: 'point', x: 10, y: 10, fixed: false },
+    { id: '1', type: 'point', x: 10, y: 10, fixed: false },
     // this is an extra constraint
-    { id: 2, type: 'equal', param1: { o_id: 1, prop: 'x' }, param2: 'fillet_radius' },
-    { id: 3, type: 'equal', param1: { o_id: 1, prop: 'y' }, param2: 0 },
+    { id: '2', type: 'equal', param1: { o_id: '1', prop: 'x' }, param2: 'fillet_radius' },
+    { id: '3', type: 'equal', param1: { o_id: '1', prop: 'y' }, param2: 0 },
 
-    { id: 4, type: 'point', x: 10, y: 10, fixed: false },
-    { id: 5, type: 'equal', param1: { o_id: 4, prop: 'x' }, param2: 0 },
+    { id: '4', type: 'point', x: 10, y: 10, fixed: false },
+    { id: '5', type: 'equal', param1: { o_id: '4', prop: 'x' }, param2: 0 },
     // this is also an extra constraint
-    { id: 6, type: 'equal', param1: { o_id: 4, prop: 'y' }, param2: 'fillet_radius' },
+    { id: '6', type: 'equal', param1: { o_id: '4', prop: 'y' }, param2: 'fillet_radius' },
 
     // add center point
-    { id: 7, type: 'point', x: 10, y: 10, fixed: false },
-    { id: 8, type: 'equal', param1: { o_id: 7, prop: 'x' }, param2: 'fillet_radius' },
-    { id: 9, type: 'equal', param1: { o_id: 7, prop: 'y' }, param2: 'fillet_radius' },
+    { id: '7', type: 'point', x: 10, y: 10, fixed: false },
+    { id: '8', type: 'equal', param1: { o_id: '7', prop: 'x' }, param2: 'fillet_radius' },
+    { id: '9', type: 'equal', param1: { o_id: '7', prop: 'y' }, param2: 'fillet_radius' },
 
     // add arc
-    { id: 10, type: 'arc', start_id: 4, end_id: 1, radius: 1, start_angle: 1, end_angle: 1, c_id: 7 },
-    { id: 11, type: 'arc_rules', a_id: 10 },
-    { id: 12, type: 'equal', param1: { o_id: 10, prop: 'radius' }, param2: 'fillet_radius' }
+    { id: '10', type: 'arc', start_id: '4', end_id: '1', radius: 1, start_angle: 1, end_angle: 1, c_id: '7' },
+    { id: '11', type: 'arc_rules', a_id: '10' },
+    { id: '12', type: 'equal', param1: { o_id: '10', prop: 'radius' }, param2: 'fillet_radius' }
 ];
 
 
@@ -87,9 +87,9 @@ describe("gcs_wrapper", () => {
 
     it("should solve basic circle", () => {
         const circle_radius_sketch: SketchPrimitive[] = [
-            { id: 1, type: 'point', x: 10, y: 10, fixed: true },
-            { id: 2, type: 'circle', c_id: 1, radius: 1},
-            { id: 3, type: 'equal', param1: { o_id: 2, prop: 'radius' }, param2: 100 }
+            { id: '1', type: 'point', x: 10, y: 10, fixed: true },
+            { id: '2', type: 'circle', c_id: '1', radius: 1},
+            { id: '3', type: 'equal', param1: { o_id: '2', prop: 'radius' }, param2: 100 }
         ];
 
         for (const obj of circle_radius_sketch) {
@@ -99,7 +99,7 @@ describe("gcs_wrapper", () => {
         gcs_wrapper.solve();
         gcs_wrapper.apply_solution();
 
-        const circle = gcs_wrapper.sketch_index.get_sketch_circle(2);
+        const circle = gcs_wrapper.sketch_index.get_sketch_circle('2');
         expect(circle?.radius).toBe(100);
     });
 });
