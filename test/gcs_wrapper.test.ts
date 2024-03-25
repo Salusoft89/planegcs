@@ -20,8 +20,9 @@ import { GcsSystemMock } from "../planegcs_dist/gcs_system_mock";
 vi.mock('../planegcs_dist/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
-import { Constraint_Alignment } from "../planegcs_dist/gcs_system";
+import { Constraint_Alignment, IntVector } from "../planegcs_dist/gcs_system";
 import type { SketchCircle, SketchPoint } from '../sketch/sketch_primitive';
+import { arr_to_intvec } from '../sketch/emsc_vectors';
 
 let gcs_wrapper: GcsWrapper;
 let gcs: GcsSystemMock;
@@ -238,5 +239,24 @@ describe("basic: gcs_wrapper", () => {
             reverse1: false,
             reverse2: true,
         }); 
+    });
+
+    it("translates redundant constraints from gcs number ids to primitive string ids", () => {
+        const redundant = [2, 3];
+
+        vi.spyOn(gcs, 'get_redundant').mockReturnValueOnce({
+            get: (index: number) => redundant[index],
+            size: () => redundant.length,
+            delete: () => vi.fn(),
+            push_back: vi.fn()
+        });
+
+        gcs_wrapper.push_primitive({type: 'point', id: '1', x: 0, y: 0, fixed: false});
+        gcs_wrapper.push_primitive({type: 'equal', id: '2-equal', param1: { o_id: '1', prop: 'x' }, param2: 5});
+        gcs_wrapper.push_primitive({type: 'equal', id: '3-equal', param1: { o_id: '1', prop: 'x' }, param2: 5});
+
+        const redundant_ids = gcs_wrapper.get_gcs_redundant_constraints();
+
+        expect(redundant_ids).toEqual(['2-equal', '3-equal']);
     });
 });

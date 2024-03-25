@@ -150,16 +150,22 @@ export class GcsWrapper {
         return emsc_vec_to_arr(this.gcs.get_p_params());
     }
 
-    get_gcs_conflicting_constraints(): number[] {
-        return emsc_vec_to_arr(this.gcs.get_conflicting());
+    get_gcs_conflicting_constraints(): string[] {
+        return emsc_vec_to_arr(this.gcs.get_conflicting()).map(
+            (i) => this.sketch_index.get_id_by_index(i)
+        );
     }
 
-    get_gcs_redundant_constraints(): number[] {
-        return emsc_vec_to_arr(this.gcs.get_redundant());
+    get_gcs_redundant_constraints(): string[] {
+        return emsc_vec_to_arr(this.gcs.get_redundant()).map(
+            (i) => this.sketch_index.get_id_by_index(i)
+        );
     }
 
-    get_gcs_partially_redundant_constraints(): number[] {
-        return emsc_vec_to_arr(this.gcs.get_partially_redundant());
+    get_gcs_partially_redundant_constraints(): string[] {
+        return emsc_vec_to_arr(this.gcs.get_partially_redundant()).map(
+            (i) => this.sketch_index.get_id_by_index(i)
+        );
     }
 
     has_gcs_conflicting_constraints(): boolean {
@@ -432,7 +438,7 @@ export class GcsWrapper {
             }
     }
 
-    push_constraint(c: Constraint) {
+    private push_constraint(c: Constraint) {
         const add_constraint_args: (string|number|boolean|GcsGeometry)[] = [];
         const deletable: GcsGeometry[] = [];
 
@@ -443,7 +449,7 @@ export class GcsWrapper {
 
         let numeric_tag_id = -1;
         if (!c.temporary) {
-            numeric_tag_id = this.sketch_index.counter + 1;
+            numeric_tag_id = this.sketch_index.counter() + 1;
         }
 
         for (const parameter of Object.keys(constraint_params)) {

@@ -72,7 +72,7 @@ export abstract class SketchIndexBase {
 
 export class SketchIndex extends SketchIndexBase {
     index: Map<oid, SketchPrimitive> = new Map();
-    counter = 0;
+    primitive_ids: oid[] = [];
 
     has(id: oid): boolean {
         return this.index.has(id);
@@ -84,10 +84,7 @@ export class SketchIndex extends SketchIndexBase {
 
     set_primitive(obj: SketchPrimitive): void {
         if (!this.has(obj.id)) {
-            if (this.counter === Number.MAX_SAFE_INTEGER) {
-                throw new Error('sketch index counter overflow');
-            }
-            this.counter++;
+            this.primitive_ids.push(obj.id);
         }
 
         this.index.set(obj.id, obj);
@@ -101,8 +98,16 @@ export class SketchIndex extends SketchIndexBase {
         return Array.from(this.index.values());
     }
 
+    get_id_by_index(index: number): oid {
+        return this.primitive_ids[index - 1];
+    }
+
     clear(): void {
         this.index.clear();
-        this.counter = 0;
+        this.primitive_ids = [];
+    }
+
+    counter(): number {
+        return this.primitive_ids.length;
     }
 }
