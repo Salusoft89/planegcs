@@ -144,7 +144,7 @@ Defined similarly to an ellipse/elliptical arc. See the type definitions in `ske
 
 B-Spline from planegcs is currently not yet fully supported. (WIP)
 
-# Constaints
+# Constraints
 
 Planegcs supports a wide range of constraints. All available constraint types are in `planegcs_dist/constraints.ts`.
 
