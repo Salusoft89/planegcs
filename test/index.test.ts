@@ -16,7 +16,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import { it, describe, expect } from 'vitest';
-import { GcsWrapper, make_gcs_wrapper } from "..";
+import { GcsWrapper, make_gcs_wrapper } from "../index";
 
 describe('make_gcs_wrapper', () => {
     it('should return a GcsWrapper', async () => {
