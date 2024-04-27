@@ -10,6 +10,7 @@ This repository includes two PDF documents created by members of the FreeCAD com
 - [x] All constraints from planegcs (see `planegcs_dist/constraints.ts`)
 - [x] Reference sketch parametries or geometry properties in the constraints
 - [x] Non-driving and temporary constraints
+- [x] Validation code for sketch primitives (in a separate library [planegcs-validation](https://github.com/Salusoft89/planegcs-validation)) 
 - [ ] Higher-level data model (WIP)
 - [ ] B-Spline
 - [ ] Multithreading execution of QR decomposition (GcsSystem.cpp:4811,4883)
