@@ -16,13 +16,8 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import type { Constraint } from '../planegcs_dist/constraints';
+import type { oid, Id } from '../planegcs_dist/id';
 
-// object id type
-export type oid = string;
-
-interface Id {
-	id: oid;
-}
 interface IArc {
 	start_id: oid;
 	end_id: oid;

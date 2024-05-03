@@ -19,11 +19,12 @@ import type { Constraint, ConstraintParamType } from "../planegcs_dist/constrain
 import { constraint_param_index } from "../planegcs_dist/constraint_param_index.js";
 import { SketchIndex } from "./sketch_index.js";
 import { emsc_vec_to_arr } from "./emsc_vectors.js";
-import type { oid, SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam, SketchHyperbola, SketchArcOfHyperbola, SketchParabola, SketchArcOfParabola } from "./sketch_primitive";
+import type {  SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam, SketchHyperbola, SketchArcOfHyperbola, SketchParabola, SketchArcOfParabola } from "./sketch_primitive";
 import { is_sketch_geometry } from "./sketch_primitive.js";
 import { type GcsGeometry, type GcsSystem } from "../planegcs_dist/gcs_system.js";
 import { Algorithm, Constraint_Alignment, SolveStatus, DebugMode } from "../planegcs_dist/enums";
 import get_property_offset, { property_offsets } from "./geom_params.js";
+import { oid } from "../planegcs_dist/id";
 
 export class GcsWrapper { 
     gcs: GcsSystem;

@@ -18,12 +18,7 @@
 
 import { SketchGeometryProperty } from "../sketch/geom_params";
 import { {% for enum_name in import_enums %}{{ enum_name }}, {% endfor -%} } from "./enums";
-
-export type oid = string;
-
-interface Id {
-    id: oid;
-}
+import type { oid, Id } from "./id";
 
 interface ObjectParam {
     o_id: oid;
