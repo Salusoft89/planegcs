@@ -16,6 +16,8 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import { {% for enum_name in import_enums %}{{ enum_name }}, {% endfor -%} } from "./enums";
+
 export interface DoubleVector {
     get: (i: number) => number;
     size: () => number;
@@ -40,15 +42,6 @@ export interface {{ cls.name }} {
 {%- endfor %}
 
 export type GcsGeometry = {% for cls in geom_classes %}{{ cls.name }}{% if not loop.last %} | {% endif %}{% endfor %};
-
-{% for enum in enums %}
-export const {{ enum.name | replace('::', '_') }} = {
-    {% for val in enum.values -%}
-    {{ val.name }}: {{ val.value }},
-    {% endfor %}
-} as const;
-export type {{ enum.name | replace('::', '_') }} = {% for val in enum.values %}{{ val.value }}{% if not loop.last %} | {% endif %}{% endfor %};
-{% endfor -%}
 
 export interface GcsSystem {
 {% for func in fn_ts_bindings %}

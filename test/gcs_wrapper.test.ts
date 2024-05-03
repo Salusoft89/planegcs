@@ -20,7 +20,7 @@ import { GcsSystemMock } from "../planegcs_dist/gcs_system_mock";
 vi.mock('../planegcs_dist/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
-import { Constraint_Alignment } from "../planegcs_dist/gcs_system";
+import { Constraint_Alignment } from "../planegcs_dist/enums";
 import type { SketchCircle, SketchPoint } from '../sketch/sketch_primitive';
 
 let gcs_wrapper: GcsWrapper;

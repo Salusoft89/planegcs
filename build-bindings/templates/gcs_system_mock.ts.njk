@@ -21,10 +21,8 @@ import type {
     {% for cls in geom_classes -%}
     {{ cls.name }},
     {%- endfor %}
-    {% for enum in enums -%}
-    {{ enum.name | replace('::', '_') }},
-    {%- endfor %}
 } from "./gcs_system";
+import { {% for enum_name in import_enums %}{{ enum_name }}, {% endfor -%} } from "./enums";
 
 export class GcsSystemMock implements GcsSystem {
     {%- for func in fn_ts_bindings %}

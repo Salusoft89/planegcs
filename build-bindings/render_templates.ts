@@ -33,14 +33,11 @@ let fn_ts_bindings; // depends on generating bindings.cpp first
 const args = process.argv.slice(2);
 const input_outputs = arrToNTuples(args, 2);
 
+const import_enums = ['InternalAlignmentType', 'Constraint_Alignment'];
+
 for (const [ template, output_file ] of input_outputs) {
     if (template === 'gcs_system.ts.njk') {
         fn_ts_bindings = getFunctionTypesTypescript();
-    }
-
-    let import_enums: string[] = [];
-    if (template === 'constraints.ts.njk') {
-        import_enums = ['InternalAlignmentType', 'Constraint_Alignment'];
     }
 
     const output_str = nunjucks.render(filePath(`templates/${template}`), { fn_constraints, enums, fn_ts_bindings, geom_classes, import_enums } );

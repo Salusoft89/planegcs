@@ -17,7 +17,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import { SketchGeometryProperty } from "../sketch/geom_params";
-import { {% for enum_name in import_enums %}{{ enum_name }}, {% endfor -%} } from "./gcs_system";
+import { {% for enum_name in import_enums %}{{ enum_name }}, {% endfor -%} } from "./enums";
 
 export type oid = string;
 

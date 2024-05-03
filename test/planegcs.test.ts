@@ -17,11 +17,12 @@
 
 import { it, describe, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import PlanegcsWasm from '../planegcs_dist/planegcs.js';
-import { Algorithm, DebugMode, SolveStatus, type GcsSystem } from '../planegcs_dist/gcs_system';
+import { Algorithm, DebugMode, SolveStatus } from '../planegcs_dist/enums.js';
 import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
 import { arr_to_intvec, emsc_vec_to_arr } from '../sketch/emsc_vectors.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
 import { test_params, test_sketch } from './test_data.js';
+import type { GcsSystem } from '../planegcs_dist/gcs_system.js';
 
 let gcs_factory: ModuleStatic;
 let gcs: GcsSystem; 

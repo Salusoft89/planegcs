@@ -17,7 +17,7 @@
 
 import { vi, it, describe, expect, beforeAll, beforeEach } from 'vitest';
 import PlanegcsWasm from '../planegcs_dist/planegcs.js';
-import { Algorithm, DebugMode, SolveStatus } from '../planegcs_dist/gcs_system.js';
+import { Algorithm, DebugMode, SolveStatus } from '../planegcs_dist/enums.js';
 import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
 import type { SketchPrimitive } from '../sketch/sketch_primitive.js';

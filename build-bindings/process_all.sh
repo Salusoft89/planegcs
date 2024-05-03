@@ -23,6 +23,7 @@ mkdir -p ../planegcs_dist
 
 npx tsx ./render_templates.ts \
      gcs_system.cpp.njk ../planegcs/bindings.cpp \
+     enums.ts.njk ../planegcs_dist/enums.ts \
      gcs_system.ts.njk ../planegcs_dist/gcs_system.ts \
      gcs_system_mock.ts.njk ../planegcs_dist/gcs_system_mock.ts \
      constraints.ts.njk ../planegcs_dist/constraints.ts \
