@@ -42,11 +42,12 @@ export interface {{ cls.name }} {
 export type GcsGeometry = {% for cls in geom_classes %}{{ cls.name }}{% if not loop.last %} | {% endif %}{% endfor %};
 
 {% for enum in enums %}
-export enum {{ enum.name | replace('::', '_') }} {
-    {% for value in enum.values -%}
-        {{ value.name }} = {{ value.value }},
-    {% endfor -%}
-}
+export const {{ enum.name | replace('::', '_') }} = {
+    {% for val in enum.values -%}
+    {{ val.name }}: {{ val.value }},
+    {% endfor %}
+} as const;
+export type {{ enum.name | replace('::', '_') }} = {% for val in enum.values %}{{ val.value }}{% if not loop.last %} | {% endif %}{% endfor %};
 {% endfor -%}
 
 export interface GcsSystem {

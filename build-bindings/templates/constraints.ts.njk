@@ -17,6 +17,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import { SketchGeometryProperty } from "../sketch/geom_params";
+import { {% for enum_name in import_enums %}{{ enum_name }}, {% endfor -%} } from "./gcs_system";
 
 export type oid = string;
 
@@ -28,13 +29,6 @@ interface ObjectParam {
     o_id: oid;
     prop: SketchGeometryProperty;
 }
-{% for enum in enums %}
-enum {{ enum.name | replace('::', '_') }} {
-    {% for val in enum.values -%}
-    {{ val.name }} = {{ val.value }},
-    {% endfor %}
-}
-{% endfor -%}
 
 {% for item in fn_constraints %}
 export interface {{ item.constraint_name }} extends Id {

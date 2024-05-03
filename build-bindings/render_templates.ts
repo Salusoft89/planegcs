@@ -38,6 +38,11 @@ for (const [ template, output_file ] of input_outputs) {
         fn_ts_bindings = getFunctionTypesTypescript();
     }
 
-    const output_str = nunjucks.render(filePath(`templates/${template}`), { fn_constraints, enums, fn_ts_bindings, geom_classes } );
+    let import_enums: string[] = [];
+    if (template === 'constraints.ts.njk') {
+        import_enums = ['InternalAlignmentType', 'Constraint_Alignment'];
+    }
+
+    const output_str = nunjucks.render(filePath(`templates/${template}`), { fn_constraints, enums, fn_ts_bindings, geom_classes, import_enums } );
     fs.writeFileSync(filePath(output_file), output_str);
 }
