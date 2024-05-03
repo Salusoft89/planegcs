@@ -31,8 +31,8 @@ export class GcsWrapper {
     private sketch_param_index: Map<string, number> = new Map(); // param key -> index in gcs params
     private enable_equal_optimization = false;
 
-    get debug_mode(): DebugMode {
-        return this.gcs.get_debug_mode();
+    get debug_mode() {
+        return this.gcs.get_debug_mode() as DebugMode;
     }
 
     set debug_mode(mode: DebugMode) {
@@ -119,8 +119,8 @@ export class GcsWrapper {
         }
     }
 
-    solve(algorithm: Algorithm = Algorithm.DogLeg): SolveStatus {
-        return this.gcs.solve_system(algorithm);
+    solve(algorithm: Algorithm = Algorithm.DogLeg) {
+        return this.gcs.solve_system(algorithm) as SolveStatus;
     }
 
     apply_solution() {
@@ -473,6 +473,8 @@ export class GcsWrapper {
                 continue;
             }
 
+            
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const val = (c as any)[parameter] as ConstraintParamType;
             const is_fixed = (c.driving ?? true);
             
@@ -515,6 +517,7 @@ export class GcsWrapper {
         }
 
         const c_name: string = c.type;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.gcs as any)[`add_constraint_${c_name}`](...add_constraint_args, c.scale ?? 1);
 
         // if something is set to be equal, then optimize this process by setting the parameter to the value directly
