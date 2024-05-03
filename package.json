@@ -26,7 +26,6 @@
 		"dist/planegcs_dist",
 		"dist/sketch",
 		"dist/index.*",
-
 		"planegcs_dist/*.ts",
 		"sketch/*.ts",
 		"index.ts"
@@ -34,19 +33,15 @@
 	"type": "module",
 	"scripts": {
 		"update-freecad": "cd ./planegcs && ./update_freecad.sh",
-
 		"build:bindings": "cd build-bindings && ./process_all.sh",
 		"build:docker": "docker build -t gcs_builder .",
 		"build:wasm:debug": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Debug && emmake make -j $(nproc)' && cp planegcs/bin/* planegcs_dist",
 		"build:wasm": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Release && emmake make -j $(nproc) && ls -lh bin' && cp planegcs/bin/* planegcs_dist",
-
 		"build:all": "npm run build:docker && npm run build:bindings && npm run build:wasm",
 		"build:all-debug": "npm run build:docker && npm run build:bindings && npm run build:wasm:debug",
-
 		"test": "vitest run --coverage",
 		"test:basic": "vitest run -t 'basic:' --coverage",
 		"test:watch": "vitest --coverage",
-
 		"prepack": "./prepack.sh"
 	},
 	"devDependencies": {
@@ -62,6 +57,6 @@
 		"tsx": "^4.7.1",
 		"typescript": "^5.4.3",
 		"vite": "^5.2.6",
-		"vitest": "^0.30.1"
+		"vitest": "^1.5.0"
 	}
 }
