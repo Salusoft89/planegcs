@@ -20,9 +20,8 @@ import { GcsSystemMock } from "../planegcs_dist/gcs_system_mock";
 vi.mock('../planegcs_dist/gcs_system_mock');
 import { SketchIndex } from "../sketch/sketch_index";
 import { GcsWrapper } from "../sketch/gcs_wrapper";
-import { Constraint_Alignment, IntVector } from "../planegcs_dist/gcs_system";
+import { Constraint_Alignment } from "../planegcs_dist/gcs_system";
 import type { SketchCircle, SketchPoint } from '../sketch/sketch_primitive';
-import { arr_to_intvec } from '../sketch/emsc_vectors';
 
 let gcs_wrapper: GcsWrapper;
 let gcs: GcsSystemMock;
