@@ -1,0 +1,106 @@
+# name: CI
+
+# on:
+#   push: 
+#     branches: ['main']
+#   pull_request:
+#     branches: ['main']
+
+# jobs:
+#   build_bindings:
+#     timeout-minutes: 10
+#     runs-on: ubuntu-22.04
+#     steps:
+#     - uses: actions/checkout@v3
+#     - uses: actions/setup-node@v3
+#       with:
+#         node-version: '18'
+#         cache: 'npm'
+
+#     - run: npm i ts-node -g # for the gcs:bindings script
+#     - run: npm install
+#     - run: npm run gcs:bindings
+#     - run: npm run test:basic # tests that don't require building the wasm
+#     - uses: actions/upload-artifact@v3
+#       with:
+#         name: bindings
+#         path: | 
+#           planegcs_dist
+#           planegcs/bindings.cpp
+
+#   build_wasm:
+#     needs: build_bindings
+#     timeout-minutes: 20
+#     runs-on: ubuntu-22.04
+#     steps:
+#     - name: Install Boost and Eigen3 dependencies required for compiling planegcs
+#       run: |
+#         sudo apt-get -qqy update
+#         sudo apt install -qqy libeigen3-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-test-dev libboost-filesystem-dev
+#         sudo mkdir -p /inc && sudo ln -sf /usr/include/boost /inc
+
+#     - name: Setup emscripten
+#       run: |
+#         sudo git clone https://github.com/emscripten-core/emsdk.git /bin/emsdk
+#         cd /bin/emsdk
+#         ls -als
+#         sudo -S chown -R $USER:$USER .
+#         ls -als
+#         ./emsdk install latest
+#         ./emsdk activate latest
+
+#     - uses: jwlawson/actions-setup-cmake@v1.13
+#     - uses: actions/checkout@v3
+
+#     - name: Download WASM files
+#       uses: actions/download-artifact@v3
+#       with:
+#         name: bindings
+
+#     - name: Build WASM
+#       run: |
+#         source /bin/emsdk/emsdk_env.sh 
+#         pushd planegcs
+#         emcmake cmake -DCMAKE_BUILD_TYPE=Release . && emmake make
+#         popd
+#         mv planegcs/bin/* planegcs_dist
+
+#     - uses: actions/setup-node@v3
+#       with:
+#         node-version: '18'
+#         cache: 'npm'
+
+#     - run: npm install
+#     - run: npm run test # now we can run the full test suite
+    
+#     - uses: actions/upload-artifact@v3
+#       with:
+#         name: compiled-wasm
+#         path: | 
+#           planegcs_dist/planegcs.js
+#           planegcs_dist/planegcs.wasm
+
+  # publish_npm:
+  #   needs: build_wasm
+  #   timeout-minutes: 20
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18'
+  #         cache: 'npm'
+
+  #     - name: Download bindings
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: bindings
+  #     - name: Download WASM files
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: compiled-wasm
+      
+  #     - run: npm install
+      # - run: npm publish
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
