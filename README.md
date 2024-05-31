@@ -217,3 +217,11 @@ To run a script that updates the FreeCAD source files, run `npm run update-freec
 # Tests
 
 The tests for the library are in the `test` folder and can be run with `npm test`. A subset of tests that doesn't require the compiled WebAssembly module can be run with `npm run test:basic`.
+
+
+# Further materials
+
+This library was a part of creating my thesis (included in the repo in `docs/sketcher-thesis.pdf`). Though it might be a bit outdated, this thesis
+describes how the UI for sketching was implemented using this library. The thesis also includes some background around the maths behind the numerical optimization methods used in this solver.
+
+A nicely prepared (interactive) resource about geometric constraint solving is [CAD in 1 hour](https://fab.cba.mit.edu/classes/865.24/topics/design-tools/#constraints) from an MIT course, accompanied by a [video lesson](https://mit.zoom.us/rec/share/mSbxXU1ap3euZp8TjonDAqmOeXrBUwPXN9e-dJ2e2kWVZ_HxQu6PQFhioWVrFPtt.O3SoIRlOUhdLGrsS).
