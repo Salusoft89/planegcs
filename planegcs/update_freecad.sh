@@ -56,6 +56,8 @@ npx tsx patch_file.ts GCS.cpp \
 
 npx tsx patch_file.ts headers/FCConfig.h "defined(linux)" "defined(unix)"
 
+npx tsx patch_file.ts headers/FCGlobal.h "#include <QtCore.h>" ""
+
 # add Boost flag to avoid using std::unary_function, which doesn't work with newer clang
 # https://github.com/boostorg/container_hash/issues/22
 npx tsx patch_file.ts GCS.cpp \
@@ -80,3 +82,12 @@ npx tsx patch_file.ts GCS.h \
 npx tsx patch_file.ts GCS.h \
      "class SketcherExport" \
      "class"
+
+npx tsx patch_file.ts Geo.h \
+     "#include \"../../SketcherGlobal.h\"" \
+     ""
+
+npx tsx patch_file.ts Geo.h \
+     "class SketcherExport" \
+     "class"
+
