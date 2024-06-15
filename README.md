@@ -51,7 +51,7 @@ The main class for working with planegcs is GcsWrapper and can be instantiated a
 ```js
 import { init_planegcs_module, GcsWrapper } from '@salusoft89/planegcs';
 async function init_gcs_wrapper() {
-	const mod = await init_planegcs_module();
+   const mod = await init_planegcs_module();
    const gcs_system_wasm = new mod.GcsSystem();
    const gcs_wrapper = new GcsWrapper(gcs_system_wasm);
    return gcs_wrapper;
