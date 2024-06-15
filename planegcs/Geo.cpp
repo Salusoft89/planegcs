@@ -32,16 +32,38 @@
 namespace GCS
 {
 
+//----------------Point
+int Point::PushOwnParams(VEC_pD& pvec)
+{
+    int cnt = 0;
+    pvec.push_back(x);
+    cnt++;
+    pvec.push_back(y);
+    cnt++;
+    return cnt;
+}
+
+void Point::ReconstructOnNewPvec(VEC_pD& pvec, int& cnt)
+{
+    x = pvec[cnt];
+    cnt++;
+    y = pvec[cnt];
+    cnt++;
+}
+
+//----------------DeriVector2
 DeriVector2::DeriVector2(const Point& p, const double* derivparam)
 {
     x = *p.x;
     y = *p.y;
     dx = 0.0;
     dy = 0.0;
-    if (derivparam == p.x)
+    if (derivparam == p.x) {
         dx = 1.0;
-    if (derivparam == p.y)
+    }
+    if (derivparam == p.y) {
         dy = 1.0;
+    }
 }
 
 double DeriVector2::length(double& dlength) const
@@ -71,8 +93,8 @@ DeriVector2 DeriVector2::getNormalized() const
         rtn.dx = dx / l;
         rtn.dy = dy / l;
         // next, remove the collinear part of dx,dy (make a projection onto a normal)
-        double dsc = rtn.dx * rtn.x + rtn.dy * rtn.y;// scalar product d*v
-        rtn.dx -= dsc * rtn.x;                       // subtract the projection
+        double dsc = rtn.dx * rtn.x + rtn.dy * rtn.y;  // scalar product d*v
+        rtn.dx -= dsc * rtn.x;                         // subtract the projection
         rtn.dy -= dsc * rtn.y;
         return rtn;
     }
@@ -88,8 +110,10 @@ double DeriVector2::scalarProd(const DeriVector2& v2, double* dprd) const
 
 DeriVector2 DeriVector2::divD(double val, double dval) const
 {
-    return DeriVector2(
-        x / val, y / val, dx / val - x * dval / (val * val), dy / val - y * dval / (val * val));
+    return DeriVector2(x / val,
+                       y / val,
+                       dx / val - x * dval / (val * val),
+                       dy / val - y * dval / (val * val));
 }
 
 double DeriVector2::crossProdNorm(const DeriVector2& v2, double& dprd) const
@@ -252,7 +276,10 @@ Arc* Arc::Copy()
 //--------------ellipse
 
 // this function is exposed to allow reusing pre-filled derivectors in constraints code
-double Ellipse::getRadMaj(const DeriVector2& center, const DeriVector2& f1, double b, double db,
+double Ellipse::getRadMaj(const DeriVector2& center,
+                          const DeriVector2& f1,
+                          double b,
+                          double db,
                           double& ret_dRadMaj) const
 {
     double cf, dcf;
@@ -261,8 +288,8 @@ double Ellipse::getRadMaj(const DeriVector2& center, const DeriVector2& f1, doub
         b,
         cf,
         db,
-        dcf);// hack = a nonsense vector to calculate major radius with derivatives, useful just
-             // because the calculation formula is the same as vector length formula
+        dcf);  // hack = a nonsense vector to calculate major radius with derivatives, useful just
+               // because the calculation formula is the same as vector length formula
     return hack.length(ret_dRadMaj);
 }
 
@@ -277,7 +304,7 @@ double Ellipse::getRadMaj(double* derivparam, double& ret_dRadMaj) const
 // returns the major radius (plain value, no derivatives)
 double Ellipse::getRadMaj() const
 {
-    double dradmaj;// dummy
+    double dradmaj;  // dummy
     return getRadMaj(nullptr, dradmaj);
 }
 
@@ -290,34 +317,13 @@ DeriVector2 Ellipse::CalculateNormal(const Point& p, const double* derivparam) c
 
     // calculation.
     // focus2:
-    DeriVector2 f2v = cv.linCombi(2.0, f1v, -1.0);// 2*cv - f1v
+    DeriVector2 f2v = cv.linCombi(2.0, f1v, -1.0);  // 2*cv - f1v
 
     // pf1, pf2 = vectors from p to focus1,focus2
     DeriVector2 pf1 = f1v.subtr(pv);
     DeriVector2 pf2 = f2v.subtr(pv);
     // return sum of normalized pf2, pf2
     DeriVector2 ret = pf1.getNormalized().sum(pf2.getNormalized());
-
-// numeric derivatives for testing
-#if 0// make sure to enable DEBUG_DERIVS when enabling
-        if(derivparam) {
-            double const eps = 0.00001;
-            double oldparam = *derivparam;
-            DeriVector2 v0 = this->CalculateNormal(p);
-            *derivparam += eps;
-            DeriVector2 vr = this->CalculateNormal(p);
-            *derivparam = oldparam - eps;
-            DeriVector2 vl = this->CalculateNormal(p);
-            *derivparam = oldparam;
-            //If not nasty, real derivative should be between left one and right one
-            DeriVector2 numretl ((v0.x-vl.x)/eps, (v0.y-vl.y)/eps);
-            DeriVector2 numretr ((vr.x-v0.x)/eps, (vr.y-v0.y)/eps);
-            assert(ret.dx <= std::max(numretl.x,numretr.x) );
-            assert(ret.dx >= std::min(numretl.x,numretr.x) );
-            assert(ret.dy <= std::max(numretl.y,numretr.y) );
-            assert(ret.dy >= std::min(numretl.y,numretr.y) );
-        }
-#endif
 
     return ret;
 }
@@ -352,7 +358,7 @@ DeriVector2 Ellipse::Value(double u, double du, const double* derivparam) const
     si = std::sin(u);
     dsi = std::cos(u) * du;
 
-    DeriVector2 ret;// point of ellipse at parameter value of u, in global coordinates
+    DeriVector2 ret;  // point of ellipse at parameter value of u, in global coordinates
     ret = a_vec.multD(co, dco).sum(b_vec.multD(si, dsi)).sum(c);
     return ret;
 }
@@ -436,7 +442,10 @@ ArcOfEllipse* ArcOfEllipse::Copy()
 //---------------hyperbola
 
 // this function is exposed to allow reusing pre-filled derivectors in constraints code
-double Hyperbola::getRadMaj(const DeriVector2& center, const DeriVector2& f1, double b, double db,
+double Hyperbola::getRadMaj(const DeriVector2& center,
+                            const DeriVector2& f1,
+                            double b,
+                            double db,
                             double& ret_dRadMaj) const
 {
     double cf, dcf;
@@ -459,7 +468,7 @@ double Hyperbola::getRadMaj(double* derivparam, double& ret_dRadMaj) const
 // returns the major radius (plain value, no derivatives)
 double Hyperbola::getRadMaj() const
 {
-    double dradmaj;// dummy
+    double dradmaj;  // dummy
     return getRadMaj(nullptr, dradmaj);
 }
 
@@ -472,11 +481,11 @@ DeriVector2 Hyperbola::CalculateNormal(const Point& p, const double* derivparam)
 
     // calculation.
     // focus2:
-    DeriVector2 f2v = cv.linCombi(2.0, f1v, -1.0);// 2*cv - f1v
+    DeriVector2 f2v = cv.linCombi(2.0, f1v, -1.0);  // 2*cv - f1v
 
     // pf1, pf2 = vectors from p to focus1,focus2
     DeriVector2 pf1 = f1v.subtr(pv).mult(
-        -1.0);// <--- differs from ellipse normal calculation code by inverting this vector
+        -1.0);  // <--- differs from ellipse normal calculation code by inverting this vector
     DeriVector2 pf2 = f2v.subtr(pv);
     // return sum of normalized pf2, pf2
     DeriVector2 ret = pf1.getNormalized().sum(pf2.getNormalized());
@@ -515,7 +524,7 @@ DeriVector2 Hyperbola::Value(double u, double du, const double* derivparam) cons
     si = std::sinh(u);
     dsi = std::cosh(u) * du;
 
-    DeriVector2 ret;// point of hyperbola at parameter value of u, in global coordinates
+    DeriVector2 ret;  // point of hyperbola at parameter value of u, in global coordinates
     ret = a_vec.multD(co, dco).sum(b_vec.multD(si, dsi)).sum(c);
     return ret;
 }
@@ -637,7 +646,7 @@ DeriVector2 Parabola::Value(double u, double du, const double* derivparam) const
 
     DeriVector2 dir = dirx.sum(diry);
 
-    DeriVector2 ret;// point of parabola at parameter value of u, in global coordinates
+    DeriVector2 ret;  // point of parabola at parameter value of u, in global coordinates
 
     ret = c.sum(dir);
 
@@ -764,12 +773,263 @@ DeriVector2 BSpline::CalculateNormal(const Point& p, const double* derivparam) c
     return ret;
 }
 
-DeriVector2 BSpline::Value(double /*u*/, double /*du*/, const double* /*derivparam*/) const
+DeriVector2 BSpline::CalculateNormal(const double* param, const double* derivparam) const
 {
+    // TODO: is there any advantage in making this a `static`?
+    size_t startpole = 0;
+    for (size_t j = 1; j < mult.size() && *(knots[j]) <= *param; ++j) {
+        startpole += mult[j];
+    }
+    if (!periodic && startpole >= poles.size()) {
+        startpole = poles.size() - degree - 1;
+    }
+
+    auto polexat = [&](size_t i) {
+        return poles[(startpole + i) % poles.size()].x;
+    };
+    auto poleyat = [&](size_t i) {
+        return poles[(startpole + i) % poles.size()].y;
+    };
+    auto weightat = [&](size_t i) {
+        return weights[(startpole + i) % weights.size()];
+    };
+
+    double xsum, xslopesum;
+    double ysum, yslopesum;
+    double wsum, wslopesum;
+
+    valueHomogenous(*param, &xsum, &ysum, &wsum, &xslopesum, &yslopesum, &wslopesum);
+
+    // Tangent vector
+    // This should in principle be identical to error gradient wrt curve parameter in
+    // point-on-object
+    DeriVector2 result(wsum * xslopesum - wslopesum * xsum, wsum * yslopesum - wslopesum * ysum);
+
+    size_t numpoints = degree + 1;
+
+    // FIXME: Find an appropriate name for this method
+    auto doSomething = [&](size_t i, double& factor, double& slopefactor) {
+        VEC_D d(numpoints);
+        d[i] = 1;
+        factor = BSpline::splineValue(*param, startpole + degree, degree, d, flattenedknots);
+        VEC_D sd(numpoints - 1);
+        if (i > 0) {
+            sd[i - 1] =
+                1.0 / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+        }
+        if (i < numpoints - 1) {
+            sd[i] = -1.0
+                / (flattenedknots[startpole + i + 1 + degree] - flattenedknots[startpole + i + 1]);
+        }
+        slopefactor =
+            BSpline::splineValue(*param, startpole + degree, degree - 1, sd, flattenedknots);
+    };
+
+    // get dx, dy of the normal as well
+    for (size_t i = 0; i < numpoints; ++i) {
+        if (derivparam == polexat(i)) {
+            double factor, slopefactor;
+            doSomething(i, factor, slopefactor);
+            result.dx = *weightat(i) * (wsum * slopefactor - wslopesum * factor);
+            break;
+        }
+        if (derivparam == poleyat(i)) {
+            double factor, slopefactor;
+            doSomething(i, factor, slopefactor);
+            result.dy = *weightat(i) * (wsum * slopefactor - wslopesum * factor);
+            break;
+        }
+        if (derivparam == weightat(i)) {
+            double factor, slopefactor;
+            doSomething(i, factor, slopefactor);
+            result.dx = degree
+                * (factor * (xslopesum - wslopesum * (*polexat(i)))
+                   - slopefactor * (xsum - wsum * (*polexat(i))));
+            result.dy = degree
+                * (factor * (yslopesum - wslopesum * (*poleyat(i)))
+                   - slopefactor * (ysum - wsum * (*poleyat(i))));
+            break;
+        }
+    }
+
+    // the curve parameter being used by the constraint is not known to the geometry (there can be
+    // many tangent constraints on the same curve after all). Assume that this is the param
+    // provided.
+    if (derivparam != param) {
+        return result.rotate90ccw();
+    }
+
+    // derivparam == param now. Done this way just to reduce "cognitive complexity".
+    VEC_D sd(numpoints - 1), ssd(numpoints - 2);
+    for (size_t i = 1; i < numpoints; ++i) {
+        sd[i - 1] = (*weightat(i) - *weightat(i - 1))
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    for (size_t i = 1; i < numpoints - 1; ++i) {
+        ssd[i - 1] = (sd[i] - sd[i - 1])
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    double wslopeslopesum = degree * (degree - 1)
+        * BSpline::splineValue(*param, startpole + degree, degree - 2, ssd, flattenedknots);
+
+    for (size_t i = 1; i < numpoints; ++i) {
+        sd[i - 1] = (*polexat(i) * *weightat(i) - *polexat(i - 1) * *weightat(i - 1))
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    for (size_t i = 1; i < numpoints - 1; ++i) {
+        ssd[i - 1] = (sd[i] - sd[i - 1])
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    double xslopeslopesum = degree * (degree - 1)
+        * BSpline::splineValue(*param, startpole + degree, degree - 2, ssd, flattenedknots);
+
+    for (size_t i = 1; i < numpoints; ++i) {
+        sd[i - 1] = (*poleyat(i) * *weightat(i) - *poleyat(i - 1) * *weightat(i - 1))
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    for (size_t i = 1; i < numpoints - 1; ++i) {
+        ssd[i - 1] = (sd[i] - sd[i - 1])
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    double yslopeslopesum = degree * (degree - 1)
+        * BSpline::splineValue(*param, startpole + degree, degree - 2, ssd, flattenedknots);
+
+    result.dx = wsum * xslopeslopesum - wslopeslopesum * xsum;
+    result.dy = wsum * yslopeslopesum - wslopeslopesum * ysum;
+
+    return result.rotate90ccw();
+}
+
+DeriVector2 BSpline::Value(double u, double /*du*/, const double* /*derivparam*/) const
+{
+    // TODO: is there any advantage in making this a `static`?
+    size_t startpole = 0;
+    for (size_t j = 1; j < mult.size() && *(knots[j]) <= u; ++j) {
+        startpole += mult[j];
+    }
+    if (!periodic && startpole >= poles.size()) {
+        startpole = poles.size() - degree - 1;
+    }
+
+    // double xsum = 0., xslopesum = 0.;
+    // double ysum = 0., yslopesum = 0.;
+    // double wsum = 0., wslopesum = 0.;
+
+    auto polexat = [&](size_t i) {
+        return poles[(startpole + i) % poles.size()].x;
+    };
+    auto poleyat = [&](size_t i) {
+        return poles[(startpole + i) % poles.size()].y;
+    };
+    auto weightat = [&](size_t i) {
+        return weights[(startpole + i) % weights.size()];
+    };
+
+    size_t numpoints = degree + 1;
+    // Tangent vector
+    // This should in principle be identical to error gradient wrt curve parameter in
+    // point-on-object
+    VEC_D d(numpoints);
+    for (size_t i = 0; i < numpoints; ++i) {
+        d[i] = *polexat(i) * *weightat(i);
+    }
+    double xsum = BSpline::splineValue(u, startpole + degree, degree, d, flattenedknots);
+    for (size_t i = 0; i < numpoints; ++i) {
+        d[i] = *poleyat(i) * *weightat(i);
+    }
+    double ysum = BSpline::splineValue(u, startpole + degree, degree, d, flattenedknots);
+    for (size_t i = 0; i < numpoints; ++i) {
+        d[i] = *weightat(i);
+    }
+    double wsum = BSpline::splineValue(u, startpole + degree, degree, d, flattenedknots);
+
+    d.resize(numpoints - 1);
+    for (size_t i = 1; i < numpoints; ++i) {
+        d[i - 1] = (*polexat(i) * *weightat(i) - *polexat(i - 1) * *weightat(i - 1))
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    double xslopesum =
+        degree * BSpline::splineValue(u, startpole + degree, degree - 1, d, flattenedknots);
+    for (size_t i = 1; i < numpoints; ++i) {
+        d[i - 1] = (*poleyat(i) * *weightat(i) - *poleyat(i - 1) * *weightat(i - 1))
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    double yslopesum =
+        degree * BSpline::splineValue(u, startpole + degree, degree - 1, d, flattenedknots);
+    for (size_t i = 1; i < numpoints; ++i) {
+        d[i - 1] = (*weightat(i) - *weightat(i - 1))
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    double wslopesum =
+        degree * BSpline::splineValue(u, startpole + degree, degree - 1, d, flattenedknots);
+
     // place holder
-    DeriVector2 ret = DeriVector2();
+    DeriVector2 ret = DeriVector2(xsum / wsum,
+                                  ysum / wsum,
+                                  (wsum * xslopesum - wslopesum * xsum) / wsum / wsum,
+                                  (wsum * yslopesum - wslopesum * ysum) / wsum / wsum);
 
     return ret;
+}
+
+void BSpline::valueHomogenous(const double u,
+                              double* xw,
+                              double* yw,
+                              double* w,
+                              double* dxwdu,
+                              double* dywdu,
+                              double* dwdu) const
+{
+    // TODO: is there any advantage in making this a `static`?
+    size_t startpole = 0;
+    for (size_t j = 1; j < mult.size() && *(knots[j]) <= u; ++j) {
+        startpole += mult[j];
+    }
+    if (!periodic && startpole >= poles.size()) {
+        startpole = poles.size() - degree - 1;
+    }
+
+    auto polexat = [&](size_t i) {
+        return poles[(startpole + i) % poles.size()].x;
+    };
+    auto poleyat = [&](size_t i) {
+        return poles[(startpole + i) % poles.size()].y;
+    };
+    auto weightat = [&](size_t i) {
+        return weights[(startpole + i) % weights.size()];
+    };
+
+    size_t numpoints = degree + 1;
+    VEC_D d(numpoints);
+    for (size_t i = 0; i < numpoints; ++i) {
+        d[i] = *polexat(i) * *weightat(i);
+    }
+    *xw = BSpline::splineValue(u, startpole + degree, degree, d, flattenedknots);
+    for (size_t i = 0; i < numpoints; ++i) {
+        d[i] = *poleyat(i) * *weightat(i);
+    }
+    *yw = BSpline::splineValue(u, startpole + degree, degree, d, flattenedknots);
+    for (size_t i = 0; i < numpoints; ++i) {
+        d[i] = *weightat(i);
+    }
+    *w = BSpline::splineValue(u, startpole + degree, degree, d, flattenedknots);
+
+    d.resize(numpoints - 1);
+    for (size_t i = 1; i < numpoints; ++i) {
+        d[i - 1] = (*polexat(i) * *weightat(i) - *polexat(i - 1) * *weightat(i - 1))
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    *dxwdu = degree * BSpline::splineValue(u, startpole + degree, degree - 1, d, flattenedknots);
+    for (size_t i = 1; i < numpoints; ++i) {
+        d[i - 1] = (*poleyat(i) * *weightat(i) - *poleyat(i - 1) * *weightat(i - 1))
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    *dywdu = degree * BSpline::splineValue(u, startpole + degree, degree - 1, d, flattenedknots);
+    for (size_t i = 1; i < numpoints; ++i) {
+        d[i - 1] = (*weightat(i) - *weightat(i - 1))
+            / (flattenedknots[startpole + i + degree] - flattenedknots[startpole + i]);
+    }
+    *dwdu = degree * BSpline::splineValue(u, startpole + degree, degree - 1, d, flattenedknots);
 }
 
 int BSpline::PushOwnParams(VEC_pD& pvec)
@@ -848,14 +1108,16 @@ double BSpline::getLinCombFactor(double x, size_t k, size_t i, unsigned int p)
     // as well, when alternatives may be needed to keep `flattenedknots` updated.
     // Slightly more detailed discussion here:
     // https://github.com/FreeCAD/FreeCAD/pull/7484#discussion_r1020858392
-    if (flattenedknots.empty())
+    if (flattenedknots.empty()) {
         setupFlattenedKnots();
+    }
 
     std::vector d(p + 1, 0.0);
     // Ensure this is within range
     int idxOfPole = static_cast<int>(i) + p - static_cast<int>(k);
-    if (idxOfPole < 0 || idxOfPole > static_cast<int>(p))
+    if (idxOfPole < 0 || idxOfPole > static_cast<int>(p)) {
         return 0.0;
+    }
     d[idxOfPole] = 1.0;
 
     for (size_t r = 1; r < p + 1; ++r) {
@@ -886,13 +1148,14 @@ void BSpline::setupFlattenedKnots()
 {
     flattenedknots.clear();
 
-    for (size_t i = 0; i < knots.size(); ++i)
+    for (size_t i = 0; i < knots.size(); ++i) {
         flattenedknots.insert(flattenedknots.end(), mult[i], *knots[i]);
+    }
 
     // Adjust for periodic: see OCC documentation for explanation
     if (periodic) {
         double period = *knots.back() - *knots.front();
-        int c = degree + 1 - mult[0];// number of knots to pad
+        int c = degree + 1 - mult[0];  // number of knots to pad
 
         // Add capacity so that iterators remain valid
         flattenedknots.reserve(flattenedknots.size() + 2 * c);
@@ -917,4 +1180,4 @@ void BSpline::setupFlattenedKnots()
     }
 }
 
-}// namespace GCS
+}  // namespace GCS
