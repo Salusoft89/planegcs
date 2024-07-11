@@ -1,5 +1,6 @@
 // This library provides WebAssembly bindings for the FreeCAD's geometric solver library planegcs.
 // Copyright (C) 2023  Miroslav Šerý, Salusoft89 <miroslav.sery@salusoft89.cz>  
+// Copyright (C) 2024  Angelo Bartolome <angelo.m.bartolome@gmail.com>
 
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -21,7 +22,7 @@ import { Algorithm, DebugMode, SolveStatus } from '../planegcs_dist/enums.js';
 import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
 import type { SketchPrimitive } from '../sketch/sketch_primitive.js';
-import type { L2LAngle_LL, L2LAngle_PPPP } from '../planegcs_dist/constraints.js';
+import type { CoordinateX, CoordinateY, L2LAngle_LL, L2LAngle_PPPP } from '../planegcs_dist/constraints.js';
 
 let gcs_factory: ModuleStatic;
 let gcs_wrapper: GcsWrapper;
@@ -178,5 +179,65 @@ describe("gcs_wrapper", () => {
         const angle_constraint = updated_constraints.find(c => c.id === '7') as L2LAngle_PPPP;
 
         expect(angle_constraint.angle).toEqual(-Math.PI / 4);
+    });
+
+    it("should solve and update coordinate_x non-driving constraint", () => {
+        const line_with_constraint: SketchPrimitive[] = [
+            { id: '1', type: 'point', x: 5, y: 5, fixed: true },
+            { id: '2', type: 'point', x: 7, y: 7, fixed: true },
+            { id: '3', type: 'line', p1_id: '1', p2_id: '2' },
+
+            // Apply Coordinate X
+            {
+                id: '4',
+                type: "coordinate_x",
+                p_id: '1',
+                x: 1, // Temporary value
+                driving: false,
+            }
+        ];
+
+        for (const obj of line_with_constraint) {
+            gcs_wrapper.push_primitive(obj);
+        }
+
+        gcs_wrapper.solve();
+        gcs_wrapper.apply_solution();
+
+        // get the angle between the two lines
+        const updated_constraints = gcs_wrapper.sketch_index.get_constraints()
+        const coordinate_x_constraint = updated_constraints.find(c => c.id === '4') as CoordinateX;
+
+        expect(coordinate_x_constraint.x).toEqual(5);
+    });
+
+    it("should solve and update coordinate_y non-driving constraint", () => {
+        const line_with_constraint: SketchPrimitive[] = [
+            { id: '1', type: 'point', x: 5, y: 7, fixed: true },
+            { id: '2', type: 'point', x: 7, y: 7, fixed: true },
+            { id: '3', type: 'line', p1_id: '1', p2_id: '2' },
+
+            // Apply Coordinate Y
+            {
+                id: '4',
+                type: "coordinate_y",
+                p_id: '1',
+                y: 1, // Temporary value
+                driving: false,
+            }
+        ];
+
+        for (const obj of line_with_constraint) {
+            gcs_wrapper.push_primitive(obj);
+        }
+
+        gcs_wrapper.solve();
+        gcs_wrapper.apply_solution();
+
+        // get the angle between the two lines
+        const updated_constraints = gcs_wrapper.sketch_index.get_constraints()
+        const coordinate_y_constraint = updated_constraints.find(c => c.id === '4') as CoordinateY;
+
+        expect(coordinate_y_constraint.y).toEqual(7);
     });
 });

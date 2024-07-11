@@ -1,5 +1,6 @@
 // This library provides WebAssembly bindings for the FreeCAD's geometric solver library planegcs.
 // Copyright (C) 2023  Miroslav Šerý, Salusoft89 <miroslav.sery@salusoft89.cz>  
+// Copyright (C) 2024  Angelo Bartolome <angelo.m.bartolome@gmail.com>
 
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -74,6 +75,12 @@ export const constraint_properties_and_offsets: Partial<ConstraintPropertiesAndO
     },
     l2l_angle_pppp: {
         angle: 0,
+    },
+    coordinate_x: {
+        x: 0,
+    },
+    coordinate_y: {
+        y: 0,
     },
 } as const;
 
