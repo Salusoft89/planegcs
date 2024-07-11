@@ -72,6 +72,9 @@ export const constraint_properties_and_offsets: Partial<ConstraintPropertiesAndO
     l2l_angle_ll: {
         angle: 0,
     },
+    l2l_angle_pppp: {
+        angle: 0,
+    },
 } as const;
 
 export default function get_property_offset(primitive_type: SketchGeometry['type'], property_key: SketchGeometryProperty): number {

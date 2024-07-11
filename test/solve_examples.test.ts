@@ -21,7 +21,7 @@ import { Algorithm, DebugMode, SolveStatus } from '../planegcs_dist/enums.js';
 import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
 import type { SketchPrimitive } from '../sketch/sketch_primitive.js';
-import type { L2LAngle_LL } from '../planegcs_dist/constraints.js';
+import type { L2LAngle_LL, L2LAngle_PPPP } from '../planegcs_dist/constraints.js';
 
 let gcs_factory: ModuleStatic;
 let gcs_wrapper: GcsWrapper;
@@ -138,6 +138,45 @@ describe("gcs_wrapper", () => {
         const updated_constraints = gcs_wrapper.sketch_index.get_constraints()
         const angle_constraint = updated_constraints.find(c => c.id === '7') as L2LAngle_LL;
 
-        expect(angle_constraint.angle).toBe(-Math.PI / 4);
+        expect(angle_constraint.angle).toEqual(-Math.PI / 4);
+    });
+
+    it("should solve and update l2l_angle_pppp non-driving constraint", () => {
+        const two_lines_45deg_sketch: SketchPrimitive[] = [
+            // Line 1 (0,0 to 1,1) (45 degrees)
+            { id: '1', type: 'point', x: 0, y: 0, fixed: true },
+            { id: '2', type: 'point', x: 1, y: 1, fixed: true },
+            { id: '3', type: 'line', p1_id: '1', p2_id: '2' },
+            
+            // Line 2 (0,0 to 1,0) (horizontal)
+            { id: '4', type: 'point', x: 0, y: 0, fixed: true },
+            { id: '5', type: 'point', x: 1, y: 0, fixed: true },
+            { id: '6', type: 'line', p1_id: '4', p2_id: '5' },
+
+            // Angle between the two lines
+            {
+                id: '7',
+                type: "l2l_angle_pppp",
+                l1p1_id: '1',
+                l1p2_id: '2',
+                l2p1_id: '4',
+                l2p2_id: '5',
+                angle: 1,
+                driving: false,
+            }
+        ];
+
+        for (const obj of two_lines_45deg_sketch) {
+            gcs_wrapper.push_primitive(obj);
+        }
+
+        gcs_wrapper.solve();
+        gcs_wrapper.apply_solution();
+
+        // get the angle between the two lines
+        const updated_constraints = gcs_wrapper.sketch_index.get_constraints()
+        const angle_constraint = updated_constraints.find(c => c.id === '7') as L2LAngle_PPPP;
+
+        expect(angle_constraint.angle).toEqual(-Math.PI / 4);
     });
 });
