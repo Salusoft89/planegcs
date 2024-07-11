@@ -22,7 +22,7 @@ import { Algorithm, DebugMode, SolveStatus } from '../planegcs_dist/enums.js';
 import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
 import type { SketchPrimitive } from '../sketch/sketch_primitive.js';
-import type { CoordinateX, CoordinateY, L2LAngle_LL, L2LAngle_PPPP } from '../planegcs_dist/constraints.js';
+import type { CircleRadius, CoordinateX, CoordinateY, L2LAngle_LL, L2LAngle_PPPP, P2PAngle, P2PDistance } from '../planegcs_dist/constraints.js';
 
 let gcs_factory: ModuleStatic;
 let gcs_wrapper: GcsWrapper;
@@ -187,7 +187,7 @@ describe("gcs_wrapper", () => {
             { id: '2', type: 'point', x: 7, y: 7, fixed: true },
             { id: '3', type: 'line', p1_id: '1', p2_id: '2' },
 
-            // Apply Coordinate X
+            // Apply coordinate_x
             {
                 id: '4',
                 type: "coordinate_x",
@@ -217,7 +217,7 @@ describe("gcs_wrapper", () => {
             { id: '2', type: 'point', x: 7, y: 7, fixed: true },
             { id: '3', type: 'line', p1_id: '1', p2_id: '2' },
 
-            // Apply Coordinate Y
+            // Apply coordinate_y
             {
                 id: '4',
                 type: "coordinate_y",
@@ -239,5 +239,94 @@ describe("gcs_wrapper", () => {
         const coordinate_y_constraint = updated_constraints.find(c => c.id === '4') as CoordinateY;
 
         expect(coordinate_y_constraint.y).toEqual(7);
+    });
+
+    it("should solve and update p2p_angle non-driving constraint", () => {
+        const sketch: SketchPrimitive[] = [
+            { id: '1', type: 'point', x: 5, y: 5, fixed: true },
+            { id: '2', type: 'point', x: 7, y: 7, fixed: true },
+
+            // Apply p2p_angle
+            {
+                id: '3',
+                type: "p2p_angle",
+                p1_id: '1',
+                p2_id: '2',
+                angle: 1, // Temporary value
+                driving: false,
+            }
+        ];
+
+        for (const obj of sketch) {
+            gcs_wrapper.push_primitive(obj);
+        }
+
+        gcs_wrapper.solve();
+        gcs_wrapper.apply_solution();
+
+        // get the angle between the two lines
+        const updated_constraints = gcs_wrapper.sketch_index.get_constraints()
+        const constraint = updated_constraints.find(c => c.id === '3') as P2PAngle;
+
+        expect(constraint.angle).toEqual(Math.PI / 4);
+    });
+
+    it("should solve and update p2p_distance non-driving constraint", () => {
+        const sketch: SketchPrimitive[] = [
+            { id: '1', type: 'point', x: 0, y: 1, fixed: true },
+            { id: '2', type: 'point', x: 0, y: 3, fixed: true },
+
+            // Apply p2p_distance
+            {
+                id: '3',
+                type: "p2p_distance",
+                p1_id: '1',
+                p2_id: '2',
+                distance: 1, // Temporary value
+                driving: false,
+            }
+        ];
+
+        for (const obj of sketch) {
+            gcs_wrapper.push_primitive(obj);
+        }
+
+        gcs_wrapper.solve();
+        gcs_wrapper.apply_solution();
+
+        // get the angle between the two lines
+        const updated_constraints = gcs_wrapper.sketch_index.get_constraints()
+        const constraint = updated_constraints.find(c => c.id === '3') as P2PDistance;
+
+        expect(constraint.distance).toEqual(2);
+    });
+
+    it("should solve and update circle_radius non-driving constraint", () => {
+        const sketch: SketchPrimitive[] = [
+            { id: '1', type: 'point', x: 0, y: 0, fixed: true },
+            { id: '2', type: 'circle', c_id: '1', radius: 4 },
+
+            // Apply circle_radius
+            {
+                id: '3',
+                type: "circle_radius",
+                c_id: '2',
+                radius: 1, // Temporary value
+                driving: false,
+            }
+        ];
+
+        for (const obj of sketch) {
+            gcs_wrapper.push_primitive(obj);
+        }
+
+        gcs_wrapper.solve();
+        gcs_wrapper.apply_solution();
+
+        // get the angle between the two lines
+        const updated_constraints = gcs_wrapper.sketch_index.get_constraints()
+        const constraint = updated_constraints.find(c => c.id === '3') as CircleRadius;
+
+        expect(constraint.radius).toEqual(4);
     });
 });

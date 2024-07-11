@@ -82,6 +82,15 @@ export const constraint_properties_and_offsets: Partial<ConstraintPropertiesAndO
     coordinate_y: {
         y: 0,
     },
+    p2p_angle: {
+        angle: 0,
+    },
+    p2p_distance: {
+        distance: 0,
+    },
+    circle_radius: {
+        radius: 0,
+    }
 } as const;
 
 export default function get_property_offset(primitive_type: SketchGeometry['type'], property_key: SketchGeometryProperty): number {
