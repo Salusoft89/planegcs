@@ -584,8 +584,11 @@ export class GcsWrapper {
                 this.pull_parabola(p);
             } else if (p.type === 'arc_of_parabola') {
                 this.pull_arc_of_parabola(p);
+            } else if (p.type === "l2l_angle_ll") {
+                // TODO: Make it generic so we don't need to switch on the type (constraints)
+                this.pull_constraint(p);
             } else {
-                // console.log(`${o.type}`);
+                // console.log(`${p.type}`);
                 // todo: is this else branch necessary?
                 this.sketch_index.set_primitive(p);
             }
@@ -680,5 +683,19 @@ export class GcsWrapper {
             start_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_parabola.start_angle),
             end_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_parabola.end_angle),
         });
+    }
+
+    private pull_constraint(c: Constraint) {
+        // We don't need to pull driving constraints
+        if(c.driving) return
+
+        // TODO: switch on the constraint type and pull the parameters
+        const constraint_addr = this.get_primitive_addr(c.id);
+        
+        // TODO: Fix for other constraints
+        this.sketch_index.set_primitive({
+            ...c,
+            angle: this.gcs.get_p_param(constraint_addr),
+        } as Constraint);
     }
 }

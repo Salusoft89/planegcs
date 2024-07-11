@@ -138,6 +138,6 @@ describe("gcs_wrapper", () => {
         const updated_constraints = gcs_wrapper.sketch_index.get_constraints()
         const angle_constraint = updated_constraints.find(c => c.id === '7') as L2LAngle_LL;
 
-        expect(angle_constraint?.angle).toBe(Math.PI / 4);
+        expect(angle_constraint.angle).toBe(-Math.PI / 4);
     });
 });
