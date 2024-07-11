@@ -20,10 +20,10 @@ import { constraint_param_index } from "../planegcs_dist/constraint_param_index.
 import { SketchIndex } from "./sketch_index.js";
 import { emsc_vec_to_arr } from "./emsc_vectors.js";
 import type {  SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam, SketchHyperbola, SketchArcOfHyperbola, SketchParabola, SketchArcOfParabola } from "./sketch_primitive";
-import { is_sketch_geometry } from "./sketch_primitive.js";
+import { is_sketch_constraint, is_sketch_geometry } from "./sketch_primitive.js";
 import { type GcsGeometry, type GcsSystem } from "../planegcs_dist/gcs_system.js";
 import { Algorithm, Constraint_Alignment, SolveStatus, DebugMode } from "../planegcs_dist/enums.js";
-import get_property_offset, { property_offsets } from "./geom_params.js";
+import get_property_offset, { constraint_properties_and_offsets, property_offsets } from "./geom_params.js";
 import { oid } from "../planegcs_dist/id";
 
 export class GcsWrapper { 
@@ -584,8 +584,7 @@ export class GcsWrapper {
                 this.pull_parabola(p);
             } else if (p.type === 'arc_of_parabola') {
                 this.pull_arc_of_parabola(p);
-            } else if (p.type === "l2l_angle_ll") {
-                // TODO: Make it generic so we don't need to switch on the type (constraints)
+            } else if (is_sketch_constraint(p)) {
                 this.pull_constraint(p);
             } else {
                 // console.log(`${p.type}`);
@@ -689,13 +688,27 @@ export class GcsWrapper {
         // We don't need to pull driving constraints
         if(c.driving) return
 
-        // TODO: switch on the constraint type and pull the parameters
         const constraint_addr = this.get_primitive_addr(c.id);
-        
-        // TODO: Fix for other constraints
-        this.sketch_index.set_primitive({
-            ...c,
-            angle: this.gcs.get_p_param(constraint_addr),
-        } as Constraint);
+
+        // Helper function to update a property of any constraint type (Equal, L2L, etc.)
+        // preventing Typescript to complain about the type of the property (unable to assign a number to never)
+        function updateProperty<T, K extends keyof T>(obj: T, key: K, value: T[K]) {
+            obj[key] = value;
+        }
+
+        for (const constraint_property in constraint_properties_and_offsets[c.type]) {
+            const offsets = constraint_properties_and_offsets[c.type]
+            
+            if(!offsets) {
+                console.warn(`No offsets for constraint type ${c.type}`)
+                continue
+            }
+
+            const param = this.gcs.get_p_param(constraint_addr + (offsets[constraint_property as keyof typeof offsets] as number))
+            updateProperty(c, constraint_property as keyof Constraint, param)
+        }
+        this.sketch_index.set_primitive(c);
     }
+
+
 }

@@ -104,7 +104,7 @@ describe("gcs_wrapper", () => {
         expect(circle?.radius).toBe(100);
     });
 
-    it("should solve and update non-driving constraint", () => {
+    it("should solve and update l2l_angle_ll non-driving constraint", () => {
         const two_lines_45deg_sketch: SketchPrimitive[] = [
             // Line 1 (0,0 to 1,1) (45 degrees)
             { id: '1', type: 'point', x: 0, y: 0, fixed: true },

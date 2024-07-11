@@ -16,6 +16,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import { SketchGeometry } from "./sketch_primitive.js";
+import { Constraint } from "../planegcs_dist/constraints.js";
 
 // Object properties that can be referenced in the constraint primitives, such as:
 // {
@@ -66,6 +67,13 @@ export const property_offsets = {
     line: {},
 } as const;
 
+// All those types are helper types to extract the properties of the constraints
+export const constraint_properties_and_offsets: Partial<ConstraintPropertiesAndOffsetsType> = {
+    l2l_angle_ll: {
+        angle: 0,
+    },
+} as const;
+
 export default function get_property_offset(primitive_type: SketchGeometry['type'], property_key: SketchGeometryProperty): number {
     const primitive_offsets: Partial<Record<SketchGeometryProperty, number>> = property_offsets[primitive_type];
     if (primitive_offsets) {
@@ -76,3 +84,14 @@ export default function get_property_offset(primitive_type: SketchGeometry['type
     }
     throw new Error(`Unknown property ${property_key} for primitive <${primitive_type}>`);
 }
+
+// Utility Typescript helper types
+type ExtractProperties<T> = T extends { type: infer U } ? U extends string ? {
+    [K in keyof T as K extends 'type' ? never : K]: T[K]
+} : never : never;
+
+// Mapped type to create the ConstraintPropertiesAndOffsetsType with optional properties
+type ConstraintPropertiesAndOffsets<K extends Constraint['type']> = Partial<ExtractProperties<Extract<Constraint, { type: K }>>>
+type ConstraintPropertiesAndOffsetsType = Partial<{
+    [K in Constraint['type']]: ConstraintPropertiesAndOffsets<K>
+}>;
