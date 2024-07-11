@@ -208,6 +208,8 @@ Note: when the sketch containts constraints with a flag `temporary` set to true,
 
 Install [Docker](https://docs.docker.com/get-docker/) and [Node.js](https://nodejs.org/en).
 
+Run `npm install` to install the dependencies.
+
 Build command: `npm run build:all`, which consists of these steps:
    - `npm run build:docker` - pulls/builds the docker image for building C++ files from FreeCAD
    - `npm run build:bindings` - creates a C++ binding for the FreeCAD API (partly by scanning the source code)
