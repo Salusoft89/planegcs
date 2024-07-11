@@ -22,7 +22,7 @@ import { Algorithm, DebugMode, SolveStatus } from '../planegcs_dist/enums.js';
 import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
 import type { SketchPrimitive } from '../sketch/sketch_primitive.js';
-import type { CircleRadius, CoordinateX, CoordinateY, L2LAngle_LL, L2LAngle_PPPP, P2PAngle, P2PDistance } from '../planegcs_dist/constraints.js';
+import type { ArcRadius, CircleRadius, CoordinateX, CoordinateY, L2LAngle_LL, L2LAngle_PPPP, P2PAngle, P2PDistance } from '../planegcs_dist/constraints.js';
 
 let gcs_factory: ModuleStatic;
 let gcs_wrapper: GcsWrapper;
@@ -328,5 +328,36 @@ describe("gcs_wrapper", () => {
         const constraint = updated_constraints.find(c => c.id === '3') as CircleRadius;
 
         expect(constraint.radius).toEqual(4);
+    });
+
+    it("should solve and update arc_radius non-driving constraint", () => {
+        const sketch: SketchPrimitive[] = [
+            { id: '1', type: 'point', x: 0, y: 0, fixed: true },
+            { id: '2', type: 'point', x: 4, y: 0, fixed: true },
+            { id: '3', type: 'point', x: 2, y: 2, fixed: true },
+            { id: '4', type: 'arc', c_id: '3', radius: 100, start_angle: 0, end_angle: Math.PI / 2, start_id: '1', end_id: '2' },
+            { id: '5', type: 'arc_rules', a_id: '4'  },
+            // Apply arc_radius
+            {
+                id: '6',
+                type: "arc_radius",
+                a_id: '4',
+                radius: 1, // Temporary value
+                driving: false,
+            }
+        ];
+
+        for (const obj of sketch) {
+            gcs_wrapper.push_primitive(obj);
+        }
+
+        gcs_wrapper.solve();
+        gcs_wrapper.apply_solution();
+
+        // get the angle between the two lines
+        const updated_constraints = gcs_wrapper.sketch_index.get_constraints()
+        const constraint = updated_constraints.find(c => c.id === '6') as ArcRadius;
+
+        expect(constraint.radius).toBeCloseTo(2.83);
     });
 });

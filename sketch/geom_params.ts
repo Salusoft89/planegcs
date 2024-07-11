@@ -90,6 +90,9 @@ export const constraint_properties_and_offsets: Partial<ConstraintPropertiesAndO
     },
     circle_radius: {
         radius: 0,
+    },
+    arc_radius: {
+        radius: 0,
     }
 } as const;
 
