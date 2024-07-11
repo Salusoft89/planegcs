@@ -93,6 +93,18 @@ export const constraint_properties_and_offsets: Partial<ConstraintPropertiesAndO
     },
     arc_radius: {
         radius: 0,
+    },
+    arc_diameter: {
+      diameter: 0,
+    },
+    c2cdistance: {
+      dist: 0,
+    },
+    c2ldistance: {
+      dist: 0,
+    },
+    p2cdistance: {
+      distance: 0,
     }
 } as const;
 
