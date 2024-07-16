@@ -696,16 +696,15 @@ export class GcsWrapper {
             obj[key] = value;
         }
 
-        for (const constraint_property in constraint_properties_and_offsets[c.type]) {
-            const offsets = constraint_properties_and_offsets[c.type]
-            
-            if(!offsets) {
-                console.warn(`No offsets for constraint type ${c.type}`)
-                continue
-            }
+        const offsets = constraint_properties_and_offsets[c.type]
+        if(!offsets) {
+            console.warn(`No offsets for constraint type ${c.type}`)
+            return
+        }
 
-            const param = this.gcs.get_p_param(constraint_addr + (offsets[constraint_property as keyof typeof offsets] as number))
-            updateProperty(c, constraint_property as keyof Constraint, param)
+        for (const [constraint_property_name, constraint_property_offset] of Object.entries(offsets)) {
+            const param = this.gcs.get_p_param(constraint_addr + constraint_property_offset)
+            updateProperty(c, constraint_property_name as keyof Constraint, param)
         }
         this.sketch_index.set_primitive(c);
     }
