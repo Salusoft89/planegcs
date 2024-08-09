@@ -78,14 +78,3 @@ export default function get_property_offset(primitive_type: SketchGeometry['type
     }
     throw new Error(`Unknown property ${property_key} for primitive <${primitive_type}>`);
 }
-
-// Utility Typescript helper types
-type ExtractUpdatableProperties<T> = {
-    [K in keyof T as ObjectParam|number|string extends T[K] ? K : never]: number
-};
-
-// Mapped type to create the ConstraintPropertiesAndOffsetsType
-type ConstraintPropertiesAndOffsets<K extends Constraint['type']> = ExtractUpdatableProperties<Extract<Constraint, { type: K }>>
-type ConstraintPropertiesAndOffsetsType = {
-    [K in Constraint['type']]: ConstraintPropertiesAndOffsets<K>
-};
