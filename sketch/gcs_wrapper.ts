@@ -63,6 +63,7 @@ export class GcsWrapper {
     }
 
     clear_data() {
+        this.nondriving_constraint_params_order.clear();
         this.gcs.clear_data();
         this.p_param_index.clear();
         this.sketch_param_index.clear();
