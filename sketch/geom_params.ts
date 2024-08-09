@@ -68,46 +68,6 @@ export const property_offsets = {
     line: {},
 } as const;
 
-// All those types are helper types to extract the properties of the constraints
-export const constraint_properties_and_offsets: Partial<ConstraintPropertiesAndOffsetsType> = {
-    l2l_angle_ll: {
-        angle: 0,
-    },
-    l2l_angle_pppp: {
-        angle: 0,
-    },
-    coordinate_x: {
-        x: 0,
-    },
-    coordinate_y: {
-        y: 0,
-    },
-    p2p_angle: {
-        angle: 0,
-    },
-    p2p_distance: {
-        distance: 0,
-    },
-    circle_radius: {
-        radius: 0,
-    },
-    arc_radius: {
-        radius: 0,
-    },
-    arc_diameter: {
-      diameter: 0,
-    },
-    c2cdistance: {
-      dist: 0,
-    },
-    c2ldistance: {
-      dist: 0,
-    },
-    p2cdistance: {
-      distance: 0,
-    }
-} as const;
-
 export default function get_property_offset(primitive_type: SketchGeometry['type'], property_key: SketchGeometryProperty): number {
     const primitive_offsets: Partial<Record<SketchGeometryProperty, number>> = property_offsets[primitive_type];
     if (primitive_offsets) {

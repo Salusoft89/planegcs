@@ -22,7 +22,7 @@ import { Algorithm, DebugMode, SolveStatus } from '../planegcs_dist/enums.js';
 import type { ModuleStatic } from '../planegcs_dist/planegcs.js';
 import { GcsWrapper } from '../sketch/gcs_wrapper.js';
 import type { SketchPrimitive } from '../sketch/sketch_primitive.js';
-import type { ArcRadius, CircleRadius, CoordinateX, CoordinateY, L2LAngle_LL, L2LAngle_PPPP, P2PAngle, P2PDistance } from '../planegcs_dist/constraints.js';
+import type { ArcRadius, CircleRadius, CoordinateX, CoordinateY, L2LAngle_LL, L2LAngle_PPPP, P2PAngle, P2PDistance, Proportional } from '../planegcs_dist/constraints.js';
 
 let gcs_factory: ModuleStatic;
 let gcs_wrapper: GcsWrapper;
@@ -359,5 +359,29 @@ describe("gcs_wrapper", () => {
         const constraint = updated_constraints.find(c => c.id === '6') as ArcRadius;
 
         expect(constraint.radius).toBeCloseTo(2.83);
+    });
+
+    it("should update non-driving proportional constraint", () => {
+        gcs_wrapper.push_sketch_param('test', 100);
+        gcs_wrapper.push_primitive({
+            id: '2',
+            type: 'proportional',
+            param1: 'test',
+            param2: 150,
+            ratio: 0.5,
+            driving: false,
+        });
+
+        // since there is otherwise no solving done,
+        // the iterations need to be manually fixed for the non-driving constraint to converge
+        gcs_wrapper.set_max_iterations(1000);
+
+        gcs_wrapper.solve();
+        gcs_wrapper.apply_solution();
+
+        const updated_constraints = gcs_wrapper.sketch_index.get_constraints()
+        const constraint = updated_constraints.find(c => c.id === '2') as Proportional;
+
+        expect(constraint.param2).toBeCloseTo(200);
     });
 });
