@@ -184,7 +184,8 @@ Currently, the object referenced with o_id can be only a geometry, referencing c
 Each constraint has following (optional) properties:
 
 - `driving` (default true) - if set to false, then the constraint doesn't influence the geometries during solving, but instead can be used for measurements
-**IMPORTANT: In the current implementation, the nondriving constraints aren't updated after solving, see [#5](https://github.com/Salusoft89/planegcs/issues/5)**
+
+    - **There are some constraints (CircleDiameter, ArcDiameter, C2CDistance, C2LDistance, P2CDistance, ArcLength and probably some other) that don't work properly when set to non-driving.** (this requires further digging into the planegcs solver)
 
 - `temporary` (default false) - if set to true, then the constraint is only enforced so much that it doesn't conflict with other constraints. This is useful for constraints for mouse dragging in a Sketcher user interface. Temporary constraints don't reduce DOF. The presence of temporary constraints changes the algorithm used for solving in planegcs, regardless of the configured algorithm.
 
@@ -207,6 +208,8 @@ Note: when the sketch containts constraints with a flag `temporary` set to true,
 # Developing
 
 Install [Docker](https://docs.docker.com/get-docker/) and [Node.js](https://nodejs.org/en).
+
+Run `npm install` to install the dependencies.
 
 Build command: `npm run build:all`, which consists of these steps:
    - `npm run build:docker` - pulls/builds the docker image for building C++ files from FreeCAD

@@ -1,5 +1,6 @@
 // This library provides WebAssembly bindings for the FreeCAD's geometric solver library planegcs.
 // Copyright (C) 2023  Miroslav Šerý, Salusoft89 <miroslav.sery@salusoft89.cz>  
+// Copyright (C) 2024  Angelo Bartolome <angelo.m.bartolome@gmail.com>
 
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,6 +17,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import { SketchGeometry } from "./sketch_primitive.js";
+import { Constraint } from "../planegcs_dist/constraints.js";
 
 // Object properties that can be referenced in the constraint primitives, such as:
 // {
