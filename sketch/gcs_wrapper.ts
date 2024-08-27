@@ -20,7 +20,7 @@ import { constraint_param_index } from "../planegcs_dist/constraint_param_index.
 import { SketchIndex } from "./sketch_index.js";
 import { emsc_vec_to_arr } from "./emsc_vectors.js";
 import type {  SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam, SketchHyperbola, SketchArcOfHyperbola, SketchParabola, SketchArcOfParabola } from "./sketch_primitive";
-import { is_sketch_geometry } from "./sketch_primitive.js";
+import { is_sketch_constraint, is_sketch_geometry } from "./sketch_primitive.js";
 import { type GcsGeometry, type GcsSystem } from "../planegcs_dist/gcs_system.js";
 import { Algorithm, Constraint_Alignment, SolveStatus, DebugMode } from "../planegcs_dist/enums.js";
 import get_property_offset, { property_offsets } from "./geom_params.js";
@@ -30,7 +30,10 @@ export class GcsWrapper {
     gcs: GcsSystem;
     p_param_index: Map<oid, number> = new Map();
     sketch_index = new SketchIndex();
-    private sketch_param_index: Map<string, number> = new Map(); // param key -> index in gcs params
+    // sketch param name -> index in gcs params
+    private sketch_param_index: Map<string, number> = new Map(); 
+    // nondriving constraint id -> list of its properties pushed as p-params (in order)
+    private nondriving_constraint_params_order: Map<oid, string[]> = new Map(); 
     private enable_equal_optimization = false;
 
     get debug_mode() {
@@ -60,6 +63,7 @@ export class GcsWrapper {
     }
 
     clear_data() {
+        this.nondriving_constraint_params_order.clear();
         this.gcs.clear_data();
         this.p_param_index.clear();
         this.sketch_param_index.clear();
@@ -182,9 +186,9 @@ export class GcsWrapper {
         return this.gcs.has_partially_redundant();
     }
 
-    push_sketch_param(name: string, value: number): number {
+    push_sketch_param(name: string, value: number, fixed = true): number {
         const pos = this.gcs.params_size();
-        this.gcs.push_p_param(value, true);
+        this.gcs.push_p_param(value, fixed);
         this.sketch_param_index.set(name, pos);
         return pos;
     }
@@ -216,7 +220,10 @@ export class GcsWrapper {
             this.gcs.push_p_param(value, fixed);
         }
 
-        this.p_param_index.set(id, pos);
+        if (!this.p_param_index.has(id)) {
+            this.p_param_index.set(id, pos);
+        }
+
         return pos;
     }
 
@@ -481,8 +488,22 @@ export class GcsWrapper {
             const is_fixed = (c.driving ?? true);
             
             if (type === 'object_param_or_number') { // or string
+                // properties of constraints that can be either: 
+                // 1. number => push a new p-param
+                // 2. string => reference a sketch parameter
+                // 3. { o_id: '1', prop: 'x' } => reference a property of a sketch primitive
+
                 if (typeof val === 'number') {
-                    // todo: add to some index (probably after adding named indexes)
+                    if (!c.driving) {
+                        // register a parameter of a non-driving constraint, that can be later updated 
+                        // by the pull_constraint function
+                        const list = this.nondriving_constraint_params_order.get(c.id);
+                        if (list === undefined) {
+                            this.nondriving_constraint_params_order.set(c.id, [parameter]);
+                        } else {
+                            list.push(parameter);
+                        }
+                    }
                     const pos = this.push_p_params(c.id, [val], is_fixed);
                     add_constraint_args.push(pos);
                 } else if (typeof val === 'string') {
@@ -507,13 +528,9 @@ export class GcsWrapper {
                 const gcs_obj = this.sketch_primitive_to_gcs(obj);
                 add_constraint_args.push(gcs_obj);
                 deletable.push(gcs_obj);
-            } else if (type === 'primitive_type' && typeof val === 'number') {
-                // todo: add to some index (same as above)
-                const pos = this.push_p_params(c.id, [val], is_fixed); // ? is this correct (driving <=> fixed)? 
-                add_constraint_args.push(pos);
-            } else if (type === 'primitive_type' && typeof val === 'boolean') {
+            } else if (type === 'primitive_type' && (typeof val === 'number' || typeof val === 'boolean')) {
                 add_constraint_args.push(val);
-            } else {
+            }else {
                 throw new Error(`unhandled parameter ${parameter} type: ${type}`);
             }
         }
@@ -584,8 +601,10 @@ export class GcsWrapper {
                 this.pull_parabola(p);
             } else if (p.type === 'arc_of_parabola') {
                 this.pull_arc_of_parabola(p);
+            } else if (is_sketch_constraint(p)) {
+                this.pull_constraint(p);
             } else {
-                // console.log(`${o.type}`);
+                // console.log(`${p.type}`);
                 // todo: is this else branch necessary?
                 this.sketch_index.set_primitive(p);
             }
@@ -680,5 +699,31 @@ export class GcsWrapper {
             start_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_parabola.start_angle),
             end_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_parabola.end_angle),
         });
+    }
+
+    private pull_constraint(c: Constraint) {
+        // We don't need to pull driving constraints
+        if(c.driving) return
+
+        const constraint_addr = this.get_primitive_addr(c.id);
+
+        // Helper function to update a property of any constraint type (Equal, L2L, etc.)
+        // preventing Typescript to complain about the type of the property (unable to assign a number to never)
+        function updateProperty<T, K extends keyof T>(obj: T, key: K, value: T[K]) {
+            obj[key] = value;
+        }
+
+        const offsets = this.nondriving_constraint_params_order.get(c.id);
+        if(!offsets) {
+            console.warn(`No offsets for constraint type ${c.type}`)
+            return
+        }
+
+        for (const [offset, constraint_property_name] of offsets.entries()) {
+            const param = this.gcs.get_p_param(constraint_addr + offset);
+            updateProperty(c, constraint_property_name as keyof Constraint, param);
+        }
+
+        this.sketch_index.set_primitive(c);
     }
 }
