@@ -24,8 +24,8 @@
 #pragma warning(disable : 4251)
 #endif
 
-#define _USE_MATH_DEFINES
 #include <cmath>
+#include <numbers>
 
 #include <algorithm>
 #define DEBUG_DERIVS 0
@@ -864,6 +864,8 @@ double ConstraintP2PAngle::grad(double* param)
 
 double ConstraintP2PAngle::maxStep(MAP_pD_D& dir, double lim)
 {
+    constexpr double pi_18 = std::numbers::pi / 18;
+
     MAP_pD_D::iterator it = dir.find(angle());
     if (it != dir.end()) {
         double step = std::abs(it->second);
@@ -1444,6 +1446,8 @@ double ConstraintL2LAngle::grad(double* param)
 
 double ConstraintL2LAngle::maxStep(MAP_pD_D& dir, double lim)
 {
+    constexpr double pi_18 = std::numbers::pi / 18;
+
     MAP_pD_D::iterator it = dir.find(angle());
     if (it != dir.end()) {
         double step = std::abs(it->second);
@@ -1588,10 +1592,10 @@ double ConstraintTangentCircumf::error()
     double dx = (*c1x() - *c2x());
     double dy = (*c1y() - *c2y());
     if (internal) {
-        return scale * (sqrt(dx * dx + dy * dy) - std::abs(*r1() - *r2()));
+        return scale * ((dx * dx + dy * dy) - (*r1() - *r2()) * (*r1() - *r2()));
     }
     else {
-        return scale * (sqrt(dx * dx + dy * dy) - (*r1() + *r2()));
+        return scale * ((dx * dx + dy * dy) - (*r1() + *r2()) * (*r1() + *r2()));
     }
 }
 
@@ -1602,33 +1606,32 @@ double ConstraintTangentCircumf::grad(double* param)
         || param == r2()) {
         double dx = (*c1x() - *c2x());
         double dy = (*c1y() - *c2y());
-        double d = sqrt(dx * dx + dy * dy);
         if (param == c1x()) {
-            deriv += dx / d;
+            deriv += 2 * dx;
         }
         if (param == c1y()) {
-            deriv += dy / d;
+            deriv += 2 * dy;
         }
         if (param == c2x()) {
-            deriv += -dx / d;
+            deriv += 2 * -dx;
         }
         if (param == c2y()) {
-            deriv += -dy / d;
+            deriv += 2 * -dy;
         }
         if (internal) {
             if (param == r1()) {
-                deriv += (*r1() > *r2()) ? -1 : 1;
+                deriv += 2 * (*r2() - *r1());
             }
             if (param == r2()) {
-                deriv += (*r1() > *r2()) ? 1 : -1;
+                deriv += 2 * (*r1() - *r2());
             }
         }
         else {
             if (param == r1()) {
-                deriv += -1;
+                deriv += -2 * (*r1() + *r2());
             }
             if (param == r2()) {
-                deriv += -1;
+                deriv += -2 * (*r1() + *r2());
             }
         }
     }
@@ -3537,10 +3540,10 @@ void ConstraintArcLength::errorgrad(double* err, double* grad, double* param)
     double startA = *arc.startAngle;
     // Assume positive angles and CCW arc
     while (startA < 0.) {
-        startA += 2. * M_PI;
+        startA += 2. * std::numbers::pi;
     }
     while (endA < startA) {
-        endA += 2. * M_PI;
+        endA += 2. * std::numbers::pi;
     }
     if (err) {
         *err = rad * (endA - startA) - *distance();

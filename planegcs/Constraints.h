@@ -23,7 +23,6 @@
 #ifndef PLANEGCS_CONSTRAINTS_H
 #define PLANEGCS_CONSTRAINTS_H
 
-
 #include "Geo.h"
 
 // This enables debugging code intended to extract information to file bug reports against Eigen,
@@ -228,7 +227,7 @@ public:
 
 private:
     std::vector<double> weights;
-    double numpoints;
+    std::size_t numpoints;
 };
 
 // Weighted Linear Combination
