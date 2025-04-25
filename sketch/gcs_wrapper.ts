@@ -703,15 +703,11 @@ export class GcsWrapper {
 
     private pull_constraint(c: Constraint) {
         // We don't need to pull driving constraints
-        if(c.driving) return
+        if(c.driving !== false) {
+            return;
+        }
 
         const constraint_addr = this.get_primitive_addr(c.id);
-
-        // Helper function to update a property of any constraint type (Equal, L2L, etc.)
-        // preventing Typescript to complain about the type of the property (unable to assign a number to never)
-        function updateProperty<T, K extends keyof T>(obj: T, key: K, value: T[K]) {
-            obj[key] = value;
-        }
 
         const offsets = this.nondriving_constraint_params_order.get(c.id);
         if(!offsets) {
@@ -719,11 +715,18 @@ export class GcsWrapper {
             return
         }
 
-        for (const [offset, constraint_property_name] of offsets.entries()) {
-            const param = this.gcs.get_p_param(constraint_addr + offset);
-            updateProperty(c, constraint_property_name as keyof Constraint, param);
+        const constraint_copy = {...c};
+        // Helper function to update a property of any constraint type (Equal, L2L, etc.)
+        // preventing Typescript to complain about the type of the property (unable to assign a number to never)
+        function update_property<T, K extends keyof T>(obj: T, key: K, value: T[K]) {
+            obj[key] = value;
         }
 
-        this.sketch_index.set_primitive(c);
+        for (const [offset, constraint_property_name] of offsets.entries()) {
+            const param = this.gcs.get_p_param(constraint_addr + offset);
+            update_property(constraint_copy, constraint_property_name as keyof Constraint, param);
+        }
+
+        this.sketch_index.set_primitive(constraint_copy);
     }
 }
