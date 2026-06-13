@@ -45,7 +45,7 @@ target_link_libraries(planegcs LibsModule)
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(BUILD_TYPE_FLAGS "-O3 -s WASM_BIGINT=0 -s ASSERTIONS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ELIMINATE_DUPLICATE_FUNCTIONS=1")
 else()
-    set(BUILD_TYPE_FLAGS "-g -O0 -fwasm-exceptions -s ASSERTIONS=1")
+    set(BUILD_TYPE_FLAGS "-g -O0 -fwasm-exceptions -s ASSERTIONS=0")
 endif()
 
 # note: STACK_SIZE fixes memory issue with sketches of > 100 items and (interestingly) temporary constraints
@@ -57,6 +57,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
 
 # todo: possible further flags?
 # -s ENVIRONMENT=web
-# -s ALLOW_MEMORY_GROWTH=1
 # -s DISABLE_EXCEPTION_CATCHING=0
 # -Wno-switch
