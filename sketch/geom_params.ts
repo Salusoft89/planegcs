@@ -66,6 +66,7 @@ export const property_offsets = {
         radmin: 2
     },
     line: {},
+    bspline: {},
 } as const;
 
 export default function get_property_offset(primitive_type: SketchGeometry['type'], property_key: SketchGeometryProperty): number {

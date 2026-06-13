@@ -31,7 +31,7 @@ export class GcsWrapper {
     gcs: GcsSystem;
     p_param_index: Map<oid, number> = new Map();
     sketch_index = new SketchIndex();
-    module!: ModuleStatic
+    module?: ModuleStatic
     bspline_gcs_cache: Map<oid, GcsGeometry> = new Map();
     // sketch param name -> index in gcs params
     private sketch_param_index: Map<string, number> = new Map(); 
@@ -55,7 +55,7 @@ export class GcsWrapper {
         this.enable_equal_optimization = val;
     }
 
-    constructor(gcs: GcsSystem, mod: ModuleStatic) {
+    constructor(gcs: GcsSystem, mod?: ModuleStatic) {
         this.gcs = gcs;
         this.module = mod;
     }
@@ -346,7 +346,7 @@ export class GcsWrapper {
         this.push_p_params(ae.id, [ae.start_angle, ae.end_angle, ae.radmin], false);
     }
 
-    private push_bspline
+    private push_bspline(b: SketchBSpline) {
         for (const poleId of b.pole_ids) {
             const pole = this.sketch_index.get_sketch_point(poleId);
             this.push_point(pole);
@@ -456,6 +456,51 @@ export class GcsWrapper {
                     end_i + property_offsets.point.x, end_i + property_offsets.point.y,
                     a_i + property_offsets.arc_of_parabola.start_angle, a_i + property_offsets.arc_of_parabola.end_angle
                 );
+            }
+            case 'bspline': {
+                if (!this.module) throw new Error('ModuleStatic required for BSpline creation');
+                const b = o as SketchBSpline;
+                const cached = this.bspline_gcs_cache.get(b.id);
+                if (cached !== undefined) return cached;
+
+                const poleIndices: number[] = [];
+                for (const poleId of b.pole_ids) {
+                    const addr = this.get_primitive_addr(poleId);
+                    poleIndices.push(addr + property_offsets.point.x);
+                    poleIndices.push(addr + property_offsets.point.y);
+                }
+                if (poleIndices.length < 4) {
+                    throw new Error('BSpline must have at least 2 control points, got ' + b.pole_ids.length);
+                }
+                const startx_i = this.gcs.push_p_param(
+                    this.gcs.get_p_param(poleIndices[0]), false);
+                const starty_i = this.gcs.push_p_param(
+                    this.gcs.get_p_param(poleIndices[1]), false);
+                const endx_i = this.gcs.push_p_param(
+                    this.gcs.get_p_param(poleIndices[poleIndices.length - 2]), false);
+                const endy_i = this.gcs.push_p_param(
+                    this.gcs.get_p_param(poleIndices[poleIndices.length - 1]), false);
+                const weightIndices: number[] = [];
+                for (const w of b.weights) {
+                    weightIndices.push(this.gcs.push_p_param(w, true));
+                }
+                const knotIndices: number[] = [];
+                for (const k of b.knots) {
+                    knotIndices.push(this.gcs.push_p_param(k, true));
+                }
+                const polesVec = arr_to_intvec(this.module, poleIndices);
+                const weightsVec = arr_to_intvec(this.module, weightIndices);
+                const knotsVec = arr_to_intvec(this.module, knotIndices);
+                const multVec = arr_to_intvec(this.module, b.mult);
+                const result = this.gcs.make_bspline(
+                    startx_i, starty_i,
+                    endx_i, endy_i,
+                    polesVec, weightsVec,
+                    knotsVec, multVec,
+                    b.degree, b.periodic
+                );
+                this.bspline_gcs_cache.set(b.id, result);
+                return result;
             }
             default:
                 throw new Error(`not-implemented object type: ${o.type}`);
