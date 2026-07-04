@@ -10,9 +10,9 @@ This repository includes two PDF documents created by members of the FreeCAD com
 - [x] All constraints from planegcs (see `planegcs_dist/constraints.ts`)
 - [x] Reference sketch parametries or geometry properties in the constraints
 - [x] Non-driving and temporary constraints
-- [x] Validation code for sketch primitives (in a separate library [planegcs-validation](https://github.com/Salusoft89/planegcs-validation)) 
+- [x] Validation code for sketch primitives (in a separate library [planegcs-validation](https://github.com/Salusoft89/planegcs-validation))
+- [x] B-Spline
 - [ ] Higher-level data model (WIP)
-- [ ] B-Spline
 - [ ] Multithreading execution of QR decomposition (GcsSystem.cpp:4811,4883)
 - [ ] Support for constraints referencing other constraints
 
@@ -21,13 +21,12 @@ This repository includes two PDF documents created by members of the FreeCAD com
 The geometries and constraints are represented by JSON objects, which are called (sketch) primitives. A list of primitives is an input for the solver. The primitives might reference each other by their ids.
 
 ```js
+const primitives = [
+  { id: "1", type: "point", x: 10, y: 10, fixed: false },
+  { id: "2", type: "point", x: 20, y: 20, fixed: false },
 
-const primitives = [ 
-    { id: '1', type: 'point', x: 10, y: 10, fixed: false },
-    { id: '2', type: 'point', x: 20, y: 20, fixed: false },
- 
-    { id: '3', type: 'p2p_coincident', p1_id: '1', p2_id: '2' },
- ];
+  { id: "3", type: "p2p_coincident", p1_id: "1", p2_id: "2" },
+];
 
 gcs_wrapper.push_primitives_and_params(primitives);
 gcs_wrapper.solve();
@@ -40,7 +39,6 @@ console.log(gcs_wrapper.sketch_index.get_primitives());
 //    { id: '2', type: 'point', x: 10, y: 10, fixed: false },                <<< x and y changed
 //    { id: '3', type: 'p2p_coincident', p1_id: '1', p2_id: '2' },
 // ]
-
 ```
 
 # Installation and import
@@ -48,24 +46,26 @@ console.log(gcs_wrapper.sketch_index.get_primitives());
 Install with `npm install @salusoft89/planegcs`.
 
 The main class for working with planegcs is GcsWrapper and can be instantiated as follows:
+
 ```js
-import { init_planegcs_module, GcsWrapper } from '@salusoft89/planegcs';
+import { init_planegcs_module, GcsWrapper } from "@salusoft89/planegcs";
 async function init_gcs_wrapper() {
-   const mod = await init_planegcs_module();
-   const gcs_system_wasm = new mod.GcsSystem();
-   const gcs_wrapper = new GcsWrapper(gcs_system_wasm);
-   return gcs_wrapper;
+  const mod = await init_planegcs_module();
+  const gcs_system_wasm = new mod.GcsSystem();
+  const gcs_wrapper = new GcsWrapper(gcs_system_wasm);
+  return gcs_wrapper;
 }
 
-init_gcs_wrapper().then(gcs_wrapper => {
-   do_something_with_gcs_wrapper(gcs_wrapper);
+init_gcs_wrapper().then((gcs_wrapper) => {
+  do_something_with_gcs_wrapper(gcs_wrapper);
 
-   // explicit de-allocation of the Wasm memory must be called
-   gcs_wrapper.destroy_gcs_module();
+  // explicit de-allocation of the Wasm memory must be called
+  gcs_wrapper.destroy_gcs_module();
 });
 ```
 
 If using Vite, then you need to explicitly set the .wasm file import url:
+
 ```ts
 import wasm_url from "@salusoft89/planegcs/dist/planegcs_dist/planegcs.wasm?url";
 // ...
@@ -78,16 +78,18 @@ const mod = await init_planegcs_module({ locateFile: () => wasm_url });
 This library supports all geometries that are implemented in the original solver:
 
 ## Point, Line, Circle
-   
+
 ```ts
 { id: '1', type: 'point', x: 10, y: 10, fixed: false },
 { id: '2', type: 'point', x: 0, y: 0, fixed: false }
 ```
+
 When `fixed` is set to true, then the point's coordinates are not changed during solving.
 
 ```ts
 { id: '3', type: 'line', p1_id: '1', p2_id: '2' }
 ```
+
 A line is defined by two points, which must have lower ids.
 
 ```ts
@@ -143,7 +145,38 @@ Defined similarly to an ellipse/elliptical arc. See the type definitions in `ske
 
 ## B-Spline
 
-B-Spline from planegcs is currently not yet fully supported. (WIP)
+A B-Spline is defined by its control points (poles), weights, knot vector, multiplicities, degree, and whether it is periodic (closed):
+
+```ts
+// Define control points
+{ id: '1', type: 'point', x: 0, y: 0, fixed: false },
+{ id: '2', type: 'point', x: 1, y: 2, fixed: false },
+{ id: '3', type: 'point', x: 3, y: 2, fixed: false },
+{ id: '4', type: 'point', x: 4, y: 0, fixed: false },
+
+// Define a cubic B-Spline referencing the control points
+{ id: '5', type: 'bspline', pole_ids: ['1', '2', '3', '4'],
+  weights: [1, 1, 1, 1], knots: [0, 1], mult: [4, 4],
+  degree: 3, periodic: false }
+```
+
+Note: When using B-Splines, the `GcsWrapper` must be instantiated with the module reference:
+
+```ts
+const gcs_wrapper = new GcsWrapper(gcs_system_wasm, mod);
+```
+
+B-Spline specific constraints include:
+
+- `point_on_bspline` — constrains a point to lie on the spline at a given parameter value
+- `tangent_at_bspline_knot` — constrains a line to be tangent to the spline at a knot
+- `internal_alignment_bspline_control_point` — internal alignment for control points
+- `internal_alignment_knot_point` — internal alignment for knot points
+
+```ts
+// Constrain a point onto the B-Spline at parameter t=0.5
+{ id: '7', type: 'point_on_bspline', p_id: '6', b_id: '5', pointparam: 0.5 }
+```
 
 # Constraints
 
@@ -152,19 +185,22 @@ Planegcs supports a wide range of constraints. All available constraint types ar
 The values of the constraints can be set direclty as a number, reference a sketch parameter, or reference a property of a geometry with lower ID:
 
 1. Parameter value as a number:
+
 ```ts
 { id: '3', type: 'p2p_distance', p1_id: '1', p2_id: '2', distance: 100 }
 ```
 
 2. Parameter value as a reference to a sketch parameter:
+
 ```ts
 { id: '3', type: 'p2p_angle', p1_id: '1', p2_id: '2', angle: 'my_distance' }
 ```
 
 3. Parameter value as a reference to a property of a geometry with ID o_id
+
 ```ts
-{ 
-   id: '3', 
+{
+   id: '3',
    type: 'difference',
    param1: {
       o_id: '1',
@@ -177,6 +213,7 @@ The values of the constraints can be set direclty as a number, reference a sketc
    difference: 100,
 }
 ```
+
 Currently, the object referenced with o_id can be only a geometry, referencing constraints is not supported.
 
 ## Driving, Temporary flags and Scale
@@ -184,8 +221,7 @@ Currently, the object referenced with o_id can be only a geometry, referencing c
 Each constraint has following (optional) properties:
 
 - `driving` (default true) - if set to false, then the constraint doesn't influence the geometries during solving, but instead can be used for measurements
-
-    - **There are some constraints (CircleDiameter, ArcDiameter, C2CDistance, C2LDistance, P2CDistance, ArcLength and probably some other) that don't work properly when set to non-driving.** (this requires further digging into the planegcs solver)
+  - **There are some constraints (CircleDiameter, ArcDiameter, C2CDistance, C2LDistance, P2CDistance, ArcLength and probably some other) that don't work properly when set to non-driving.** (this requires further digging into the planegcs solver)
 
 - `temporary` (default false) - if set to true, then the constraint is only enforced so much that it doesn't conflict with other constraints. This is useful for constraints for mouse dragging in a Sketcher user interface. Temporary constraints don't reduce DOF. The presence of temporary constraints changes the algorithm used for solving in planegcs, regardless of the configured algorithm.
 
@@ -212,16 +248,16 @@ Install [Docker](https://docs.docker.com/get-docker/) and [Node.js](https://node
 Run `npm install` to install the dependencies.
 
 Build command: `npm run build:all`, which consists of these steps:
-   - `npm run build:docker` - pulls/builds the docker image for building C++ files from FreeCAD
-   - `npm run build:bindings` - creates a C++ binding for the FreeCAD API (partly by scanning the source code)
-   - `npm run build:wasm` - builds the planegcs.wasm and planegcs.js files from the C++ binding and source files
+
+- `npm run build:docker` - pulls/builds the docker image for building C++ files from FreeCAD
+- `npm run build:bindings` - creates a C++ binding for the FreeCAD API (partly by scanning the source code)
+- `npm run build:wasm` - builds the planegcs.wasm and planegcs.js files from the C++ binding and source files
 
 To run a script that updates the FreeCAD source files, run `npm run update-freecad`. It is not guaranteed that the parsing scripts will work with newer versions of FreeCAD, so you may have to adjust them.
 
 # Tests
 
 The tests for the library are in the `test` folder and can be run with `npm test`. A subset of tests that doesn't require the compiled WebAssembly module can be run with `npm run test:basic`.
-
 
 # Further materials
 
