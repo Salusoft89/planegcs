@@ -463,14 +463,15 @@ export class GcsWrapper {
                 const cached = this.bspline_gcs_cache.get(b.id);
                 if (cached !== undefined) return cached;
 
+                if (b.pole_ids.length < 2) {
+                    throw new Error('BSpline must have at least 2 control points, got ' + b.pole_ids.length);
+                }
+
                 const poleIndices: number[] = [];
                 for (const poleId of b.pole_ids) {
                     const addr = this.get_primitive_addr(poleId);
                     poleIndices.push(addr + property_offsets.point.x);
                     poleIndices.push(addr + property_offsets.point.y);
-                }
-                if (poleIndices.length < 4) {
-                    throw new Error('BSpline must have at least 2 control points, got ' + b.pole_ids.length);
                 }
                 const startx_i = this.gcs.push_p_param(
                     this.gcs.get_p_param(poleIndices[0]), false);
