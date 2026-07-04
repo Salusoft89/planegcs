@@ -1,61 +1,61 @@
 {
-	"name": "@salusoft89/planegcs",
-	"description": "A wasm build and a simple wrapper of the FreeCAD PlaneGCS (2D geometric constraint solver)",
-	"keywords": [
-		"wasm",
-		"freecad",
-		"gemetric",
-		"solver",
-		"2d",
-		"plane",
-		"geometry",
-		"constraint"
-	],
-	"homepage": "https://github.com/Salusoft89/planegcs",
-	"bugs": {
-		"url": "https://github.com/Salusoft89/planegcs/issues",
-		"email": "miroslav.sery@salusoft89.cz"
-	},
-	"repository": "github:Salusoft89/planegcs",
-	"license": "LGPL-2.0-or-later",
-	"version": "1.1.7",
-	"private": false,
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"files": [
-		"dist/planegcs_dist",
-		"dist/sketch",
-		"dist/index.*",
-		"planegcs_dist/*.ts",
-		"sketch/*.ts",
-		"index.ts"
-	],
-	"type": "module",
-	"scripts": {
-		"update-freecad": "cd ./planegcs && ./update_freecad.sh",
-		"build:bindings": "cd build-bindings && ./process_all.sh",
-		"build:docker": "docker build -t gcs_builder .",
-		"build:wasm:debug": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Debug && emmake make -j $(nproc)' && cp planegcs/bin/* planegcs_dist",
-		"build:wasm": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Release && emmake make -j $(nproc) && ls -lh bin' && cp planegcs/bin/* planegcs_dist",
-		"build:all": "npm run build:docker && npm run build:bindings && npm run build:wasm",
-		"build:all-debug": "npm run build:docker && npm run build:bindings && npm run build:wasm:debug",
-		"test": "vitest run",
-		"test:basic": "vitest run -t 'basic:'",
-		"test:watch": "vitest",
-		"prepack": "./prepack.sh"
-	},
-	"devDependencies": {
-		"@types/node": "^20.11.30",
-		"@types/nunjucks": "^3.2.6",
-		"@typescript-eslint/eslint-plugin": "^7.3.1",
-		"@typescript-eslint/parser": "^7.3.1",
-		"eslint": "^8.57.0",
-		"nunjucks": "^3.2.4",
-		"tree-sitter": "^0.20.6",
-		"tree-sitter-cpp": "^0.20.5",
-		"tsx": "^4.7.1",
-		"typescript": "^5.4.3",
-		"vite": "^5.2.6",
-		"vitest": "^2.0.2"
-	}
+  "name": "@salusoft89/planegcs",
+  "description": "A wasm build and a simple wrapper of the FreeCAD PlaneGCS (2D geometric constraint solver)",
+  "keywords": [
+    "wasm",
+    "freecad",
+    "geometric",
+    "solver",
+    "2d",
+    "plane",
+    "geometry",
+    "constraint"
+  ],
+  "homepage": "https://github.com/Salusoft89/planegcs",
+  "bugs": {
+    "url": "https://github.com/Salusoft89/planegcs/issues",
+    "email": "miroslav.sery@salusoft89.cz"
+  },
+  "repository": "github:Salusoft89/planegcs",
+  "license": "LGPL-2.0-or-later",
+  "version": "1.2.0",
+  "private": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/planegcs_dist",
+    "dist/sketch",
+    "dist/index.*",
+    "planegcs_dist/*.ts",
+    "sketch/*.ts",
+    "index.ts"
+  ],
+  "type": "module",
+  "scripts": {
+    "update-freecad": "cd ./planegcs && ./update_freecad.sh",
+    "build:bindings": "cd build-bindings && ./process_all.sh",
+    "build:docker": "docker build -t gcs_builder .",
+    "build:wasm:debug": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Debug && emmake make -j $(nproc)' && cp planegcs/bin/* planegcs_dist",
+    "build:wasm": "docker run --rm -v $(pwd)/planegcs:/src gcs_builder sh -c 'emcmake cmake . -DCMAKE_BUILD_TYPE=Release && emmake make -j $(nproc) && ls -lh bin' && cp planegcs/bin/* planegcs_dist",
+    "build:all": "npm run build:docker && npm run build:bindings && npm run build:wasm",
+    "build:all-debug": "npm run build:docker && npm run build:bindings && npm run build:wasm:debug",
+    "test": "vitest run",
+    "test:basic": "vitest run -t 'basic:'",
+    "test:watch": "vitest",
+    "prepack": "./prepack.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/nunjucks": "^3.2.6",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
+    "eslint": "^8.57.0",
+    "nunjucks": "^3.2.4",
+    "tree-sitter": "^0.20.6",
+    "tree-sitter-cpp": "^0.20.5",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.3",
+    "vite": "^5.2.6",
+    "vitest": "^2.0.2"
+  }
 }
