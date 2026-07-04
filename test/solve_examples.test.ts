@@ -57,7 +57,7 @@ describe("gcs_wrapper", () => {
     
     beforeEach(() => {
         const gcs = new gcs_factory.GcsSystem();
-        gcs_wrapper = new GcsWrapper(gcs);
+        gcs_wrapper = new GcsWrapper(gcs, gcs_factory);
     });
 
 
@@ -359,6 +359,37 @@ describe("gcs_wrapper", () => {
         const constraint = updated_constraints.find(c => c.id === '6') as ArcRadius;
 
         expect(constraint.radius).toBeCloseTo(2.83);
+    });
+
+    it("should solve a simple b-spline with point_on_bspline constraint", () => {
+        const sketch: SketchPrimitive[] = [
+            // Control points for a cubic B-spline
+            { id: '1', type: 'point', x: 0, y: 0, fixed: true },
+            { id: '2', type: 'point', x: 1, y: 2, fixed: true },
+            { id: '3', type: 'point', x: 3, y: 2, fixed: true },
+            { id: '4', type: 'point', x: 4, y: 0, fixed: true },
+            // Cubic B-spline through control points
+            { id: '5', type: 'bspline', pole_ids: ['1', '2', '3', '4'], weights: [1, 1, 1, 1], knots: [0, 1], mult: [4, 4], degree: 3, periodic: false },
+            // A free point that should be constrained onto the spline
+            { id: '6', type: 'point', x: 2, y: 3, fixed: false },
+            // Constrain the point onto the b-spline
+            { id: '7', type: 'point_on_bspline', p_id: '6', b_id: '5', pointparam: 0.5 },
+        ];
+
+        for (const obj of sketch) {
+            gcs_wrapper.push_primitive(obj);
+        }
+
+        const status = gcs_wrapper.solve();
+        expect(status).toBe(SolveStatus.Success);
+
+        gcs_wrapper.apply_solution();
+
+        const point = gcs_wrapper.sketch_index.get_sketch_point('6');
+        // At t=0.5 on a cubic Bezier with these control points,
+        // the point should lie on the curve (midpoint region)
+        expect(point.x).toBeCloseTo(2, 0);
+        expect(point.y).toBeCloseTo(1.5, 0);
     });
 
     it("should update non-driving proportional constraint", () => {
