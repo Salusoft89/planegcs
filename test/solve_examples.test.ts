@@ -392,6 +392,46 @@ describe("gcs_wrapper", () => {
         expect(point.y).toBeCloseTo(1.5, 0);
     });
 
+    it("should solve a b-spline with multiple constraints", () => {
+        const sketch: SketchPrimitive[] = [
+            // Control points for a cubic B-spline
+            { id: '1', type: 'point', x: 0, y: 0, fixed: true },
+            { id: '2', type: 'point', x: 1, y: 2, fixed: true },
+            { id: '3', type: 'point', x: 3, y: 2, fixed: true },
+            { id: '4', type: 'point', x: 4, y: 0, fixed: true },
+            // Cubic B-spline
+            { id: '5', type: 'bspline', pole_ids: ['1', '2', '3', '4'], weights: [1, 1, 1, 1], knots: [0, 1], mult: [4, 4], degree: 3, periodic: false },
+            // Multiple free points constrained onto the same spline at different parameters
+            { id: '6', type: 'point', x: 5, y: 5, fixed: false },
+            { id: '7', type: 'point_on_bspline', p_id: '6', b_id: '5', pointparam: 0.25 },
+            { id: '8', type: 'point', x: 5, y: 5, fixed: false },
+            { id: '9', type: 'point_on_bspline', p_id: '8', b_id: '5', pointparam: 0.5 },
+            { id: '10', type: 'point', x: 5, y: 5, fixed: false },
+            { id: '11', type: 'point_on_bspline', p_id: '10', b_id: '5', pointparam: 0.75 },
+        ];
+
+        for (const obj of sketch) {
+            gcs_wrapper.push_primitive(obj);
+        }
+
+        const status = gcs_wrapper.solve();
+        expect(status).toBe(SolveStatus.Success);
+
+        gcs_wrapper.apply_solution();
+
+        // Points should be at increasing x positions along the curve
+        const point1 = gcs_wrapper.sketch_index.get_sketch_point('6');
+        const point2 = gcs_wrapper.sketch_index.get_sketch_point('8');
+        const point3 = gcs_wrapper.sketch_index.get_sketch_point('10');
+        expect(point1.x).toBeLessThan(point2.x);
+        expect(point2.x).toBeLessThan(point3.x);
+        // All points should be on the curve (y > 0 for interior points)
+        expect(point1.y).toBeGreaterThan(0);
+        expect(point2.y).toBeGreaterThan(0);
+        expect(point3.y).toBeGreaterThan(0);
+    });
+
+
     it("should update non-driving proportional constraint", () => {
         gcs_wrapper.push_sketch_param('test', 100);
         gcs_wrapper.push_primitive({
