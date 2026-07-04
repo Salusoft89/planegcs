@@ -87,15 +87,15 @@ export interface SketchArcOfHyperbola extends Id, IArc {
 	radmin: number;
 }
 
-    export interface SketchBSpline extends Id {
-        type: 'bspline';
-        pole_ids: oid[];
-        weights: number[];
-        knots: number[];
-        mult: number[];
-        degree: number;
-        periodic: boolean;
-    }
+export interface SketchBSpline extends Id {
+	type: 'bspline';
+	pole_ids: oid[];
+	weights: number[];
+	knots: number[];
+	mult: number[];
+	degree: number;
+	periodic: boolean;
+}
 
 export type SketchGeometry = SketchPoint | SketchLine | SketchCircle | SketchArc | SketchEllipse | SketchArcOfEllipse | SketchParabola | SketchArcOfParabola | SketchHyperbola | SketchArcOfHyperbola | SketchBSpline;
 export type SketchPrimitive = SketchGeometry | Constraint;
