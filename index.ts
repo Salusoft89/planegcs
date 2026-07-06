@@ -20,5 +20,5 @@ export async function make_gcs_wrapper(wasm_path?: string) {
     );
     const gcs = new module.GcsSystem();
 
-    return new GcsWrapper(gcs);
+    return new GcsWrapper(gcs, module);
 }

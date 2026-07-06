@@ -18,10 +18,11 @@
 import type { Constraint, ConstraintParamType } from "../planegcs_dist/constraints";
 import { constraint_param_index } from "../planegcs_dist/constraint_param_index.js";
 import { SketchIndex } from "./sketch_index.js";
-import { emsc_vec_to_arr } from "./emsc_vectors.js";
-import type {  SketchArc, SketchArcOfEllipse, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam, SketchHyperbola, SketchArcOfHyperbola, SketchParabola, SketchArcOfParabola } from "./sketch_primitive";
+import { arr_to_intvec, emsc_vec_to_arr } from "./emsc_vectors.js";
+import type {  SketchArc, SketchArcOfEllipse, SketchBSpline, SketchCircle, SketchEllipse, SketchLine, SketchPrimitive, SketchPoint, SketchParam, SketchHyperbola, SketchArcOfHyperbola, SketchParabola, SketchArcOfParabola } from "./sketch_primitive";
 import { is_sketch_constraint, is_sketch_geometry } from "./sketch_primitive.js";
 import { type GcsGeometry, type GcsSystem } from "../planegcs_dist/gcs_system.js";
+import type { ModuleStatic } from "../planegcs_dist/planegcs.js";
 import { Algorithm, Constraint_Alignment, SolveStatus, DebugMode } from "../planegcs_dist/enums.js";
 import get_property_offset, { property_offsets } from "./geom_params.js";
 import { oid } from "../planegcs_dist/id";
@@ -30,6 +31,8 @@ export class GcsWrapper {
     gcs: GcsSystem;
     p_param_index: Map<oid, number> = new Map();
     sketch_index = new SketchIndex();
+    module?: ModuleStatic
+    bspline_gcs_cache: Map<oid, GcsGeometry> = new Map();
     // sketch param name -> index in gcs params
     private sketch_param_index: Map<string, number> = new Map(); 
     // nondriving constraint id -> list of its properties pushed as p-params (in order)
@@ -52,8 +55,9 @@ export class GcsWrapper {
         this.enable_equal_optimization = val;
     }
 
-    constructor(gcs: GcsSystem) {
+    constructor(gcs: GcsSystem, mod?: ModuleStatic) {
         this.gcs = gcs;
+        this.module = mod;
     }
 
     destroy_gcs_module() {
@@ -68,6 +72,7 @@ export class GcsWrapper {
         this.p_param_index.clear();
         this.sketch_param_index.clear();
         this.sketch_index.clear();
+        this.bspline_gcs_cache.clear();
     }
  
     // ------ Sketch -> GCS ------- (when building up a sketch)
@@ -103,6 +108,9 @@ export class GcsWrapper {
                 break;
             case 'arc_of_parabola':
                 this.push_arc_of_parabola(o);
+                break;
+            case 'bspline':
+                this.push_bspline(o);
                 break;
             default:
                 this.push_constraint(o);
@@ -338,6 +346,13 @@ export class GcsWrapper {
         this.push_p_params(ae.id, [ae.start_angle, ae.end_angle, ae.radmin], false);
     }
 
+    private push_bspline(b: SketchBSpline) {
+        for (const poleId of b.pole_ids) {
+            const pole = this.sketch_index.get_sketch_point(poleId);
+            this.push_point(pole);
+        }
+    }
+
     private sketch_primitive_to_gcs(o: SketchPrimitive) : GcsGeometry {
         switch (o.type) {
             case 'point': {
@@ -442,6 +457,52 @@ export class GcsWrapper {
                     a_i + property_offsets.arc_of_parabola.start_angle, a_i + property_offsets.arc_of_parabola.end_angle
                 );
             }
+            case 'bspline': {
+                if (!this.module) throw new Error('ModuleStatic required for BSpline creation');
+                const b = o as SketchBSpline;
+                const cached = this.bspline_gcs_cache.get(b.id);
+                if (cached !== undefined) return cached;
+
+                if (b.pole_ids.length < 2) {
+                    throw new Error('BSpline must have at least 2 control points, got ' + b.pole_ids.length);
+                }
+
+                const poleIndices: number[] = [];
+                for (const poleId of b.pole_ids) {
+                    const addr = this.get_primitive_addr(poleId);
+                    poleIndices.push(addr + property_offsets.point.x);
+                    poleIndices.push(addr + property_offsets.point.y);
+                }
+                const startx_i = this.gcs.push_p_param(
+                    this.gcs.get_p_param(poleIndices[0]), false);
+                const starty_i = this.gcs.push_p_param(
+                    this.gcs.get_p_param(poleIndices[1]), false);
+                const endx_i = this.gcs.push_p_param(
+                    this.gcs.get_p_param(poleIndices[poleIndices.length - 2]), false);
+                const endy_i = this.gcs.push_p_param(
+                    this.gcs.get_p_param(poleIndices[poleIndices.length - 1]), false);
+                const weightIndices: number[] = [];
+                for (const w of b.weights) {
+                    weightIndices.push(this.gcs.push_p_param(w, true));
+                }
+                const knotIndices: number[] = [];
+                for (const k of b.knots) {
+                    knotIndices.push(this.gcs.push_p_param(k, true));
+                }
+                const polesVec = arr_to_intvec(this.module, poleIndices);
+                const weightsVec = arr_to_intvec(this.module, weightIndices);
+                const knotsVec = arr_to_intvec(this.module, knotIndices);
+                const multVec = arr_to_intvec(this.module, b.mult);
+                const result = this.gcs.make_bspline(
+                    startx_i, starty_i,
+                    endx_i, endy_i,
+                    polesVec, weightsVec,
+                    knotsVec, multVec,
+                    b.degree, b.periodic
+                );
+                this.bspline_gcs_cache.set(b.id, result);
+                return result;
+            }
             default:
                 throw new Error(`not-implemented object type: ${o.type}`);
             }
@@ -527,7 +588,10 @@ export class GcsWrapper {
                 const obj = this.sketch_index.get_primitive_or_fail(val);
                 const gcs_obj = this.sketch_primitive_to_gcs(obj);
                 add_constraint_args.push(gcs_obj);
-                deletable.push(gcs_obj);
+                // BSpline geometries must persist for the solver; don't add to deletable
+                if (obj.type !== 'bspline') {
+                    deletable.push(gcs_obj);
+                }
             } else if (type === 'primitive_type' && (typeof val === 'number' || typeof val === 'boolean')) {
                 add_constraint_args.push(val);
             }else {
@@ -601,6 +665,8 @@ export class GcsWrapper {
                 this.pull_parabola(p);
             } else if (p.type === 'arc_of_parabola') {
                 this.pull_arc_of_parabola(p);
+            } else if (p.type === 'bspline') {
+                this.pull_bspline(p);
             } else if (is_sketch_constraint(p)) {
                 this.pull_constraint(p);
             } else {
@@ -699,6 +765,10 @@ export class GcsWrapper {
             start_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_parabola.start_angle),
             end_angle: this.gcs.get_p_param(addr + property_offsets.arc_of_parabola.end_angle),
         });
+    }
+
+    private pull_bspline(b: SketchBSpline) {
+        this.sketch_index.set_primitive(b);
     }
 
     private pull_constraint(c: Constraint) {
