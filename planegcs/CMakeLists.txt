@@ -43,7 +43,7 @@ target_link_libraries(planegcs LibsModule)
 
 # note: exceptions are by default enabled in -O0, but disabled in -O1 and above
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(BUILD_TYPE_FLAGS "-O3 -s WASM_BIGINT=0 -s ASSERTIONS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ELIMINATE_DUPLICATE_FUNCTIONS=1")
+    set(BUILD_TYPE_FLAGS "-O3 -s ASSERTIONS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ELIMINATE_DUPLICATE_FUNCTIONS=1")
 else()
     set(BUILD_TYPE_FLAGS "-g -O0 -fwasm-exceptions -s ASSERTIONS=1")
 endif()
