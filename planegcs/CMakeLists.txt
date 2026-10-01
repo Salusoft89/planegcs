@@ -50,7 +50,9 @@ endif()
 
 # note: STACK_SIZE fixes memory issue with sketches of > 100 items and (interestingly) temporary constraints
 # maybe there could be some optimization in planegcs?
-set_target_properties(planegcs PROPERTIES LINK_FLAGS "${BUILD_TYPE_FLAGS} -lembind --closure 1 -s EXPORT_ES6=1 -s MODULARIZE=1 -s MALLOC=emmalloc -s NO_FILESYSTEM=1 -s STACK_SIZE=5MB")
+
+# EMBIND_AOT is used to avoid a dynamic Function call, see https://github.com/Salusoft89/planegcs/pull/12
+set_target_properties(planegcs PROPERTIES LINK_FLAGS "${BUILD_TYPE_FLAGS} -lembind --closure 1 -s EXPORT_ES6=1 -s MODULARIZE=1 -s MALLOC=emmalloc -s NO_FILESYSTEM=1 -s STACK_SIZE=5MB -s EMBIND_AOT=1")
 
 # turn off deprecated warnings coming from Boost
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
