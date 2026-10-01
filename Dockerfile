@@ -1,4 +1,4 @@
-FROM emscripten/emsdk:3.1.45
+FROM emscripten/emsdk:6.0.10
 
 RUN apt-get update && \
     # Install dependencies (Eigen3, Boost required for compiling PlaneGCS)
